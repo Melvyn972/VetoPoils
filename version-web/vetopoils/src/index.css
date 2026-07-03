@@ -2,3 +2,137 @@
 
 @source "../index.html";
 @source "./**/*.{js,ts,jsx,tsx}";
+
+/* Mode sombre activé via la classe .dark sur <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* -------------------------------------------------------------------------- */
+/* Tokens Tailwind — référencent les variables CSS sémantiques ci-dessous     */
+/* -------------------------------------------------------------------------- */
+@theme inline {
+  /* Couleurs de marque */
+  --color-primary-15: var(--primary-15);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-pressed: var(--primary-pressed);
+  --color-primary-disabled: var(--primary-disabled);
+
+  /* Fonds boutons à 15 % d'opacité (états) */
+  --color-primary-hover-15: var(--primary-hover-15);
+  --color-primary-pressed-15: var(--primary-pressed-15);
+  --color-primary-disabled-15: var(--primary-disabled-15);
+  --color-success-15: var(--success-15);
+  --color-warning-15: var(--warning-15);
+  --color-error-15: var(--error-15);
+  --color-logout-15: var(--logout-15);
+  --color-accent-green-15: var(--accent-green-15);
+  --color-accent-blue-15: var(--accent-blue-15);
+  --color-accent-orange-15: var(--accent-orange-15);
+
+  /* Texte */
+  --color-fg-primary: var(--fg-primary);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-tertiary: var(--fg-tertiary);
+
+  /* Surfaces */
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
+
+  /* Statuts et accents */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-logout: var(--logout);
+  --color-accent-green: var(--accent-green);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-orange: var(--accent-orange);
+
+  /* Typographie */
+  --font-title: "Plus Jakarta Sans", ui-sans-serif, sans-serif;
+  --font-body: "Inter", ui-sans-serif, sans-serif;
+
+  /* Border radius */
+  --radius-12: 12px;
+  --radius-14: 14px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Thème clair (défaut)                                                       */
+/* -------------------------------------------------------------------------- */
+:root {
+  --primary-15: #dceee9;
+  --primary: #2c6e63;
+  --primary-hover: #3e9484;
+  --primary-pressed: #1b5245;
+  --primary-disabled: #9cc9bf;
+
+  --fg-primary: #1a1a1a;
+  --fg-secondary: #a0a0a0;
+  --fg-tertiary: #6b7280;
+
+  --surface: #ffffff;
+  --surface-secondary: #fafafa;
+
+  --success: #6abf69;
+  --warning: #f2a93c;
+  --error: #e85c4a;
+  --logout: #c23a52;
+  --accent-green: #5fa85a;
+  --accent-blue: #7eb6f6;
+  --accent-orange: #efa83c;
+
+  /* Fonds boutons à 15 % — dérivés des couleurs d'état */
+  --primary-hover-15: color-mix(in srgb, var(--primary-hover) 15%, transparent);
+  --primary-pressed-15: color-mix(in srgb, var(--primary-pressed) 15%, transparent);
+  --primary-disabled-15: color-mix(in srgb, var(--primary-disabled) 15%, transparent);
+  --success-15: color-mix(in srgb, var(--success) 15%, transparent);
+  --warning-15: color-mix(in srgb, var(--warning) 15%, transparent);
+  --error-15: color-mix(in srgb, var(--error) 15%, transparent);
+  --logout-15: color-mix(in srgb, var(--logout) 15%, transparent);
+  --accent-green-15: color-mix(in srgb, var(--accent-green) 15%, transparent);
+  --accent-blue-15: color-mix(in srgb, var(--accent-blue) 15%, transparent);
+  --accent-orange-15: color-mix(in srgb, var(--accent-orange) 15%, transparent);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Thème sombre                                                               */
+/* -------------------------------------------------------------------------- */
+.dark {
+  --primary-15: #1a332e;
+  --primary: #4db6a2;
+  --primary-hover: #5fc9b4;
+  --primary-pressed: #3d9683;
+  --primary-disabled: #2e4a45;
+
+  --fg-primary: #f2f2f2;
+  --fg-secondary: #b8b8b8;
+  --fg-tertiary: #9ca3af;
+
+  --surface: #121212;
+  --surface-secondary: #1e1e1e;
+
+  --success: #7fd07e;
+  --warning: #f5b85c;
+  --error: #f0776a;
+  --logout: #d65c72;
+  --accent-green: #7bc178;
+  --accent-blue: #8fc4ff;
+  --accent-orange: #f2b85c;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+    color: var(--fg-primary);
+    background-color: var(--surface);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-title);
+  }
+}
