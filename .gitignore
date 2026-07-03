@@ -11,3 +11,7 @@
 !.gitignore
 !.githooks/
 !.githooks/**
+
+# Cursor / agents IA (jamais versionner)
+.cursor/
+.mcp.json
