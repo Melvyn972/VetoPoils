@@ -8,6 +8,27 @@ const supabasePublishableKey =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
   "sb_publishable_wxfo-oDHdAFee8uSYP9Uxg_g41pInti";
 
+function resolveVetWebUrlFromVercel() {
+  const production = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  if (production) {
+    return production.startsWith("http") ? production : `https://${production}`;
+  }
+
+  const deployment = process.env.VERCEL_URL?.trim();
+  if (deployment) {
+    return deployment.startsWith("http") ? deployment : `https://${deployment}`;
+  }
+
+  return undefined;
+}
+
+const vetWebUrl =
+  process.env.EXPO_PUBLIC_VET_WEB_URL ??
+  process.env.NEXT_PUBLIC_VET_WEB_URL ??
+  resolveVetWebUrlFromVercel();
+
+const vetWebProjectSlug = "vetopoils";
+
 const config: ExpoConfig = {
   name: "Vet'OPoil",
   slug: "vetopoil-mobile",
@@ -56,6 +77,8 @@ const config: ExpoConfig = {
   extra: {
     supabaseUrl,
     supabasePublishableKey,
+    vetWebUrl,
+    vetWebProjectSlug,
   },
 };
 

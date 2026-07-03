@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 
 import { MobileShell } from '../components/layout/MobileShell'
+import { useVetSession } from '../context/VetSessionContext'
 import { clearConsultationResult, getConsultationResult } from '../lib/consultation'
+import { clearVetToken } from '../lib/vet'
 
 function CheckIcon() {
   return (
@@ -23,10 +25,13 @@ function CheckIcon() {
 
 export function SuccessPage() {
   const result = getConsultationResult()
+  const { clearSession } = useVetSession()
   const animalName = result?.animalName ?? 'votre animal'
 
   function handleNewConsultation() {
     clearConsultationResult()
+    clearVetToken()
+    clearSession()
   }
 
   return (
@@ -48,7 +53,7 @@ export function SuccessPage() {
         </div>
 
         <Link
-          to="/consultation"
+          to="/acces"
           onClick={handleNewConsultation}
           className="font-body text-sm font-semibold text-primary"
         >

@@ -9,8 +9,11 @@ function isPlaceholder(value: string | undefined): boolean {
 }
 
 export const env = {
-  supabaseUrl: import.meta.env.VITE_SUPABASE_URL as string | undefined,
-  supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined,
+  supabaseUrl: (import.meta.env.VITE_SUPABASE_URL ??
+    import.meta.env.NEXT_PUBLIC_SUPABASE_URL) as string | undefined,
+  supabaseAnonKey: (import.meta.env.VITE_SUPABASE_ANON_KEY ??
+    import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string | undefined,
 }
 
 export function isSupabaseConfigured(): boolean {

@@ -16,6 +16,7 @@ export interface ConsultationFormData {
   nextAppointment: string
   diagnosis: string
   notes: string
+  weightKg: string
   guestIdentity?: GuestIdentity
 }
 

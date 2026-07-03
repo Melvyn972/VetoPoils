@@ -41,8 +41,8 @@ export default function QrScreen() {
       <View>
         <Text style={styles.title}>QR Code</Text>
         <Text style={styles.subtitle}>
-          Générez un accès temporaire de 4h pour le vétérinaire. L’app mobile ne contient pas
-          l’espace vétérinaire.
+          Générez un accès temporaire de 4h pour le vétérinaire. Le QR ouvre le portail web de
+          consultation.
         </Text>
       </View>
 

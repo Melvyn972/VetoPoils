@@ -1,37 +1,37 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import { RequireAccess } from './components/auth/RequireAccess'
-import { AuthProvider } from './context/AuthContext'
+import { RequireVetToken } from './components/auth/RequireVetToken'
+import { VetSessionProvider } from './context/VetSessionContext'
 import { ConsultationPage } from './pages/ConsultationPage'
-import { LoginPage } from './pages/LoginPage'
 import { SuccessPage } from './pages/SuccessPage'
+import { VetAccessPage } from './pages/VetAccessPage'
 import { WelcomePage } from './pages/WelcomePage'
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
+      <VetSessionProvider>
         <Routes>
           <Route path="/" element={<WelcomePage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/acces" element={<VetAccessPage />} />
           <Route
             path="/consultation"
             element={
-              <RequireAccess>
+              <RequireVetToken>
                 <ConsultationPage />
-              </RequireAccess>
+              </RequireVetToken>
             }
           />
           <Route
             path="/succes"
             element={
-              <RequireAccess>
+              <RequireVetToken>
                 <SuccessPage />
-              </RequireAccess>
+              </RequireVetToken>
             }
           />
         </Routes>
-      </AuthProvider>
+      </VetSessionProvider>
     </BrowserRouter>
   )
 }
