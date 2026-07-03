@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "https://api.example.com"
+import { getSupabase } from '../lib/supabase'
 
 export type VerifyCodeResponse = {
   valid: boolean
@@ -6,15 +6,24 @@ export type VerifyCodeResponse = {
 }
 
 export async function verifyAccessCode(code: string): Promise<VerifyCodeResponse> {
-  const response = await fetch(`${API_BASE_URL}/access-code/verify`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`Erreur API (${response.status})`)
+  const supabase = getSupabase()
+  if (!supabase) {
+    throw new Error('Supabase non configuré.')
   }
 
-  return response.json() as Promise<VerifyCodeResponse>
+  const { data, error } = await supabase
+    .from('access_codes')
+    .select('code')
+    .eq('code', code)
+    .maybeSingle()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  if (!data) {
+    return { valid: false, message: 'Code invalide.' }
+  }
+
+  return { valid: true }
 }
