@@ -1,9 +1,9 @@
-import { useAuth } from '../../context/AuthContext'
+import { useVetSession } from '../../context/VetSessionContext'
 import logoVp from '../../assets/logo-vp.svg'
 
 export function AppHeader() {
-  const { displayName, isConnected, isGuest } = useAuth()
-  const showUserBadge = isConnected || isGuest
+  const { dossier } = useVetSession()
+  const animalName = dossier?.animal.nom
 
   return (
     <header className="border-b border-fg-tertiary/20 bg-surface">
@@ -19,16 +19,9 @@ export function AppHeader() {
             Vetopoils — Accès Vétérinaire
           </span>
         </div>
-        {showUserBadge ? (
-          <span
-            className={[
-              'shrink-0 rounded-12 px-2.5 py-1 font-body text-xs font-medium',
-              isConnected
-                ? 'bg-primary-15 text-primary'
-                : 'bg-surface-secondary text-fg-secondary',
-            ].join(' ')}
-          >
-            {displayName}
+        {animalName ? (
+          <span className="shrink-0 rounded-12 bg-primary-15 px-2.5 py-1 font-body text-xs font-medium text-primary">
+            {animalName}
           </span>
         ) : (
           <span className="shrink-0 font-body text-xs text-fg-tertiary">Portail sécurisé</span>

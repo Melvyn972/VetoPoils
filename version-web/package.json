@@ -1,0 +1,10 @@
+{
+  "name": "version-web",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix vetopoils",
+    "build": "npm run build --prefix vetopoils",
+    "preview": "npm run preview --prefix vetopoils",
+    "lint": "npm run lint --prefix vetopoils"
+  }
+}
