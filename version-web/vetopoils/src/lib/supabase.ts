@@ -8,7 +8,7 @@ export function getSupabase(): SupabaseClient | null {
   if (!isSupabaseConfigured()) {
     if (import.meta.env.DEV) {
       console.info(
-        '[Supabase] Client non configuré — ajoutez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans .env.local',
+        '[Supabase] Client non configuré — ajoutez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY (ou NEXT_PUBLIC_*) dans .env.local',
       )
     }
     return null

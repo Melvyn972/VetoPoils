@@ -86,7 +86,15 @@ export async function uploadVetDocument(params: {
       upsert: false,
     })
 
-  if (uploadError) throw uploadError
+  if (uploadError) {
+    const message = uploadError.message.toLowerCase()
+    if (message.includes('row-level security') || message.includes('policy')) {
+      throw new Error(
+        "Upload refusé par Supabase. Exécutez supabase/fix_vet_document_upload.sql dans le SQL Editor.",
+      )
+    }
+    throw uploadError
+  }
 
   const { data, error } = await supabase.rpc('vet_creer_document_metadata', {
     p_token: normalizeVetAccessCode(params.token),

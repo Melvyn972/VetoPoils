@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url))
 
@@ -55,17 +55,38 @@ function vetPortalConfigPlugin(): Plugin {
   }
 }
 
+function resolveSupabaseEnv(env: Record<string, string>) {
+  return {
+    url: env.VITE_SUPABASE_URL ?? env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    key:
+      env.VITE_SUPABASE_ANON_KEY ??
+      env.VITE_SUPABASE_PUBLISHABLE_KEY ??
+      env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+      env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+      '',
+  }
+}
+
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), tailwindcss(), vetPortalConfigPlugin()],
-  server: {
-    host: true,
-    port: 5173,
-  },
-  define: {
-    'import.meta.env.VITE_VERCEL_URL': JSON.stringify(process.env.VERCEL_URL ?? ''),
-    'import.meta.env.VITE_VERCEL_PROJECT_PRODUCTION_URL': JSON.stringify(
-      process.env.VERCEL_PROJECT_PRODUCTION_URL ?? '',
-    ),
-  },
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, rootDir, '')
+  const supabase = resolveSupabaseEnv(env)
+
+  return {
+    plugins: [react(), tailwindcss(), vetPortalConfigPlugin()],
+    server: {
+      host: true,
+      port: 5173,
+    },
+    define: {
+      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabase.url),
+      'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabase.key),
+      'import.meta.env.NEXT_PUBLIC_SUPABASE_URL': JSON.stringify(supabase.url),
+      'import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(supabase.key),
+      'import.meta.env.VITE_VERCEL_URL': JSON.stringify(env.VERCEL_URL ?? ''),
+      'import.meta.env.VITE_VERCEL_PROJECT_PRODUCTION_URL': JSON.stringify(
+        env.VERCEL_PROJECT_PRODUCTION_URL ?? '',
+      ),
+    },
+  }
 })

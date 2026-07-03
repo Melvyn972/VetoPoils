@@ -39,6 +39,9 @@ export function WelcomePage() {
           <Button type="button" onClick={() => navigate('/acces')}>
             Saisir un code d&apos;accès
           </Button>
+          <Button type="button" onClick={() => navigate('/login')}>
+            Connexion vétérinaire
+          </Button>
         </div>
       </div>
     </MobileShell>

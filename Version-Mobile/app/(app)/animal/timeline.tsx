@@ -19,9 +19,12 @@ import { getErrorMessage } from "@/utils/errors";
 const filters = [
   { label: "Tout", value: "all" },
   { label: "À valider", value: "pending" },
-  { label: "Vaccins", value: "vaccination" },
   { label: "Consultations", value: "consultation" },
+  { label: "Vaccins", value: "vaccination" },
   { label: "Analyses", value: "analyse" },
+  { label: "Chirurgies", value: "chirurgie" },
+  { label: "Ordonnances", value: "ordonnance" },
+  { label: "Autres", value: "autre" },
 ] satisfies { label: string; value: MedicalEventFilter }[];
 
 export default function TimelineScreen() {

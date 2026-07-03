@@ -11,6 +11,7 @@ type AuthView = 'login' | 'signup'
 
 interface FormErrors {
   fullName?: string
+  clinic?: string
   email?: string
   password?: string
   form?: string
@@ -22,6 +23,7 @@ export function LoginPage() {
 
   const [view, setView] = useState<AuthView>('login')
   const [fullName, setFullName] = useState('')
+  const [clinic, setClinic] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<FormErrors>({})
@@ -101,7 +103,7 @@ export function LoginPage() {
       return
     }
 
-    const { error, needsEmailConfirmation } = await signUp(fullName, email, password)
+    const { error, needsEmailConfirmation } = await signUp(fullName, email, password, clinic)
 
     if (error) {
       setErrors({ form: error })
@@ -124,12 +126,12 @@ export function LoginPage() {
       <div className="flex flex-col gap-6 py-4">
         <div className="flex flex-col gap-2">
           <h1 className="font-title text-2xl font-bold text-fg-primary">
-            {view === 'login' ? 'Connexion' : 'Créer un compte'}
+            {view === 'login' ? 'Connexion vétérinaire' : 'Créer un compte vétérinaire'}
           </h1>
           <p className="font-body text-sm text-fg-secondary">
             {view === 'login'
-              ? 'Connectez-vous pour accéder au formulaire de consultation.'
-              : 'Créez votre compte vétérinaire Vetopoils.'}
+              ? 'Connectez-vous pour préremplir vos consultations.'
+              : 'Compte réservé aux vétérinaires — distinct des comptes propriétaires.'}
           </p>
         </div>
 
@@ -162,14 +164,23 @@ export function LoginPage() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {view === 'signup' && (
-            <Input
-              label="Nom complet"
-              required
-              value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
-              placeholder="Dr. Martin"
-              error={errors.fullName}
-            />
+            <>
+              <Input
+                label="Nom complet"
+                required
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+                placeholder="Dr. Martin"
+                error={errors.fullName}
+              />
+              <Input
+                label="Clinique"
+                value={clinic}
+                onChange={(event) => setClinic(event.target.value)}
+                placeholder="Clinique du Parc"
+                error={errors.clinic}
+              />
+            </>
           )}
 
           <Input
@@ -196,7 +207,7 @@ export function LoginPage() {
           {infoMessage && <p className="font-body text-sm text-success">{infoMessage}</p>}
 
           <Button type="submit" disabled={isSubmitting}>
-            {view === 'login' ? 'Se connecter' : 'Créer mon compte'}
+            {view === 'login' ? 'Se connecter' : 'Créer mon compte vétérinaire'}
           </Button>
         </form>
 
