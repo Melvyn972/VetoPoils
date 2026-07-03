@@ -11,9 +11,14 @@ type AnimalInfoCardsProps = {
   events: MedicalEvent[];
 };
 
-function getLastVetVisitDate(events: MedicalEvent[]) {
-  const vetEvent = events.find((event) => event.vet_token_id);
-  return vetEvent?.date_event ?? null;
+function getLastVisitDate(events: MedicalEvent[]) {
+  const visit = events.find(
+    (event) =>
+      event.vet_token_id ||
+      event.type === "consultation" ||
+      event.type === "chirurgie",
+  );
+  return visit?.date_event ?? null;
 }
 
 function getLatestWeight(events: MedicalEvent[]) {
@@ -30,7 +35,7 @@ const infoItems = [
 export function AnimalInfoCards({ dateNaissance, events }: AnimalInfoCardsProps) {
   const age = computeAgeLabel(dateNaissance);
   const weight = getLatestWeight(events);
-  const lastVisit = getLastVetVisitDate(events);
+  const lastVisit = getLastVisitDate(events);
 
   const values: Record<(typeof infoItems)[number]["key"], string> = {
     age: dateNaissance ? age : "-",

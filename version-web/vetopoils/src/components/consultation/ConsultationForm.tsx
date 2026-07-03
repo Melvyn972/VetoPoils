@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
+import { useAuth } from '../../context/AuthContext'
 import { useVetSession } from '../../context/VetSessionContext'
 import { getTodayDateInputValue, saveConsultationResult } from '../../lib/consultation'
 import { submitVetConsultation, uploadVetDocument } from '../../lib/vet'
@@ -10,6 +11,7 @@ import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { AnimalSummary } from './AnimalSummary'
 import { GuestIdentityFields } from './GuestIdentityFields'
+import { MedicalHistory } from './MedicalHistory'
 
 interface FormErrors {
   fullName?: string
@@ -19,18 +21,23 @@ interface FormErrors {
   form?: string
 }
 
-function buildInitialForm(): ConsultationFormData {
+function buildInitialForm(
+  defaults: Pick<ConsultationFormData, 'veterinarianName' | 'clinic'> & {
+    email?: string
+    fullName?: string
+  },
+): ConsultationFormData {
   return {
-    veterinarianName: '',
-    clinic: '',
+    veterinarianName: defaults.veterinarianName,
+    clinic: defaults.clinic,
     visitDate: getTodayDateInputValue(),
     nextAppointment: '',
     diagnosis: '',
     notes: '',
     weightKg: '',
     guestIdentity: {
-      fullName: '',
-      email: '',
+      fullName: defaults.fullName ?? '',
+      email: defaults.email ?? '',
     },
   }
 }
@@ -38,10 +45,33 @@ function buildInitialForm(): ConsultationFormData {
 export function ConsultationForm() {
   const navigate = useNavigate()
   const { token, dossier } = useVetSession()
-  const [form, setForm] = useState(buildInitialForm)
+  const {
+    isConnected,
+    defaultVeterinarianName,
+    defaultClinic,
+    defaultEmail,
+    displayName,
+  } = useAuth()
+  const [form, setForm] = useState<ConsultationFormData>(() =>
+    buildInitialForm({
+      veterinarianName: '',
+      clinic: '',
+    }),
+  )
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [document, setDocument] = useState<File | null>(null)
+
+  useEffect(() => {
+    setForm((current) =>
+      buildInitialForm({
+        veterinarianName: defaultVeterinarianName || current.veterinarianName,
+        clinic: defaultClinic || current.clinic,
+        email: defaultEmail || current.guestIdentity?.email,
+        fullName: defaultVeterinarianName || current.guestIdentity?.fullName,
+      }),
+    )
+  }, [defaultClinic, defaultEmail, defaultVeterinarianName])
 
   function updateField<K extends keyof ConsultationFormData>(key: K, value: ConsultationFormData[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -59,12 +89,14 @@ export function ConsultationForm() {
       nextErrors.diagnosis = 'Le diagnostic est requis'
     }
 
-    if (!form.guestIdentity?.fullName.trim()) {
-      nextErrors.fullName = 'Le nom complet est requis'
-    }
+    if (!isConnected) {
+      if (!form.guestIdentity?.fullName.trim()) {
+        nextErrors.fullName = 'Le nom complet est requis'
+      }
 
-    if (!form.guestIdentity?.email.trim()) {
-      nextErrors.email = "L'email est requis"
+      if (!form.guestIdentity?.email.trim()) {
+        nextErrors.email = "L'email est requis"
+      }
     }
 
     return nextErrors
@@ -97,8 +129,11 @@ export function ConsultationForm() {
         diagnosis: form.diagnosis,
         notes: [
           form.notes.trim(),
-          form.guestIdentity?.fullName ? `Vétérinaire : ${form.guestIdentity.fullName}` : null,
-          form.guestIdentity?.email ? `Email : ${form.guestIdentity.email}` : null,
+          !isConnected && form.guestIdentity?.fullName
+            ? `Vétérinaire : ${form.guestIdentity.fullName}`
+            : null,
+          !isConnected && form.guestIdentity?.email ? `Email : ${form.guestIdentity.email}` : null,
+          isConnected ? `Vétérinaire connecté : ${displayName}` : null,
         ]
           .filter(Boolean)
           .join('\n'),
@@ -126,33 +161,52 @@ export function ConsultationForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
-        <h1 className="font-title text-2xl font-bold text-fg-primary">
-          Compte rendu de consultation
-        </h1>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-col gap-1">
+            <h1 className="font-title text-2xl font-bold text-fg-primary">
+              Compte rendu de consultation
+            </h1>
+            {isConnected ? (
+              <p className="font-body text-sm text-fg-secondary">
+                Connecté en tant que {displayName}
+              </p>
+            ) : (
+              <p className="font-body text-sm text-fg-secondary">
+                <Link to="/login" className="font-medium text-primary underline">
+                  Connectez-vous
+                </Link>{' '}
+                pour préremplir vos informations.
+              </p>
+            )}
+          </div>
+        </div>
         <AnimalSummary />
+        <MedicalHistory events={dossier?.medical_events ?? []} />
       </div>
 
       <div className="flex flex-col gap-4 rounded-14 border border-fg-tertiary/20 bg-surface-secondary p-4">
-        <GuestIdentityFields
-          fullName={form.guestIdentity?.fullName ?? ''}
-          email={form.guestIdentity?.email ?? ''}
-          errors={{
-            fullName: errors.fullName,
-            email: errors.email,
-          }}
-          onFullNameChange={(value) =>
-            updateField('guestIdentity', {
-              fullName: value,
-              email: form.guestIdentity?.email ?? '',
-            })
-          }
-          onEmailChange={(value) =>
-            updateField('guestIdentity', {
-              fullName: form.guestIdentity?.fullName ?? '',
-              email: value,
-            })
-          }
-        />
+        {!isConnected ? (
+          <GuestIdentityFields
+            fullName={form.guestIdentity?.fullName ?? ''}
+            email={form.guestIdentity?.email ?? ''}
+            errors={{
+              fullName: errors.fullName,
+              email: errors.email,
+            }}
+            onFullNameChange={(value) =>
+              updateField('guestIdentity', {
+                fullName: value,
+                email: form.guestIdentity?.email ?? '',
+              })
+            }
+            onEmailChange={(value) =>
+              updateField('guestIdentity', {
+                fullName: form.guestIdentity?.fullName ?? '',
+                email: value,
+              })
+            }
+          />
+        ) : null}
 
         <Input
           label="Nom du vétérinaire"

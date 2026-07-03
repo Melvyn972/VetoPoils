@@ -17,6 +17,7 @@ import { colors, radius, spacing, typography } from "@/theme";
 import type { MedicalEvent, Reminder } from "@/types/database.types";
 import { formatDate, formatRelativeDueDate } from "@/utils/dates";
 import { computeHealthScore } from "@/utils/healthScore";
+import { getMedicalEventSummary, getMedicalEventTypeLabel } from "@/utils/medicalLabels";
 
 const actions = [
   { label: "Timeline", icon: "timeline-clock-outline", route: "timeline" },
@@ -142,15 +143,58 @@ export default function DashboardScreen() {
       <HealthScoreCard score={healthScore} />
 
       <AppCard>
-        <Text style={styles.sectionTitle}>Activité récente</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Activité récente</Text>
+          {selectedAnimalId ? (
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/(app)/animal/timeline",
+                  params: { id: selectedAnimalId },
+                })
+              }
+            >
+              <Text style={styles.sectionLink}>Voir tout</Text>
+            </Pressable>
+          ) : null}
+        </View>
         {events.slice(0, 3).map((event) => (
-          <View key={event.id} style={styles.activity}>
-            <View style={styles.activityDot} />
+          <Pressable
+            key={event.id}
+            style={styles.activity}
+            onPress={() =>
+              selectedAnimalId
+                ? router.push({
+                    pathname: "/(app)/animal/timeline",
+                    params: { id: selectedAnimalId },
+                  })
+                : undefined
+            }
+          >
+            <View
+              style={[
+                styles.activityDot,
+                event.status === "pending" ? styles.activityDotPending : null,
+              ]}
+            />
             <View style={styles.activityContent}>
-              <Text style={styles.activityTitle}>{event.titre ?? event.type}</Text>
-              <Text style={styles.activityDate}>{formatDate(event.date_event)}</Text>
+              <View style={styles.activityTopRow}>
+                <Text style={styles.activityTitle}>{event.titre ?? getMedicalEventTypeLabel(event.type)}</Text>
+                {event.status === "pending" ? (
+                  <Text style={styles.activityBadge}>À valider</Text>
+                ) : null}
+              </View>
+              <Text style={styles.activityMeta}>
+                {getMedicalEventTypeLabel(event.type)}
+                {event.vet_token_id ? " · Vétérinaire" : ""} · {formatDate(event.date_event)}
+              </Text>
+              {!!getMedicalEventSummary(event) && (
+                <Text style={styles.activitySummary} numberOfLines={2}>
+                  {getMedicalEventSummary(event)}
+                </Text>
+              )}
             </View>
-          </View>
+          </Pressable>
         ))}
         {events.length === 0 ? (
           <Text style={styles.empty}>Aucun événement médical pour le moment.</Text>
@@ -242,26 +286,63 @@ const styles = StyleSheet.create({
     ...typography.heading,
     color: colors.text,
   },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.sm,
+  },
+  sectionLink: {
+    color: colors.primary,
+    fontWeight: "700",
+    fontSize: 13,
+  },
   activity: {
     flexDirection: "row",
     gap: spacing.md,
-    alignItems: "center",
+    alignItems: "flex-start",
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   activityDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     backgroundColor: colors.primary,
+    marginTop: 6,
+  },
+  activityDotPending: {
+    backgroundColor: colors.accent,
   },
   activityContent: {
     flex: 1,
+    gap: 4,
+  },
+  activityTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: spacing.sm,
   },
   activityTitle: {
+    flex: 1,
     fontWeight: "800",
     color: colors.text,
   },
-  activityDate: {
+  activityBadge: {
+    color: colors.accent,
+    fontSize: 11,
+    fontWeight: "800",
+    textTransform: "uppercase",
+  },
+  activityMeta: {
     color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  activitySummary: {
+    color: colors.textMuted,
+    lineHeight: 20,
   },
   empty: {
     color: colors.textMuted,

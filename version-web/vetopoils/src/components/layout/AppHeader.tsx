@@ -1,8 +1,12 @@
+import { Link } from 'react-router-dom'
+
+import { useAuth } from '../../context/AuthContext'
 import { useVetSession } from '../../context/VetSessionContext'
 import logoVp from '../../assets/logo-vp.svg'
 
 export function AppHeader() {
   const { dossier } = useVetSession()
+  const { isConnected, displayName, signOut } = useAuth()
   const animalName = dossier?.animal.nom
 
   return (
@@ -19,13 +23,28 @@ export function AppHeader() {
             Vetopoils — Accès Vétérinaire
           </span>
         </div>
-        {animalName ? (
-          <span className="shrink-0 rounded-12 bg-primary-15 px-2.5 py-1 font-body text-xs font-medium text-primary">
-            {animalName}
-          </span>
-        ) : (
-          <span className="shrink-0 font-body text-xs text-fg-tertiary">Portail sécurisé</span>
-        )}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {animalName ? (
+            <span className="rounded-12 bg-primary-15 px-2.5 py-1 font-body text-xs font-medium text-primary">
+              {animalName}
+            </span>
+          ) : (
+            <span className="font-body text-xs text-fg-tertiary">Portail sécurisé</span>
+          )}
+          {isConnected ? (
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="font-body text-[11px] text-fg-tertiary underline"
+            >
+              {displayName} · Déconnexion
+            </button>
+          ) : (
+            <Link to="/login" className="font-body text-[11px] text-primary underline">
+              Connexion véto
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   )
