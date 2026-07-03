@@ -81,9 +81,6 @@ export function LoginPage() {
     }
 
     if (!isSupabaseReady) {
-      // #region agent log
-      fetch('http://127.0.0.1:7933/ingest/9587ca61-8228-4ee6-b45f-c079cf435a6e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'af1613'},body:JSON.stringify({sessionId:'af1613',location:'LoginPage.tsx:handleSubmit',message:'signup blocked - supabase not ready',data:{isSupabaseReady,view},timestamp:Date.now(),hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
       setErrors({ form: 'Supabase n’est pas configuré. Vérifiez le fichier .env.local' })
       return
     }
