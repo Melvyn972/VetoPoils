@@ -1,0 +1,13 @@
+# N'autoriser au commit que les deux applications.
+# Tout le reste à la racine est ignoré.
+
+/*
+!Version-Mobile/
+!Version-Mobile/**
+!version-web/
+!version-web/**
+
+# Conserver ce fichier et les hooks git
+!.gitignore
+!.githooks/
+!.githooks/**
