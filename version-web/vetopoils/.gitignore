@@ -22,4 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Cursor / agents IA (ne pas versionner)
+AGENTS.md
+CLAUDE.md
+.cursor/
+.claude/
+
 .env
