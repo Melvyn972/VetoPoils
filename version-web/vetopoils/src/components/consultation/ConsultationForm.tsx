@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../context/AuthContext'
 import {
@@ -38,7 +38,6 @@ function buildInitialForm(defaultVeterinarianName: string, defaultClinic: string
 
 export function ConsultationForm() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
   const { isGuest, isConnected, defaultVeterinarianName, defaultClinic } = useAuth()
 
   const [form, setForm] = useState(() =>
@@ -93,8 +92,7 @@ export function ConsultationForm() {
 
     saveConsultationResult({ animalName })
 
-    const query = searchParams.toString()
-    navigate(query ? `/succes?${query}` : '/succes')
+    navigate('/succes')
   }
 
   return (

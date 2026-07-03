@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { MobileShell } from '../components/layout/MobileShell'
 import { clearConsultationResult, getConsultationResult } from '../lib/consultation'
@@ -22,12 +22,8 @@ function CheckIcon() {
 }
 
 export function SuccessPage() {
-  const [searchParams] = useSearchParams()
   const result = getConsultationResult()
   const animalName = result?.animalName ?? 'votre animal'
-
-  const query = searchParams.toString()
-  const homeLink = query ? `/?${query}` : '/'
 
   function handleNewConsultation() {
     clearConsultationResult()
@@ -52,7 +48,7 @@ export function SuccessPage() {
         </div>
 
         <Link
-          to={homeLink}
+          to="/consultation"
           onClick={handleNewConsultation}
           className="font-body text-sm font-semibold text-primary"
         >
