@@ -16,7 +16,7 @@ export function resolveVetPortalUrl() {
     return normalizeOrigin(configured)
   }
 
-  return 'http://localhost:5173'
+  return 'https://veto-poils.vercel.app'
 }
 
 function normalizeOrigin(value) {

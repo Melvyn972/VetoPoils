@@ -25,9 +25,10 @@ function resolveVetWebUrlFromVercel() {
 const vetWebUrl =
   process.env.EXPO_PUBLIC_VET_WEB_URL ??
   process.env.NEXT_PUBLIC_VET_WEB_URL ??
-  resolveVetWebUrlFromVercel();
+  resolveVetWebUrlFromVercel() ??
+  "https://veto-poils.vercel.app";
 
-const vetWebProjectSlug = "vetopoils";
+const vetWebProjectSlug = "veto-poils";
 
 const config: ExpoConfig = {
   name: "Vet'OPoil",
