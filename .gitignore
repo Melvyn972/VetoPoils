@@ -7,10 +7,13 @@
 !version-web/
 !version-web/**
 
-# Conserver ce fichier et les hooks git
+# Conserver ce fichier
 !.gitignore
-!.githooks/
-!.githooks/**
+
+# Fichiers locaux / secrets (racine)
+.env
+.DS_Store
+.githooks/
 
 # Cursor / agents IA (jamais versionner)
 .cursor/
