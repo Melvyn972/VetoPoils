@@ -1,0 +1,7 @@
+#!/bin/sh
+# Retire l'attribution automatique Cursor des messages de commit.
+COMMIT_MSG_FILE="$1"
+[ -f "$COMMIT_MSG_FILE" ] || exit 0
+
+grep -v '^Co-authored-by: Cursor <cursoragent@cursor.com>$' "$COMMIT_MSG_FILE" > "${COMMIT_MSG_FILE}.tmp"
+mv "${COMMIT_MSG_FILE}.tmp" "$COMMIT_MSG_FILE"
