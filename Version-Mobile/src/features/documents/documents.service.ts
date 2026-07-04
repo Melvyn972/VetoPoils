@@ -39,6 +39,37 @@ export async function fetchDocuments(animalId: string) {
   return data ?? [];
 }
 
+export async function fetchDocumentsForEvent(medicalEventId: string) {
+  const { data, error } = await supabase
+    .from("documents")
+    .select("*")
+    .eq("medical_event_id", medicalEventId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function fetchDocumentsByEventIds(eventIds: string[]) {
+  if (eventIds.length === 0) return {} as Record<string, Awaited<ReturnType<typeof fetchDocumentsForEvent>>>;
+
+  const { data, error } = await supabase
+    .from("documents")
+    .select("*")
+    .in("medical_event_id", eventIds)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  const grouped: Record<string, NonNullable<typeof data>> = {};
+  for (const doc of data ?? []) {
+    if (!doc.medical_event_id) continue;
+    if (!grouped[doc.medical_event_id]) grouped[doc.medical_event_id] = [];
+    grouped[doc.medical_event_id].push(doc);
+  }
+  return grouped;
+}
+
 export async function pickDocumentFromDevice() {
   return DocumentPicker.getDocumentAsync({
     type: ["application/pdf", "image/*"],

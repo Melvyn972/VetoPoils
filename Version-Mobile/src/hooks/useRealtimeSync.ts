@@ -6,10 +6,10 @@ export function useRealtimeSync(userId?: string | null, onChange?: () => void) {
   useEffect(() => {
     if (!userId || !onChange) return;
 
-    const channel = subscribeToUserNotifications(userId, onChange);
+    const subscription = subscribeToUserNotifications(userId, onChange);
 
     return () => {
-      channel.unsubscribe();
+      subscription.unsubscribe();
     };
   }, [onChange, userId]);
 }

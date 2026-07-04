@@ -17,6 +17,7 @@ export async function signUp(payload: RegisterPayload) {
     password: payload.password,
     options: {
       data: {
+        account_type: 'owner',
         nom: payload.nom,
         prenom: payload.prenom,
       },

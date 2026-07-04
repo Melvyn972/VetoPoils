@@ -42,6 +42,8 @@ export type Profile = {
   ocr_usage_mois: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  notifications_push_enabled: boolean;
+  expo_push_token: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -83,6 +85,7 @@ export type MedicalEvent = {
 export type Document = {
   id: string;
   animal_id: string;
+  medical_event_id: string | null;
   file_path: string;
   file_name: string;
   mime_type: string;
@@ -209,6 +212,14 @@ export type Database = {
       accepter_invitation_partage: {
         Args: { p_share_id: string };
         Returns: AnimalShare;
+      };
+      revoquer_partage: {
+        Args: { p_share_id: string };
+        Returns: AnimalShare;
+      };
+      notifier_rappels_dus: {
+        Args: Record<string, never>;
+        Returns: number;
       };
     };
     Views: Record<string, never>;

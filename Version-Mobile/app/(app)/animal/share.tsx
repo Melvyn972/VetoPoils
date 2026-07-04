@@ -8,12 +8,24 @@ import { AppInput } from "@/components/ui/AppInput";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Screen } from "@/components/ui/Screen";
-import { fetchShares, inviteShare } from "@/features/sharing/sharing.service";
+import { fetchShares, inviteShare, revokeShare } from "@/features/sharing/sharing.service";
 import { useSession } from "@/hooks/useSession";
 import { colors, spacing, typography } from "@/theme";
 import type { AnimalShare, PartageRole } from "@/types/database.types";
 import { getErrorMessage } from "@/utils/errors";
+import { formatDate } from "@/utils/dates";
 import { isEmail } from "@/utils/validators";
+
+const roleLabels: Record<PartageRole, string> = {
+  read_only: "Lecture seule",
+  contributor: "Contributeur",
+};
+
+const statusLabels: Record<AnimalShare["statut"], string> = {
+  en_attente: "En attente",
+  acceptee: "Acceptée",
+  revoquee: "Révoquée",
+};
 
 export default function ShareScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -39,22 +51,34 @@ export default function ShareScreen() {
     try {
       await inviteShare({
         animal_id: id,
-        email_invite: email.trim(),
+        email_invite: email.trim().toLowerCase(),
         role,
         invite_par: user.id,
       });
       setEmail("");
       await refresh();
+      Alert.alert("Invitation envoyée", "La personne recevra l'accès après acceptation.");
     } catch (error) {
       Alert.alert("Invitation impossible", getErrorMessage(error));
     }
   };
 
+  const revoke = async (shareId: string) => {
+    try {
+      await revokeShare(shareId);
+      await refresh();
+    } catch (error) {
+      Alert.alert("Révocation impossible", getErrorMessage(error));
+    }
+  };
+
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} scroll>
       <View>
-        <Text style={styles.title}>Partage</Text>
-        <Text style={styles.subtitle}>Invitez famille ou pet-sitter en lecture ou contribution.</Text>
+        <Text style={styles.title}>Partage de l'animal</Text>
+        <Text style={styles.subtitle}>
+          Invitez un proche ou un pet-sitter à consulter ou contribuer au dossier santé.
+        </Text>
       </View>
       <AppCard>
         <AppInput
@@ -93,12 +117,26 @@ export default function ShareScreen() {
             <AppCard key={share.id}>
               <Text style={styles.email}>{share.email_invite}</Text>
               <View style={styles.badges}>
-                <Badge label={share.role} tone="info" />
+                <Badge label={roleLabels[share.role]} tone="info" />
                 <Badge
-                  label={share.statut}
-                  tone={share.statut === "acceptee" ? "success" : "warning"}
+                  label={statusLabels[share.statut]}
+                  tone={
+                    share.statut === "acceptee"
+                      ? "success"
+                      : share.statut === "revoquee"
+                        ? "warning"
+                        : "warning"
+                  }
                 />
               </View>
+              <Text style={styles.date}>Créé le {formatDate(share.created_at)}</Text>
+              {share.statut !== "revoquee" ? (
+                <AppButton
+                  title="Révoquer l'accès"
+                  variant="danger"
+                  onPress={() => revoke(share.id)}
+                />
+              ) : null}
             </AppCard>
           ))}
         </View>
@@ -117,6 +155,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: colors.textMuted,
+    lineHeight: 20,
   },
   roleRow: {
     flexDirection: "row",
@@ -135,5 +174,9 @@ const styles = StyleSheet.create({
   badges: {
     flexDirection: "row",
     gap: spacing.sm,
+  },
+  date: {
+    color: colors.textMuted,
+    fontSize: 12,
   },
 });

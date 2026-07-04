@@ -2,18 +2,19 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
-import { MedicalEventCard } from "@/components/medical/MedicalEventCard";
+import { ConsultationHistoryCard } from "@/components/medical/ConsultationHistoryCard";
 import { AppButton } from "@/components/ui/AppButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { Screen } from "@/components/ui/Screen";
+import { fetchDocumentsByEventIds } from "@/features/documents/documents.service";
 import {
   fetchMedicalEvents,
   validateMedicalEvent,
 } from "@/features/medical/medical.service";
 import type { MedicalEventFilter } from "@/features/medical/medical.types";
 import { colors, spacing, typography } from "@/theme";
-import type { MedicalEvent } from "@/types/database.types";
+import type { Document, MedicalEvent } from "@/types/database.types";
 import { getErrorMessage } from "@/utils/errors";
 
 const filters = [
@@ -30,11 +31,15 @@ const filters = [
 export default function TimelineScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [events, setEvents] = useState<MedicalEvent[]>([]);
+  const [documentsByEvent, setDocumentsByEvent] = useState<Record<string, Document[]>>({});
   const [filter, setFilter] = useState<MedicalEventFilter>("all");
 
   const refresh = async () => {
     if (!id) return;
-    setEvents(await fetchMedicalEvents(id));
+    const nextEvents = await fetchMedicalEvents(id);
+    setEvents(nextEvents);
+    const docs = await fetchDocumentsByEventIds(nextEvents.map((event) => event.id));
+    setDocumentsByEvent(docs);
   };
 
   useEffect(() => {
@@ -57,30 +62,34 @@ export default function TimelineScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} scroll>
       <View style={styles.header}>
-        <Text style={styles.title}>Timeline médicale</Text>
-        <Text style={styles.subtitle}>Historique chronologique du dossier santé.</Text>
+        <Text style={styles.title}>Historique de consultation</Text>
+        <Text style={styles.subtitle}>
+          Retrouvez chaque consultation avec ses documents et détails cliniques.
+        </Text>
       </View>
       <FilterChips options={filters} value={filter} onChange={setFilter} />
       <AppButton
-        title="Ajouter un événement"
+        title="Ajouter une consultation"
         variant="secondary"
         onPress={() => router.push({ pathname: "/(app)/modals/add-medical-event", params: { id } })}
       />
       {filtered.length === 0 ? (
         <EmptyState
-          icon="timeline-outline"
-          title="Aucun événement"
-          description="Ajoutez une consultation, un vaccin ou une analyse pour alimenter la timeline."
+          icon="history"
+          title="Aucune consultation"
+          description="Ajoutez une consultation ou attendez qu'un vétérinaire en rédige une via le QR code."
         />
       ) : (
         <View style={styles.list}>
-          {filtered.map((event) => (
-            <MedicalEventCard
+          {filtered.map((event, index) => (
+            <ConsultationHistoryCard
               key={event.id}
               event={event}
+              documents={documentsByEvent[event.id] ?? []}
               onValidate={event.status === "pending" ? () => validate(event.id) : undefined}
+              isLast={index === filtered.length - 1}
             />
           ))}
         </View>
@@ -102,8 +111,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: colors.textMuted,
+    lineHeight: 20,
   },
   list: {
-    gap: spacing.md,
+    gap: spacing.sm,
   },
 });
