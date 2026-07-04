@@ -8,9 +8,10 @@ type ExtraConfig = {
 };
 
 const extra = (Constants.expoConfig?.extra ?? {}) as ExtraConfig;
-const VET_WEB_URL_CACHE_KEY = "vetopoil-vet-web-url";
+const VET_WEB_URL_CACHE_KEY = "vetopoil-vet-web-url-v2";
 const TUNNEL_HOST_PATTERN = /(exp\.direct|expo\.dev|ngrok)/i;
-const DEFAULT_VERCEL_PROJECT_SLUG = "vetopoils";
+const PRODUCTION_VET_WEB_URL = "https://veto-poils.vercel.app";
+const DEFAULT_VERCEL_PROJECT_SLUG = "veto-poils";
 
 function getExpoDevHost(): string | null {
   const hostUri = Constants.expoConfig?.hostUri;
@@ -59,7 +60,7 @@ function getVercelProjectSlug() {
 }
 
 function getDefaultProductionVetWebUrl() {
-  return `https://${getVercelProjectSlug()}.vercel.app`;
+  return PRODUCTION_VET_WEB_URL;
 }
 
 function getDiscoveryConfigUrls() {

@@ -16,7 +16,7 @@ function normalizeOrigin(value: string) {
   return `https://${trimmed}`
 }
 
-function resolveVetPortalUrl() {
+function resolveVetPortalUrl(mode: string) {
   const production = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim()
   if (production) return normalizeOrigin(production)
 
@@ -27,6 +27,10 @@ function resolveVetPortalUrl() {
     process.env.VITE_VET_WEB_URL?.trim() ?? process.env.NEXT_PUBLIC_VET_WEB_URL?.trim()
   if (configured) return normalizeOrigin(configured)
 
+  if (mode === 'production') {
+    return 'https://veto-poils.vercel.app'
+  }
+
   return 'http://localhost:5173'
 }
 
@@ -35,7 +39,7 @@ function writeVetPortalConfig(baseUrl: string) {
   writeFileSync(resolve(rootDir, 'public/vet-portal-config.json'), `${payload}\n`)
 }
 
-function vetPortalConfigPlugin(): Plugin {
+function vetPortalConfigPlugin(mode: string): Plugin {
   return {
     name: 'vet-portal-config',
     configureServer(server) {
@@ -50,7 +54,7 @@ function vetPortalConfigPlugin(): Plugin {
       })
     },
     buildStart() {
-      writeVetPortalConfig(resolveVetPortalUrl())
+      writeVetPortalConfig(resolveVetPortalUrl(mode))
     },
   }
 }
@@ -73,7 +77,7 @@ export default defineConfig(({ mode }) => {
   const supabase = resolveSupabaseEnv(env)
 
   return {
-    plugins: [react(), tailwindcss(), vetPortalConfigPlugin()],
+    plugins: [react(), tailwindcss(), vetPortalConfigPlugin(mode)],
     server: {
       host: true,
       port: 5173,
