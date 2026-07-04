@@ -5,10 +5,12 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AnimalSelector } from "@/components/animal/AnimalSelector";
 import { HealthScoreCard } from "@/components/animal/HealthScoreCard";
+import { RecentActivityItem } from "@/components/medical/RecentActivityItem";
 import { AppCard } from "@/components/ui/AppCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Screen } from "@/components/ui/Screen";
 import { fetchMedicalEvents } from "@/features/medical/medical.service";
+import { scheduleReminderNotifications } from "@/features/notifications/push.service";
 import { fetchReminders } from "@/features/reminders/reminders.service";
 import { useAnimals } from "@/hooks/useAnimals";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
@@ -17,13 +19,14 @@ import { colors, radius, spacing, typography } from "@/theme";
 import type { MedicalEvent, Reminder } from "@/types/database.types";
 import { formatDate, formatRelativeDueDate } from "@/utils/dates";
 import { computeHealthScore } from "@/utils/healthScore";
-import { getMedicalEventSummary, getMedicalEventTypeLabel } from "@/utils/medicalLabels";
 
 const actions = [
-  { label: "Timeline", icon: "timeline-clock-outline", route: "timeline" },
+  { label: "Historique", icon: "history", route: "timeline" },
   { label: "Documents", icon: "file-document-outline", route: "documents" },
+  { label: "Partage", icon: "account-multiple-plus-outline", route: "share" },
   { label: "QR Code", icon: "qrcode", route: "qr" },
   { label: "Rappel", icon: "bell-plus-outline", route: "reminders" },
+  { label: "Fiche", icon: "card-account-details-outline", route: "fiche" },
 ] as const;
 
 export default function DashboardScreen() {
@@ -32,33 +35,31 @@ export default function DashboardScreen() {
   const [events, setEvents] = useState<MedicalEvent[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!selectedAnimalId) return;
-    Promise.all([fetchMedicalEvents(selectedAnimalId), fetchReminders(selectedAnimalId)]).then(
-      ([nextEvents, nextReminders]) => {
-        setEvents(nextEvents);
-        setReminders(nextReminders);
-      },
-    );
-  }, [selectedAnimalId]);
+    const [nextEvents, nextReminders] = await Promise.all([
+      fetchMedicalEvents(selectedAnimalId),
+      fetchReminders(selectedAnimalId),
+    ]);
+    setEvents(nextEvents);
+    setReminders(nextReminders);
+    if (selectedAnimal) {
+      await scheduleReminderNotifications(nextReminders, selectedAnimal.nom);
+    }
+  }, [selectedAnimal, selectedAnimalId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   useFocusEffect(
     useCallback(() => {
       refresh();
-      if (!selectedAnimalId) return;
-      Promise.all([fetchMedicalEvents(selectedAnimalId), fetchReminders(selectedAnimalId)]).then(
-        ([nextEvents, nextReminders]) => {
-          setEvents(nextEvents);
-          setReminders(nextReminders);
-        },
-      );
-    }, [refresh, selectedAnimalId]),
+      loadData();
+    }, [loadData, refresh]),
   );
 
-  useRealtimeSync(user?.id, () => {
-    if (!selectedAnimalId) return;
-    fetchMedicalEvents(selectedAnimalId).then(setEvents);
-  });
+  useRealtimeSync(user?.id, loadData);
 
   const nextReminder = reminders.find((reminder) => reminder.statut === "actif");
   const healthScore = computeHealthScore({
@@ -68,10 +69,7 @@ export default function DashboardScreen() {
   });
 
   return (
-    <Screen
-      style={styles.screen}
-      scroll
-    >
+    <Screen style={styles.screen} scroll>
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Bonjour {profile?.prenom ?? ""}</Text>
@@ -87,7 +85,6 @@ export default function DashboardScreen() {
           animals={animals}
           selectedId={selectedAnimalId}
           onSelect={(animal) => setSelectedAnimalId(animal.id)}
-          onItemPress={(animal) => router.push(`/(app)/animal/${animal.id}`)}
         />
       ) : (
         <EmptyState
@@ -120,7 +117,9 @@ export default function DashboardScreen() {
             onPress={() => {
               if (action.route === "qr") router.push("/(app)/qr");
               else if (action.route === "reminders") router.push("/(app)/reminders");
-              else if (selectedAnimalId) {
+              else if (action.route === "fiche" && selectedAnimalId) {
+                router.push(`/(app)/animal/${selectedAnimalId}`);
+              } else if (selectedAnimalId) {
                 router.push({
                   pathname: `/(app)/animal/${action.route}`,
                   params: { id: selectedAnimalId },
@@ -129,11 +128,7 @@ export default function DashboardScreen() {
             }}
           >
             <View style={styles.actionIcon}>
-              <MaterialCommunityIcons
-                name={action.icon}
-                size={26}
-                color={colors.primary}
-              />
+              <MaterialCommunityIcons name={action.icon} size={26} color={colors.primary} />
             </View>
             <Text style={styles.actionText}>{action.label}</Text>
           </Pressable>
@@ -144,7 +139,10 @@ export default function DashboardScreen() {
 
       <AppCard>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Activité récente</Text>
+          <View>
+            <Text style={styles.sectionTitle}>Activité récente</Text>
+            <Text style={styles.sectionHint}>Consultations et événements récents</Text>
+          </View>
           {selectedAnimalId ? (
             <Pressable
               onPress={() =>
@@ -158,46 +156,18 @@ export default function DashboardScreen() {
             </Pressable>
           ) : null}
         </View>
-        {events.slice(0, 3).map((event) => (
-          <Pressable
-            key={event.id}
-            style={styles.activity}
-            onPress={() =>
-              selectedAnimalId
-                ? router.push({
-                    pathname: "/(app)/animal/timeline",
-                    params: { id: selectedAnimalId },
-                  })
-                : undefined
-            }
-          >
-            <View
-              style={[
-                styles.activityDot,
-                event.status === "pending" ? styles.activityDotPending : null,
-              ]}
+        {events.slice(0, 5).map((event, index, list) =>
+          selectedAnimalId ? (
+            <RecentActivityItem
+              key={event.id}
+              event={event}
+              animalId={selectedAnimalId}
+              isLast={index === list.length - 1}
             />
-            <View style={styles.activityContent}>
-              <View style={styles.activityTopRow}>
-                <Text style={styles.activityTitle}>{event.titre ?? getMedicalEventTypeLabel(event.type)}</Text>
-                {event.status === "pending" ? (
-                  <Text style={styles.activityBadge}>À valider</Text>
-                ) : null}
-              </View>
-              <Text style={styles.activityMeta}>
-                {getMedicalEventTypeLabel(event.type)}
-                {event.vet_token_id ? " · Vétérinaire" : ""} · {formatDate(event.date_event)}
-              </Text>
-              {!!getMedicalEventSummary(event) && (
-                <Text style={styles.activitySummary} numberOfLines={2}>
-                  {getMedicalEventSummary(event)}
-                </Text>
-              )}
-            </View>
-          </Pressable>
-        ))}
+          ) : null,
+        )}
         {events.length === 0 ? (
-          <Text style={styles.empty}>Aucun événement médical pour le moment.</Text>
+          <Text style={styles.empty}>Aucune activité récente pour le moment.</Text>
         ) : null}
       </AppCard>
     </Screen>
@@ -286,63 +256,21 @@ const styles = StyleSheet.create({
     ...typography.heading,
     color: colors.text,
   },
+  sectionHint: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginTop: 2,
+  },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: spacing.sm,
   },
   sectionLink: {
     color: colors.primary,
     fontWeight: "700",
     fontSize: 13,
-  },
-  activity: {
-    flexDirection: "row",
-    gap: spacing.md,
-    alignItems: "flex-start",
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  activityDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.primary,
-    marginTop: 6,
-  },
-  activityDotPending: {
-    backgroundColor: colors.accent,
-  },
-  activityContent: {
-    flex: 1,
-    gap: 4,
-  },
-  activityTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: spacing.sm,
-  },
-  activityTitle: {
-    flex: 1,
-    fontWeight: "800",
-    color: colors.text,
-  },
-  activityBadge: {
-    color: colors.accent,
-    fontSize: 11,
-    fontWeight: "800",
-    textTransform: "uppercase",
-  },
-  activityMeta: {
-    color: colors.textMuted,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  activitySummary: {
-    color: colors.textMuted,
-    lineHeight: 20,
   },
   empty: {
     color: colors.textMuted,

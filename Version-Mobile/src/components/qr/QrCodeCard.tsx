@@ -25,7 +25,8 @@ export function QrCodeCard({ token }: { token: VetAccessToken }) {
       </View>
       <Text style={styles.title}>Code unique vétérinaire</Text>
       <Text style={styles.description}>
-        Valable jusqu'au {formatDate(token.expire_le)}. À partager uniquement pendant la consultation.
+        Usage unique · Valable jusqu'au {formatDate(token.expire_le)}. À partager uniquement
+        pendant la consultation.
       </Text>
       {hasShortCode ? (
         <Text selectable style={styles.code}>

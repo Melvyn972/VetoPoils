@@ -8,10 +8,9 @@ type AnimalSelectorProps = {
   animals: Animal[];
   selectedId?: string | null;
   onSelect: (animal: Animal) => void;
-  onItemPress?: (animal: Animal) => void;
 };
 
-export function AnimalSelector({ animals, selectedId, onSelect, onItemPress }: AnimalSelectorProps) {
+export function AnimalSelector({ animals, selectedId, onSelect }: AnimalSelectorProps) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
       {animals.map((animal) => {
@@ -19,10 +18,7 @@ export function AnimalSelector({ animals, selectedId, onSelect, onItemPress }: A
         return (
           <Pressable
             key={animal.id}
-            onPress={() => {
-              onSelect(animal);
-              onItemPress?.(animal);
-            }}
+            onPress={() => onSelect(animal)}
             style={[styles.item, active && styles.active]}
           >
             <AnimalAvatar animal={animal} size={52} />

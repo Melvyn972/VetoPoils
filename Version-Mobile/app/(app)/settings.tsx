@@ -1,16 +1,45 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { StyleSheet, Switch, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, StyleSheet, Switch, Text, View } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { AppCard } from "@/components/ui/AppCard";
 import { Badge } from "@/components/ui/Badge";
 import { Screen } from "@/components/ui/Screen";
+import { fetchNotifications } from "@/features/notifications/notifications.service";
+import { syncPushPreference } from "@/features/notifications/push.service";
+import {
+  getPushEnabledLocal,
+  setPushEnabledLocal,
+} from "@/features/settings/preferences.service";
 import { useSession } from "@/hooks/useSession";
 import { colors, radius, spacing, typography } from "@/theme";
+import type { AppNotification } from "@/types/database.types";
+import { formatRelativeDueDate } from "@/utils/dates";
 
 export default function SettingsScreen() {
-  const { profile, signOut } = useSession();
+  const { profile, signOut, user, refreshProfile } = useSession();
+  const [pushEnabled, setPushEnabled] = useState(true);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+
+  useEffect(() => {
+    getPushEnabledLocal().then(setPushEnabled);
+    fetchNotifications().then(setNotifications).catch(() => setNotifications([]));
+  }, []);
+
+  const togglePush = async (enabled: boolean) => {
+    setPushEnabled(enabled);
+    await setPushEnabledLocal(enabled);
+    if (user?.id) {
+      try {
+        await syncPushPreference(user.id, enabled);
+      } catch {
+        // Profil Supabase peut ne pas encore avoir la colonne — AsyncStorage suffit
+      }
+    }
+    await refreshProfile();
+  };
 
   const logout = async () => {
     await signOut();
@@ -18,7 +47,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} scroll>
       <View>
         <Text style={styles.title}>Compte</Text>
         <Text style={styles.subtitle}>Profil, préférences et abonnement.</Text>
@@ -41,21 +70,52 @@ export default function SettingsScreen() {
         <SettingRow
           icon="bell-outline"
           title="Notifications push"
-          description="Rappels vaccins et synchronisation"
-          enabled
+          description="Rappels, nouvelles consultations et alertes santé"
+          enabled={pushEnabled}
+          onChange={togglePush}
         />
-        <SettingRow
-          icon="shield-check-outline"
-          title="Données sécurisées"
-          description="RLS Supabase et accès propriétaire"
-          enabled
-        />
+      </AppCard>
+
+      <AppCard>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Notifications récentes</Text>
+          <AppButton
+            title="Invitations"
+            variant="secondary"
+            onPress={() => router.push("/(app)/sharing-invites")}
+            style={styles.inviteButton}
+          />
+        </View>
+        {notifications.length === 0 ? (
+          <Text style={styles.text}>Aucune notification pour le moment.</Text>
+        ) : (
+          notifications.slice(0, 5).map((notification) => (
+            <View key={notification.id} style={styles.notificationRow}>
+              <MaterialCommunityIcons
+                name={
+                  notification.type === "rappel"
+                    ? "bell-ring-outline"
+                    : "stethoscope"
+                }
+                size={20}
+                color={colors.primary}
+              />
+              <View style={styles.notificationContent}>
+                <Text style={styles.notificationTitle}>{notification.titre}</Text>
+                <Text style={styles.notificationBody}>{notification.corps}</Text>
+                <Text style={styles.notificationDate}>
+                  {formatRelativeDueDate(notification.created_at)}
+                </Text>
+              </View>
+            </View>
+          ))
+        )}
       </AppCard>
 
       <AppCard>
         <Text style={styles.sectionTitle}>Abonnement</Text>
         <Text style={styles.text}>
-          Le paiement Stripe est prévu côté web. L’app lit votre plan pour appliquer les quotas.
+          Le paiement Stripe est prévu côté web. L'app lit votre plan pour appliquer les quotas.
         </Text>
       </AppCard>
 
@@ -69,11 +129,13 @@ function SettingRow({
   title,
   description,
   enabled,
+  onChange,
 }: {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
   title: string;
   description: string;
   enabled: boolean;
+  onChange: (value: boolean) => void;
 }) {
   return (
     <View style={styles.settingRow}>
@@ -84,7 +146,12 @@ function SettingRow({
         <Text style={styles.settingTitle}>{title}</Text>
         <Text style={styles.settingDescription}>{description}</Text>
       </View>
-      <Switch value={enabled} trackColor={{ true: colors.primarySoft }} thumbColor={colors.primary} />
+      <Switch
+        value={enabled}
+        onValueChange={onChange}
+        trackColor={{ true: colors.primarySoft }}
+        thumbColor={enabled ? colors.primary : colors.border}
+      />
     </View>
   );
 }
@@ -128,9 +195,21 @@ const styles = StyleSheet.create({
   email: {
     color: colors.textMuted,
   },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
   sectionTitle: {
     ...typography.cardTitle,
     color: colors.text,
+    flex: 1,
+  },
+  inviteButton: {
+    paddingHorizontal: spacing.md,
+    minHeight: 36,
   },
   text: {
     color: colors.textMuted,
@@ -158,5 +237,28 @@ const styles = StyleSheet.create({
   settingDescription: {
     color: colors.textMuted,
     fontSize: 12,
+  },
+  notificationRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  notificationContent: {
+    flex: 1,
+    gap: 2,
+  },
+  notificationTitle: {
+    fontWeight: "800",
+    color: colors.text,
+  },
+  notificationBody: {
+    color: colors.textMuted,
+    fontSize: 13,
+  },
+  notificationDate: {
+    color: colors.textMuted,
+    fontSize: 11,
   },
 });

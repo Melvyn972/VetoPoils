@@ -36,3 +36,24 @@ export async function acceptShare(shareId: string) {
   if (error) throw error;
   return data;
 }
+
+export async function revokeShare(shareId: string) {
+  const { data, error } = await supabase.rpc("revoquer_partage", {
+    p_share_id: shareId,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchPendingInvitations(email: string) {
+  const { data, error } = await supabase
+    .from("animal_shares")
+    .select("*, animaux(nom, espece)")
+    .ilike("email_invite", email.trim())
+    .eq("statut", "en_attente")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}

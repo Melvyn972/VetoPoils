@@ -17,7 +17,7 @@ import type { Animal, MedicalEvent, Reminder } from "@/types/database.types";
 import { computeHealthScore } from "@/utils/healthScore";
 
 const links = [
-  { label: "Timeline médicale", icon: "timeline-clock-outline", route: "timeline" },
+  { label: "Historique de consultation", icon: "history", route: "timeline" },
   { label: "Documents", icon: "file-document-outline", route: "documents" },
   { label: "Partage", icon: "account-multiple-plus-outline", route: "share" },
 ] as const;

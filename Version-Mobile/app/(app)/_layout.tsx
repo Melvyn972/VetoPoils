@@ -1,13 +1,16 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 
+import { useNotificationSetup } from "@/hooks/useNotificationSetup";
 import { useSession } from "@/hooks/useSession";
 import { colors, radius } from "@/theme";
 
 const iconSize = 24;
 
 export default function AppLayout() {
-  const { loading, session } = useSession();
+  const { loading, session, user } = useSession();
+
+  useNotificationSetup(user?.id);
 
   if (!loading && !session) {
     return <Redirect href="/(auth)/onboarding" />;
@@ -87,19 +90,19 @@ export default function AppLayout() {
           ),
         }}
       />
-      <Tabs.Screen name="animal" options={{ href: null }} />
       <Tabs.Screen name="animal/[id]" options={{ href: null }} />
       <Tabs.Screen name="animal/edit" options={{ href: null }} />
       <Tabs.Screen name="animal/timeline" options={{ href: null }} />
       <Tabs.Screen name="animal/documents" options={{ href: null }} />
       <Tabs.Screen name="animal/share" options={{ href: null }} />
-      <Tabs.Screen name="modals" options={{ href: null }} />
+      <Tabs.Screen name="sharing-invites" options={{ href: null }} />
       <Tabs.Screen name="modals/add-animal" options={{ href: null }} />
       <Tabs.Screen name="modals/add-medical-event" options={{ href: null }} />
       <Tabs.Screen name="modals/add-reminder" options={{ href: null }} />
       <Tabs.Screen name="modals/upload-document" options={{ href: null }} />
       <Tabs.Screen name="modals/scan-document" options={{ href: null }} />
       <Tabs.Screen name="modals/view-document" options={{ href: null }} />
+      <Tabs.Screen name="modals/consultation-detail" options={{ href: null }} />
     </Tabs>
   );
 }
