@@ -4,7 +4,7 @@ import { getVetWebUrl, resolveVetWebUrl } from "@/lib/vetWeb";
 
 export function useVetWebUrl() {
   const [url, setUrl] = useState(getVetWebUrl);
-  const [isResolving, setIsResolving] = useState(!__DEV__);
+  const [isResolving, setIsResolving] = useState(true);
 
   useEffect(() => {
     let cancelled = false;

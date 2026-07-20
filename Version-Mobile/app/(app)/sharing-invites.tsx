@@ -7,26 +7,47 @@ import { AppCard } from "@/components/ui/AppCard";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Screen } from "@/components/ui/Screen";
-import { acceptShare, fetchPendingInvitations } from "@/features/sharing/sharing.service";
+import {
+  acceptShare,
+  fetchPendingInvitations,
+  refuseShare,
+  type PendingInvitation,
+} from "@/features/sharing/sharing.service";
 import { useSession } from "@/hooks/useSession";
 import { colors, spacing, typography } from "@/theme";
-import { getErrorMessage } from "@/utils/errors";
 import { formatDate } from "@/utils/dates";
-
-type PendingShare = Awaited<ReturnType<typeof fetchPendingInvitations>>[number];
+import { getErrorMessage } from "@/utils/errors";
 
 export default function SharingInvitesScreen() {
-  const { profile } = useSession();
-  const [invites, setInvites] = useState<PendingShare[]>([]);
+  const { profile, user } = useSession();
+  const [invites, setInvites] = useState<PendingInvitation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const inviteEmail = profile?.email?.trim() || user?.email?.trim() || "";
 
   const refresh = useCallback(async () => {
-    if (!profile?.email) return;
-    setInvites(await fetchPendingInvitations(profile.email));
-  }, [profile?.email]);
+    if (!inviteEmail) {
+      setInvites([]);
+      setError("Aucun email associé à votre compte.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      setInvites(await fetchPendingInvitations(inviteEmail));
+    } catch (fetchError) {
+      setInvites([]);
+      setError(getErrorMessage(fetchError));
+    } finally {
+      setLoading(false);
+    }
+  }, [inviteEmail]);
 
   useFocusEffect(
     useCallback(() => {
-      refresh();
+      void refresh();
     }, [refresh]),
   );
 
@@ -34,9 +55,18 @@ export default function SharingInvitesScreen() {
     try {
       await acceptShare(shareId);
       await refresh();
-      Alert.alert("Invitation acceptée", "Vous pouvez maintenant accéder à l'animal partagé.");
-    } catch (error) {
-      Alert.alert("Acceptation impossible", getErrorMessage(error));
+      Alert.alert("Invitation acceptée", "L'animal partagé apparaît maintenant dans Animaux.");
+    } catch (acceptError) {
+      Alert.alert("Acceptation impossible", getErrorMessage(acceptError));
+    }
+  };
+
+  const refuse = async (shareId: string) => {
+    try {
+      await refuseShare(shareId);
+      await refresh();
+    } catch (refuseError) {
+      Alert.alert("Refus impossible", getErrorMessage(refuseError));
     }
   };
 
@@ -45,25 +75,37 @@ export default function SharingInvitesScreen() {
       <View>
         <Text style={styles.title}>Invitations de partage</Text>
         <Text style={styles.subtitle}>
-          Acceptez les invitations reçues pour accéder aux animaux partagés avec vous.
+          Compte connecté : {inviteEmail || "—"}. Seules les invitations envoyées à cet email
+          apparaissent ici.
         </Text>
       </View>
 
-      {invites.length === 0 ? (
+      {loading ? (
+        <Text style={styles.meta}>Chargement...</Text>
+      ) : error ? (
+        <EmptyState
+          icon="alert-circle-outline"
+          title="Impossible de charger"
+          description={error}
+        />
+      ) : invites.length === 0 ? (
         <EmptyState
           icon="email-outline"
           title="Aucune invitation"
-          description="Les invitations envoyées à votre adresse email apparaîtront ici."
+          description={`Aucune invitation en attente pour ${inviteEmail}. Vérifiez que le propriétaire a bien utilisé exactement cet email.`}
         />
       ) : (
         <View style={styles.list}>
           {invites.map((invite) => {
-            const animal = invite.animaux as { nom?: string; espece?: string } | null;
+            const animal = invite.animaux;
+            const animalName = animal?.nom ?? invite.animal_nom ?? "Animal partagé";
+            const animalSpecies = animal?.espece ?? invite.animal_espece ?? "—";
+
             return (
               <AppCard key={invite.id}>
-                <Text style={styles.animalName}>{animal?.nom ?? "Animal"}</Text>
+                <Text style={styles.animalName}>{animalName}</Text>
                 <Text style={styles.meta}>
-                  {animal?.espece ?? "—"} · {invite.email_invite}
+                  {animalSpecies} · {invite.email_invite}
                 </Text>
                 <View style={styles.badges}>
                   <Badge
@@ -73,7 +115,12 @@ export default function SharingInvitesScreen() {
                   <Badge label="En attente" tone="warning" />
                 </View>
                 <Text style={styles.date}>Invité le {formatDate(invite.created_at)}</Text>
-                <AppButton title="Accepter l'invitation" onPress={() => accept(invite.id)} />
+                <AppButton title="Accepter" onPress={() => accept(invite.id)} />
+                <AppButton
+                  title="Refuser"
+                  variant="secondary"
+                  onPress={() => refuse(invite.id)}
+                />
               </AppCard>
             );
           })}

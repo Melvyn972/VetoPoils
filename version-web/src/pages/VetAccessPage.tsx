@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useVetSession } from '../context/VetSessionContext'
 import { MobileShell } from '../components/layout/MobileShell'
@@ -12,12 +12,43 @@ import { mapVetRpcError } from '../lib/vetErrors'
 export function VetAccessPage() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   const { activateToken } = useVetSession()
-  const [code, setCode] = useState('')
+  const tokenFromUrl = searchParams.get('token')
+  const [code, setCode] = useState(() =>
+    tokenFromUrl ? normalizeVetAccessCode(tokenFromUrl) : '',
+  )
   const [error, setError] = useState<string | null>(
     (location.state as { error?: string } | null)?.error ?? null,
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!tokenFromUrl || !isVetAccessCode(tokenFromUrl)) return
+
+    let cancelled = false
+    setIsSubmitting(true)
+    activateToken(tokenFromUrl)
+      .then(() => {
+        if (!cancelled) navigate('/consultation', { replace: true })
+      })
+      .catch((submitError) => {
+        if (!cancelled) {
+          setError(
+            mapVetRpcError(
+              submitError instanceof Error ? submitError : new Error('Code invalide.'),
+            ),
+          )
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsSubmitting(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [activateToken, navigate, tokenFromUrl])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
