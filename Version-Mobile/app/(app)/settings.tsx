@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Switch, Text, View } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { AppCard } from "@/components/ui/AppCard";
@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Screen } from "@/components/ui/Screen";
 import { fetchNotifications } from "@/features/notifications/notifications.service";
 import { syncPushPreference } from "@/features/notifications/push.service";
+import { useReminderAlerts } from "@/features/reminders/ReminderAlertsProvider";
+import { countPendingInvitations } from "@/features/sharing/sharing.service";
 import {
   getPushEnabledLocal,
   setPushEnabledLocal,
@@ -20,13 +22,26 @@ import { formatRelativeDueDate } from "@/utils/dates";
 
 export default function SettingsScreen() {
   const { profile, signOut, user, refreshProfile } = useSession();
+  const { refresh: refreshReminderAlerts } = useReminderAlerts();
   const [pushEnabled, setPushEnabled] = useState(true);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [pendingInvites, setPendingInvites] = useState(0);
+  const inviteEmail = profile?.email?.trim() || user?.email?.trim() || "";
 
   useEffect(() => {
     getPushEnabledLocal().then(setPushEnabled);
     fetchNotifications().then(setNotifications).catch(() => setNotifications([]));
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!inviteEmail) {
+        setPendingInvites(0);
+        return;
+      }
+      void countPendingInvitations(inviteEmail).then(setPendingInvites);
+    }, [inviteEmail]),
+  );
 
   const togglePush = async (enabled: boolean) => {
     setPushEnabled(enabled);
@@ -38,6 +53,7 @@ export default function SettingsScreen() {
         // Profil Supabase peut ne pas encore avoir la colonne — AsyncStorage suffit
       }
     }
+    await refreshReminderAlerts();
     await refreshProfile();
   };
 
@@ -66,6 +82,35 @@ export default function SettingsScreen() {
         </View>
       </AppCard>
 
+      <Pressable onPress={() => router.push("/(app)/sharing-invites")}>
+        <AppCard style={styles.invitesCard}>
+          <View style={styles.invitesRow}>
+            <View style={styles.invitesIcon}>
+              <MaterialCommunityIcons
+                name="account-multiple-plus-outline"
+                size={22}
+                color={colors.primary}
+              />
+            </View>
+            <View style={styles.invitesContent}>
+              <Text style={styles.invitesTitle}>Invitations de partage</Text>
+              <Text style={styles.invitesText}>
+                {pendingInvites > 0
+                  ? `${pendingInvites} invitation${pendingInvites > 1 ? "s" : ""} en attente`
+                  : "Accepter ou refuser les partages reçus"}
+              </Text>
+            </View>
+            {pendingInvites > 0 ? (
+              <View style={styles.invitesBadge}>
+                <Text style={styles.invitesBadgeText}>{pendingInvites}</Text>
+              </View>
+            ) : (
+              <MaterialCommunityIcons name="chevron-right" size={22} color={colors.textMuted} />
+            )}
+          </View>
+        </AppCard>
+      </Pressable>
+
       <AppCard>
         <SettingRow
           icon="bell-outline"
@@ -79,12 +124,6 @@ export default function SettingsScreen() {
       <AppCard>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Notifications récentes</Text>
-          <AppButton
-            title="Invitations"
-            variant="secondary"
-            onPress={() => router.push("/(app)/sharing-invites")}
-            style={styles.inviteButton}
-          />
         </View>
         {notifications.length === 0 ? (
           <Text style={styles.text}>Aucune notification pour le moment.</Text>
@@ -95,7 +134,9 @@ export default function SettingsScreen() {
                 name={
                   notification.type === "rappel"
                     ? "bell-ring-outline"
-                    : "stethoscope"
+                    : notification.type === "partage"
+                      ? "account-multiple-plus-outline"
+                      : "stethoscope"
                 }
                 size={20}
                 color={colors.primary}
@@ -207,9 +248,47 @@ const styles = StyleSheet.create({
     color: colors.text,
     flex: 1,
   },
-  inviteButton: {
-    paddingHorizontal: spacing.md,
-    minHeight: 36,
+  invitesCard: {
+    backgroundColor: colors.primarySoft,
+  },
+  invitesRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  invitesIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.surface,
+  },
+  invitesContent: {
+    flex: 1,
+    gap: 2,
+  },
+  invitesTitle: {
+    fontWeight: "900",
+    color: colors.text,
+  },
+  invitesText: {
+    color: colors.textMuted,
+    fontSize: 12,
+  },
+  invitesBadge: {
+    minWidth: 24,
+    height: 24,
+    borderRadius: radius.pill,
+    paddingHorizontal: 7,
+    backgroundColor: colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  invitesBadgeText: {
+    color: colors.white,
+    fontWeight: "900",
+    fontSize: 12,
   },
   text: {
     color: colors.textMuted,

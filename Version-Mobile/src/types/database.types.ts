@@ -217,6 +217,26 @@ export type Database = {
         Args: { p_share_id: string };
         Returns: AnimalShare;
       };
+      refuser_invitation_partage: {
+        Args: { p_share_id: string };
+        Returns: undefined;
+      };
+      mes_invitations_partage: {
+        Args: Record<string, never>;
+        Returns: AnimalShare[];
+      };
+      inviter_partage_animal: {
+        Args: {
+          p_animal_id: string;
+          p_email_invite: string;
+          p_role?: PartageRole;
+        };
+        Returns: AnimalShare;
+      };
+      compte_existe_par_email: {
+        Args: { p_email: string };
+        Returns: boolean;
+      };
       notifier_rappels_dus: {
         Args: Record<string, never>;
         Returns: number;

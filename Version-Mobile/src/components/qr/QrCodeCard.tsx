@@ -10,6 +10,7 @@ import { formatDate } from "@/utils/dates";
 
 export function QrCodeCard({ token }: { token: VetAccessToken }) {
   const { url: vetWebUrl, isResolving } = useVetWebUrl();
+  // Toujours reconstruire avec garde-fou Vercel (ignore IP locale)
   const url = buildVetConsultationUrl(token.token, vetWebUrl);
   const accessCode = token.token.trim().toUpperCase();
   const hasShortCode = isVetAccessCode(accessCode);
@@ -39,7 +40,7 @@ export function QrCodeCard({ token }: { token: VetAccessToken }) {
         </Text>
       )}
       <Text selectable style={styles.url}>
-        {vetWebUrl}
+        {url}
       </Text>
     </AppCard>
   );

@@ -10,7 +10,7 @@ import { AppCard } from "@/components/ui/AppCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Screen } from "@/components/ui/Screen";
 import { fetchMedicalEvents } from "@/features/medical/medical.service";
-import { scheduleReminderNotifications } from "@/features/notifications/push.service";
+import { useReminderAlerts } from "@/features/reminders/ReminderAlertsProvider";
 import { fetchReminders } from "@/features/reminders/reminders.service";
 import { useAnimals } from "@/hooks/useAnimals";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
@@ -32,6 +32,7 @@ const actions = [
 export default function DashboardScreen() {
   const { profile, user } = useSession();
   const { animals, selectedAnimal, selectedAnimalId, setSelectedAnimalId, refresh } = useAnimals();
+  const { activeCount, overdueCount, refresh: refreshReminderAlerts } = useReminderAlerts();
   const [events, setEvents] = useState<MedicalEvent[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
 
@@ -43,10 +44,7 @@ export default function DashboardScreen() {
     ]);
     setEvents(nextEvents);
     setReminders(nextReminders);
-    if (selectedAnimal) {
-      await scheduleReminderNotifications(nextReminders, selectedAnimal.nom);
-    }
-  }, [selectedAnimal, selectedAnimalId]);
+  }, [selectedAnimalId]);
 
   useEffect(() => {
     loadData();
@@ -56,7 +54,8 @@ export default function DashboardScreen() {
     useCallback(() => {
       refresh();
       loadData();
-    }, [loadData, refresh]),
+      void refreshReminderAlerts();
+    }, [loadData, refresh, refreshReminderAlerts]),
   );
 
   useRealtimeSync(user?.id, loadData);
@@ -94,19 +93,33 @@ export default function DashboardScreen() {
         />
       )}
 
-      {nextReminder ? (
-        <AppCard style={styles.alert}>
-          <View style={styles.alertIcon}>
-            <MaterialCommunityIcons name="bell-ring-outline" size={24} color={colors.accent} />
-          </View>
-          <View style={styles.alertContent}>
-            <Text style={styles.alertTitle}>{nextReminder.titre}</Text>
-            <Text style={styles.alertText}>
-              {formatRelativeDueDate(nextReminder.date_echeance)} •{" "}
-              {formatDate(nextReminder.date_echeance)}
-            </Text>
-          </View>
-        </AppCard>
+      {activeCount > 0 ? (
+        <Pressable onPress={() => router.push("/(app)/reminders")}>
+          <AppCard style={styles.alert}>
+            <View style={styles.alertIcon}>
+              <MaterialCommunityIcons name="bell-ring-outline" size={24} color={colors.accent} />
+            </View>
+            <View style={styles.alertContent}>
+              <View style={styles.alertTitleRow}>
+                <Text style={styles.alertTitle}>
+                  {activeCount} rappel{activeCount > 1 ? "s" : ""} actif
+                  {activeCount > 1 ? "s" : ""}
+                </Text>
+                <View style={styles.countBadge}>
+                  <Text style={styles.countBadgeText}>{activeCount}</Text>
+                </View>
+              </View>
+              <Text style={styles.alertText}>
+                {overdueCount > 0
+                  ? `${overdueCount} en retard — touchez pour ouvrir`
+                  : nextReminder
+                    ? `Prochain : ${nextReminder.titre} · ${formatRelativeDueDate(nextReminder.date_echeance)} · ${formatDate(nextReminder.date_echeance)}`
+                    : "Touchez pour voir la liste"}
+              </Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={22} color={colors.textMuted} />
+          </AppCard>
+        </Pressable>
       ) : null}
 
       <View style={styles.grid}>
@@ -219,9 +232,29 @@ const styles = StyleSheet.create({
   alertContent: {
     flex: 1,
   },
+  alertTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
   alertTitle: {
     ...typography.cardTitle,
     color: colors.text,
+    flexShrink: 1,
+  },
+  countBadge: {
+    minWidth: 24,
+    height: 24,
+    borderRadius: radius.pill,
+    paddingHorizontal: 7,
+    backgroundColor: colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  countBadgeText: {
+    color: colors.white,
+    fontWeight: "900",
+    fontSize: 12,
   },
   alertText: {
     color: colors.textMuted,

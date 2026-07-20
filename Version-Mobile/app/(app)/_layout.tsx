@@ -1,20 +1,15 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 
+import { ReminderAlertsProvider, useReminderAlerts } from "@/features/reminders/ReminderAlertsProvider";
 import { useNotificationSetup } from "@/hooks/useNotificationSetup";
 import { useSession } from "@/hooks/useSession";
-import { colors, radius } from "@/theme";
+import { colors } from "@/theme";
 
 const iconSize = 24;
 
-export default function AppLayout() {
-  const { loading, session, user } = useSession();
-
-  useNotificationSetup(user?.id);
-
-  if (!loading && !session) {
-    return <Redirect href="/(auth)/onboarding" />;
-  }
+function AppTabs() {
+  const { activeCount } = useReminderAlerts();
 
   return (
     <Tabs
@@ -76,6 +71,13 @@ export default function AppLayout() {
         name="reminders"
         options={{
           title: "Rappels",
+          tabBarBadge: activeCount > 0 ? activeCount : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: colors.accent,
+            color: colors.white,
+            fontWeight: "800",
+            fontSize: 11,
+          },
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="bell-outline" color={color} size={iconSize} />
           ),
@@ -104,5 +106,21 @@ export default function AppLayout() {
       <Tabs.Screen name="modals/view-document" options={{ href: null }} />
       <Tabs.Screen name="modals/consultation-detail" options={{ href: null }} />
     </Tabs>
+  );
+}
+
+export default function AppLayout() {
+  const { loading, session, user } = useSession();
+
+  useNotificationSetup(user?.id);
+
+  if (!loading && !session) {
+    return <Redirect href="/(auth)/onboarding" />;
+  }
+
+  return (
+    <ReminderAlertsProvider>
+      <AppTabs />
+    </ReminderAlertsProvider>
   );
 }

@@ -22,11 +22,31 @@ function resolveVetWebUrlFromVercel() {
   return undefined;
 }
 
-const vetWebUrl =
-  process.env.EXPO_PUBLIC_VET_WEB_URL ??
-  process.env.NEXT_PUBLIC_VET_WEB_URL ??
-  resolveVetWebUrlFromVercel() ??
-  "https://veto-poils.vercel.app";
+function isLocalDevUrl(value: string) {
+  return /^(https?:\/\/)?(localhost|127\.0\.0\.1|10\.0\.2\.2|192\.168\.|10\.\d+\.|172\.(1[6-9]|2\d|3[0-1])\.)/i.test(
+    value.trim(),
+  );
+}
+
+function resolveVetWebUrlForQr() {
+  const candidates = [
+    process.env.EXPO_PUBLIC_VET_WEB_URL?.trim(),
+    process.env.NEXT_PUBLIC_VET_WEB_URL?.trim(),
+    resolveVetWebUrlFromVercel(),
+  ];
+
+  const allowLocal = process.env.EXPO_PUBLIC_VET_WEB_ALLOW_LOCAL === "1";
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    if (isLocalDevUrl(candidate) && !allowLocal) continue;
+    return candidate.startsWith("http") ? candidate.replace(/\/$/, "") : `https://${candidate}`;
+  }
+
+  return "https://veto-poils.vercel.app";
+}
+
+const vetWebUrl = resolveVetWebUrlForQr();
 
 const vetWebProjectSlug = "veto-poils";
 

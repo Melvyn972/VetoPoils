@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
-import { Platform } from "react-native";
 
 type ExtraConfig = {
   vetWebUrl?: string;
@@ -8,35 +7,12 @@ type ExtraConfig = {
 };
 
 const extra = (Constants.expoConfig?.extra ?? {}) as ExtraConfig;
-const VET_WEB_URL_CACHE_KEY = "vetopoil-vet-web-url-v2";
-const TUNNEL_HOST_PATTERN = /(exp\.direct|expo\.dev|ngrok)/i;
+/** Incrémenter la clé pour invalider un ancien cache local. */
+const VET_WEB_URL_CACHE_KEY = "vetopoil-vet-web-url-v3";
 const PRODUCTION_VET_WEB_URL = "https://veto-poils.vercel.app";
 const DEFAULT_VERCEL_PROJECT_SLUG = "veto-poils";
-
-function getExpoDevHost(): string | null {
-  const hostUri = Constants.expoConfig?.hostUri;
-  if (!hostUri) return null;
-
-  const host = hostUri.split(":")[0];
-  if (!host || TUNNEL_HOST_PATTERN.test(host)) {
-    return null;
-  }
-
-  return host;
-}
-
-function getDevVetWebUrl(): string {
-  const host = getExpoDevHost();
-  if (host) {
-    return `http://${host}:5173`;
-  }
-
-  if (Platform.OS === "android") {
-    return "http://10.0.2.2:5173";
-  }
-
-  return "http://localhost:5173";
-}
+const LOCAL_HOST_PATTERN =
+  /^(https?:\/\/)?(localhost|127\.0\.0\.1|10\.0\.2\.2|192\.168\.|10\.\d+\.|172\.(1[6-9]|2\d|3[0-1])\.)/i;
 
 function normalizeOrigin(value: string) {
   const trimmed = value.trim().replace(/\/$/, "");
@@ -46,13 +22,36 @@ function normalizeOrigin(value: string) {
   return `https://${trimmed}`;
 }
 
-function getExplicitVetWebUrl(): string | null {
-  const configured =
-    process.env.EXPO_PUBLIC_VET_WEB_URL?.trim() ||
-    extra.vetWebUrl?.trim() ||
-    process.env.NEXT_PUBLIC_VET_WEB_URL?.trim();
+function isLocalDevUrl(value: string) {
+  return LOCAL_HOST_PATTERN.test(value.trim());
+}
 
-  return configured ? normalizeOrigin(configured) : null;
+function allowLocalVetWebUrl() {
+  return process.env.EXPO_PUBLIC_VET_WEB_ALLOW_LOCAL === "1";
+}
+
+/**
+ * Lit la config, mais ignore toute URL locale (sauf opt-in explicite).
+ * Les QR codes doivent toujours pointer vers Vercel en usage normal.
+ */
+function getConfiguredPublicUrl(): string | null {
+  const candidates = [
+    process.env.EXPO_PUBLIC_VET_WEB_URL,
+    process.env.NEXT_PUBLIC_VET_WEB_URL,
+    extra.vetWebUrl,
+  ];
+
+  for (const candidate of candidates) {
+    const value = candidate?.trim();
+    if (!value) continue;
+    const origin = normalizeOrigin(value);
+    if (isLocalDevUrl(origin) && !allowLocalVetWebUrl()) {
+      continue;
+    }
+    return origin;
+  }
+
+  return null;
 }
 
 function getVercelProjectSlug() {
@@ -63,54 +62,47 @@ function getDefaultProductionVetWebUrl() {
   return PRODUCTION_VET_WEB_URL;
 }
 
-function getDiscoveryConfigUrls() {
-  const slug = getVercelProjectSlug();
-  return [`https://${slug}.vercel.app/vet-portal-config.json`];
-}
-
 async function fetchDeployedVetWebUrl(): Promise<string | null> {
-  for (const configUrl of getDiscoveryConfigUrls()) {
-    try {
-      const response = await fetch(configUrl);
-      if (!response.ok) continue;
+  const configUrl = `https://${getVercelProjectSlug()}.vercel.app/vet-portal-config.json`;
+  try {
+    const response = await fetch(configUrl);
+    if (!response.ok) return null;
 
-      const data = (await response.json()) as { baseUrl?: string };
-      if (data.baseUrl) {
-        return normalizeOrigin(data.baseUrl);
-      }
-    } catch {
-      // Essayer l'URL de découverte suivante.
-    }
+    const data = (await response.json()) as { baseUrl?: string };
+    if (!data.baseUrl) return null;
+
+    const origin = normalizeOrigin(data.baseUrl);
+    if (isLocalDevUrl(origin)) return null;
+    return origin;
+  } catch {
+    return null;
   }
-
-  return null;
 }
 
-/** URL synchrone — dev local ou override explicite. */
+/** URL synchrone pour les QR — toujours Vercel sauf opt-in local. */
 export function getVetWebUrl() {
-  const explicit = getExplicitVetWebUrl();
-  if (explicit) return explicit;
-
-  if (__DEV__) {
-    return getDevVetWebUrl();
-  }
-
-  return getDefaultProductionVetWebUrl();
+  return getConfiguredPublicUrl() ?? getDefaultProductionVetWebUrl();
 }
 
-/** Résolution complète — inclut la découverte automatique du domaine Vercel. */
+/** Résolution async — purge le cache local et privilégie Vercel. */
 export async function resolveVetWebUrl(): Promise<string> {
-  const explicit = getExplicitVetWebUrl();
-  if (explicit) return explicit;
-
-  if (__DEV__) {
-    return getDevVetWebUrl();
+  const configured = getConfiguredPublicUrl();
+  if (configured) {
+    await AsyncStorage.setItem(VET_WEB_URL_CACHE_KEY, configured);
+    return configured;
   }
 
   const cached = await AsyncStorage.getItem(VET_WEB_URL_CACHE_KEY);
   if (cached) {
-    return normalizeOrigin(cached);
+    const normalized = normalizeOrigin(cached);
+    if (!isLocalDevUrl(normalized) || allowLocalVetWebUrl()) {
+      return normalized;
+    }
+    await AsyncStorage.removeItem(VET_WEB_URL_CACHE_KEY);
   }
+
+  // Nettoyer aussi l'ancienne clé de cache
+  await AsyncStorage.removeItem("vetopoil-vet-web-url-v2");
 
   const discovered = await fetchDeployedVetWebUrl();
   if (discovered) {
@@ -122,7 +114,13 @@ export async function resolveVetWebUrl(): Promise<string> {
 }
 
 export function buildVetConsultationUrl(token: string, baseUrl = getVetWebUrl()) {
-  return `${baseUrl}/consultation?token=${encodeURIComponent(token)}`;
+  const origin = normalizeOrigin(baseUrl);
+  // Garde-fou final : jamais encoder une IP locale dans un QR
+  const safeOrigin =
+    isLocalDevUrl(origin) && !allowLocalVetWebUrl()
+      ? getDefaultProductionVetWebUrl()
+      : origin;
+  return `${safeOrigin}/consultation?token=${encodeURIComponent(token.trim())}`;
 }
 
 export function isVetAccessCode(value: string) {

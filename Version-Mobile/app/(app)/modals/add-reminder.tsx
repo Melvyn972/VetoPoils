@@ -7,6 +7,7 @@ import { AnimalSelector } from "@/components/animal/AnimalSelector";
 import { AppButton } from "@/components/ui/AppButton";
 import { AppInput } from "@/components/ui/AppInput";
 import { Screen } from "@/components/ui/Screen";
+import { useReminderAlerts } from "@/features/reminders/ReminderAlertsProvider";
 import { createReminder } from "@/features/reminders/reminders.service";
 import { useAnimals } from "@/hooks/useAnimals";
 import { colors, spacing, typography } from "@/theme";
@@ -23,6 +24,7 @@ const reminderTypes: { label: string; value: ReminderType }[] = [
 
 export default function AddReminderScreen() {
   const { animals, selectedAnimalId, setSelectedAnimalId } = useAnimals();
+  const { refresh: refreshReminderAlerts } = useReminderAlerts();
   const [titre, setTitre] = useState("");
   const [type, setType] = useState<ReminderType>("vaccination");
   const [date, setDate] = useState<Date | null>(null);
@@ -30,9 +32,23 @@ export default function AddReminderScreen() {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const onDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
-    if (Platform.OS !== "ios") setShowDatePicker(false);
+  const openDatePicker = () => {
+    // Sans ça, iOS affiche "aujourd'hui" dans le spinner mais `date` reste null.
+    if (!date) setDate(new Date());
+    setShowDatePicker(true);
+  };
+
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    if (Platform.OS === "android") {
+      setShowDatePicker(false);
+      if (event.type === "dismissed") return;
+    }
     if (selectedDate) setDate(selectedDate);
+  };
+
+  const confirmDate = () => {
+    if (!date) setDate(new Date());
+    setShowDatePicker(false);
   };
 
   const submit = async () => {
@@ -52,6 +68,7 @@ export default function AddReminderScreen() {
         canal: "both",
         notes: notes.trim() || null,
       });
+      await refreshReminderAlerts();
       router.back();
     } catch (error) {
       Alert.alert("Création impossible", getErrorMessage(error));
@@ -91,19 +108,24 @@ export default function AddReminderScreen() {
         <AppInput label="Titre" value={titre} onChangeText={setTitre} placeholder="Vaccin annuel" />
         <View style={styles.field}>
           <Text style={styles.label}>Date d'échéance</Text>
-          <Pressable style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+          <Pressable style={styles.dateButton} onPress={openDatePicker}>
             <Text style={[styles.dateText, !date && styles.placeholderText]}>
               {formatLongDate(date)}
             </Text>
           </Pressable>
           {showDatePicker ? (
-            <DateTimePicker
-              value={date ?? new Date()}
-              mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              minimumDate={new Date()}
-              onChange={onDateChange}
-            />
+            <View style={styles.datePickerBlock}>
+              <DateTimePicker
+                value={date ?? new Date()}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                minimumDate={new Date()}
+                onChange={onDateChange}
+              />
+              {Platform.OS === "ios" ? (
+                <AppButton title="Valider la date" variant="secondary" onPress={confirmDate} />
+              ) : null}
+            </View>
           ) : null}
         </View>
         <AppInput label="Notes" value={notes} onChangeText={setNotes} multiline />
@@ -165,6 +187,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     justifyContent: "center",
     paddingHorizontal: spacing.lg,
+  },
+  datePickerBlock: {
+    gap: spacing.sm,
   },
   dateText: {
     color: colors.text,

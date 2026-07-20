@@ -74,7 +74,10 @@ export default function ScanDocumentScreen() {
         asset: result.assets[0],
       });
 
-      Alert.alert("Scan enregistré", "L'analyse OCR backend pourra compléter les champs extraits.");
+      Alert.alert(
+        "Document enregistré",
+        "Le fichier a été ajouté au dossier. L'extraction OCR automatique n'est pas encore active : les champs ne sont pas lus pour le moment.",
+      );
       router.back();
     } catch (error) {
       Alert.alert("Scan impossible", getErrorMessage(error));
@@ -88,7 +91,8 @@ export default function ScanDocumentScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Smart Scan OCR</Text>
         <Text style={styles.subtitle}>
-          Cadrez le document médical avec la caméra pour une lecture optimale.
+          Photographiez un document médical pour l'ajouter au dossier. L'OCR (lecture automatique)
+          n'est pas encore branché.
         </Text>
       </View>
       <View style={styles.viewfinder}>
