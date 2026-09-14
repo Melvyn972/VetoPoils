@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { dateInputToIso, isValidEmail } from './consultation'
 import { isVetAccessCode, normalizeVetAccessCode, buildEventPayload } from './vet'
-import { mapVetRpcError, toVetError } from './vetErrors'
+import { getVetErrorMessage, mapVetRpcError, toVetError } from './vetErrors'
 
 describe('codes d’accès vétérinaires', () => {
   it('normalise et accepte un code 6 caractères sans 0/1/O/I', () => {
@@ -57,5 +57,19 @@ describe('erreurs RPC', () => {
       /invalide/i,
     )
     expect(toVetError({ message: 'Code d’accès expiré.', code: 'P0001' }).message).toMatch(/expiré/i)
+  })
+
+  it('conserve le message usage unique après le chemin d’affichage UI', () => {
+    const postgrest = { message: "Code d'accès déjà utilisé.", code: 'P0001' }
+    const thrown = toVetError(postgrest)
+
+    expect(thrown.message).toMatch(/déjà servi/i)
+    expect(getVetErrorMessage(thrown)).toBe(thrown.message)
+    expect(getVetErrorMessage(thrown)).toMatch(/déjà servi/i)
+
+    // Re-mapper le message déjà traduit perd « déjà utilisé » et tombe sur le générique.
+    expect(mapVetRpcError(thrown)).toBe(
+      'Impossible de finaliser l’opération. Vérifiez le code d’accès et réessayez.',
+    )
   })
 })

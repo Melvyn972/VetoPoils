@@ -7,7 +7,7 @@ import { Button } from '../components/ui/Button'
 import { FormAlert } from '../components/ui/FormAlert'
 import { Input } from '../components/ui/Input'
 import { isVetAccessCode, normalizeVetAccessCode } from '../lib/vet'
-import { mapVetRpcError } from '../lib/vetErrors'
+import { getVetErrorMessage } from '../lib/vetErrors'
 
 export function VetAccessPage() {
   const navigate = useNavigate()
@@ -34,11 +34,7 @@ export function VetAccessPage() {
       })
       .catch((submitError) => {
         if (!cancelled) {
-          setError(
-            mapVetRpcError(
-              submitError instanceof Error ? submitError : new Error('Code invalide.'),
-            ),
-          )
+          setError(getVetErrorMessage(submitError, 'Code d’accès invalide. Vérifiez le code saisi.'))
         }
       })
       .finally(() => {
@@ -65,7 +61,7 @@ export function VetAccessPage() {
       await activateToken(code)
       navigate('/consultation', { replace: true })
     } catch (submitError) {
-      setError(mapVetRpcError(submitError instanceof Error ? submitError : new Error('Code invalide.')))
+      setError(getVetErrorMessage(submitError, 'Code d’accès invalide. Vérifiez le code saisi.'))
     } finally {
       setIsSubmitting(false)
     }

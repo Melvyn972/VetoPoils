@@ -8,7 +8,7 @@ import {
   requiresDiagnosis,
   type MedicalEventTypeValue,
 } from '../../lib/medicalLabels'
-import { mapVetRpcError } from '../../lib/vetErrors'
+import { getVetErrorMessage } from '../../lib/vetErrors'
 import {
   submitVetAnimalEvent,
   submitVetConsultation,
@@ -168,8 +168,9 @@ export function MedicalEventForm({
           })
         } catch (uploadError) {
           setErrors({
-            form: `L’événement a été enregistré, mais le document n’a pas pu être envoyé. ${mapVetRpcError(
-              uploadError instanceof Error ? uploadError : new Error('Upload impossible'),
+            form: `L’événement a été enregistré, mais le document n’a pas pu être envoyé. ${getVetErrorMessage(
+              uploadError,
+              'Upload impossible',
             )}`,
           })
           return
@@ -179,7 +180,7 @@ export function MedicalEventForm({
       onSuccess()
     } catch (submitError) {
       setErrors({
-        form: mapVetRpcError(submitError instanceof Error ? submitError : new Error('Erreur inconnue')),
+        form: getVetErrorMessage(submitError),
       })
     } finally {
       setIsSubmitting(false)
