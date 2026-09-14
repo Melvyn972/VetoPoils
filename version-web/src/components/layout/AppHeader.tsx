@@ -25,14 +25,18 @@ export function AppHeader({ wide = false }: { wide?: boolean }) {
             aria-hidden="true"
           />
           <div className="min-w-0">
-            <span className="block truncate font-title text-sm font-semibold text-fg-primary sm:text-base">
-              Vet&apos;OPoil — Accès vétérinaire
+            <span className="block font-title text-sm font-semibold text-fg-primary sm:text-base">
+              Vet&apos;OPoil
             </span>
             {wide && animalName ? (
               <span className="hidden font-body text-xs text-fg-tertiary sm:block">
                 Consultation sécurisée · {animalName}
               </span>
-            ) : null}
+            ) : (
+              <span className="hidden font-body text-xs text-fg-tertiary sm:block">
+                Portail vétérinaire
+              </span>
+            )}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-3">
