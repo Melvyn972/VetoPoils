@@ -59,13 +59,18 @@ export function mapVetRpcError(error: PostgrestError | Error): string {
   return 'Impossible de finaliser l’opération. Vérifiez le code d’accès et réessayez.'
 }
 
-export function toVetError(error: unknown): Error {
-  if (error instanceof Error && 'code' in error) {
-    return new Error(mapVetRpcError(error as PostgrestError))
-  }
+function isMessageBearer(error: unknown): error is { message: string } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message: unknown }).message === 'string'
+  )
+}
 
-  if (error instanceof Error) {
-    return new Error(mapVetRpcError(error))
+export function toVetError(error: unknown): Error {
+  if (isMessageBearer(error)) {
+    return new Error(mapVetRpcError(error as PostgrestError))
   }
 
   return new Error(mapVetRpcError(new Error('Erreur inconnue')))
