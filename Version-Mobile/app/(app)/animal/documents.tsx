@@ -9,6 +9,7 @@ import { FilterChips } from "@/components/ui/FilterChips";
 import { Screen } from "@/components/ui/Screen";
 import { fetchDocuments } from "@/features/documents/documents.service";
 import type { DocumentFilter } from "@/features/documents/documents.types";
+import { useAnimalAccess } from "@/hooks/useAnimalAccess";
 import { colors, spacing, typography } from "@/theme";
 import type { Document } from "@/types/database.types";
 
@@ -22,6 +23,7 @@ const filters = [
 
 export default function DocumentsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { access } = useAnimalAccess(id);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filter, setFilter] = useState<DocumentFilter>("all");
 
@@ -41,19 +43,26 @@ export default function DocumentsScreen() {
     <Screen style={styles.screen}>
       <View>
         <Text style={styles.title}>Documents</Text>
-        <Text style={styles.subtitle}>Ordonnances, analyses, vaccins et factures.</Text>
+        <Text style={styles.subtitle}>
+          Ordonnances, analyses, vaccins et factures. L'OCR automatique n'est pas branché : importez
+          un fichier puis créez l'événement médical à la main si besoin.
+        </Text>
       </View>
-      <View style={styles.actions}>
-        <AppButton
-          title="Uploader un document"
-          variant="secondary"
-          onPress={() => router.push({ pathname: "/(app)/modals/upload-document", params: { id } })}
-        />
-        <AppButton
-          title="Smart Scan OCR"
-          onPress={() => router.push({ pathname: "/(app)/modals/scan-document", params: { id } })}
-        />
-      </View>
+      {access.canWrite ? (
+        <View style={styles.actions}>
+          <AppButton
+            title="Uploader un document"
+            variant="secondary"
+            onPress={() => router.push({ pathname: "/(app)/modals/upload-document", params: { id } })}
+          />
+          <AppButton
+            title="Photographier un document"
+            onPress={() => router.push({ pathname: "/(app)/modals/scan-document", params: { id } })}
+          />
+        </View>
+      ) : (
+        <Text style={styles.subtitle}>Lecture seule : les documents restent consultables.</Text>
+      )}
       <FilterChips options={filters} value={filter} onChange={setFilter} />
       {filtered.length === 0 ? (
         <EmptyState

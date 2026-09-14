@@ -72,4 +72,5 @@ export interface VetConsultationInput {
   diagnosis?: string
   notes?: string
   weightKg?: number | null
+  visitDate?: string
 }

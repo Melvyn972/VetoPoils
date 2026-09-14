@@ -1,3 +1,4 @@
+import { dateInputToIso } from './consultation'
 import { getSupabase } from './supabase'
 import { getMedicalEventTypeLabel } from './medicalLabels'
 import { toVetError } from './vetErrors'
@@ -32,7 +33,7 @@ export function isVetAccessCode(value: string) {
   return VET_ACCESS_CODE_PATTERN.test(normalizeVetAccessCode(value))
 }
 
-function buildEventPayload(input: VetConsultationInput) {
+export function buildEventPayload(input: VetConsultationInput) {
   const descriptionParts = [
     input.clinic?.trim() ? `Clinique : ${input.clinic.trim()}` : null,
     input.notes?.trim() ? input.notes.trim() : null,
@@ -45,6 +46,7 @@ function buildEventPayload(input: VetConsultationInput) {
     p_traitement: input.notes?.trim() || null,
     p_poids_kg: input.weightKg ?? null,
     p_description: descriptionParts.join('\n\n') || null,
+    p_date_event: input.visitDate ? dateInputToIso(input.visitDate) : null,
   }
 }
 

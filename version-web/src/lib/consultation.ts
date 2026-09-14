@@ -31,6 +31,11 @@ export function getTodayDateInputValue(): string {
   return `${year}-${month}-${day}`
 }
 
+export function dateInputToIso(value: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value.trim())) return null
+  return `${value.trim()}T12:00:00.000Z`
+}
+
 export function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 }

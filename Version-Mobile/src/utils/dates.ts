@@ -40,6 +40,20 @@ export function formatShortVisitDate(value?: string | null) {
   }).format(new Date(value));
 }
 
+export function formatCountdown(expireAt: string, now = Date.now()) {
+  const remainingMs = new Date(expireAt).getTime() - now;
+  if (Number.isNaN(remainingMs) || remainingMs <= 0) return "Expiré";
+
+  const totalSeconds = Math.floor(remainingMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) return `${hours} h ${minutes} min`;
+  if (minutes > 0) return `${minutes} min ${seconds.toString().padStart(2, "0")} s`;
+  return `${seconds} s`;
+}
+
 export function computeAgeLabel(value?: string | Date | null) {
   if (!value) return "Non renseigné";
 

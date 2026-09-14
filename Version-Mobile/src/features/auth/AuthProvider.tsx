@@ -29,9 +29,17 @@ async function loadProfile(userId: string) {
   return data;
 }
 
+async function ensureOwnerProfile() {
+  const { data, error } = await supabase.rpc("ensure_owner_profile");
+  if (error) throw error;
+  return data as Profile;
+}
+
 async function safeLoadProfile(userId: string) {
   try {
-    return await loadProfile(userId);
+    const existing = await loadProfile(userId);
+    if (existing) return existing;
+    return await ensureOwnerProfile();
   } catch (error) {
     console.warn("Impossible de charger le profil utilisateur", error);
     return null;

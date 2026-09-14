@@ -9,7 +9,7 @@ import { Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native
 import { AppButton } from "@/components/ui/AppButton";
 import { AppInput } from "@/components/ui/AppInput";
 import { Screen } from "@/components/ui/Screen";
-import { fetchAnimal, updateAnimal, uploadAnimalPhoto } from "@/features/animals/animals.service";
+import { fetchAnimal, softDeleteAnimal, updateAnimal, uploadAnimalPhoto } from "@/features/animals/animals.service";
 import { createMedicalEvent, fetchMedicalEvents } from "@/features/medical/medical.service";
 import { useSession } from "@/hooks/useSession";
 import { colors, radius, spacing, typography } from "@/theme";
@@ -197,6 +197,35 @@ export default function EditAnimalScreen() {
       </View>
       <AppButton title={saving ? "Enregistrement..." : "Enregistrer"} onPress={submit} disabled={saving} />
       <AppButton title="Annuler" variant="secondary" onPress={() => router.back()} />
+      <AppButton
+        title="Archiver cet animal"
+        variant="danger"
+        disabled={saving}
+        onPress={() => {
+          if (!id) return;
+          Alert.alert(
+            "Archiver l'animal",
+            "Le dossier disparaîtra de la liste. Les données restent conservées.",
+            [
+              { text: "Annuler", style: "cancel" },
+              {
+                text: "Archiver",
+                style: "destructive",
+                onPress: async () => {
+                  setSaving(true);
+                  try {
+                    await softDeleteAnimal(id);
+                    router.replace("/(app)/animals");
+                  } catch (error) {
+                    Alert.alert("Archivage impossible", getErrorMessage(error));
+                    setSaving(false);
+                  }
+                },
+              },
+            ],
+          );
+        }}
+      />
     </Screen>
   );
 }

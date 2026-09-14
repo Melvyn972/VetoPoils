@@ -7,7 +7,12 @@ import { AppButton } from "@/components/ui/AppButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Screen } from "@/components/ui/Screen";
 import { useReminderAlerts } from "@/features/reminders/ReminderAlertsProvider";
-import { fetchReminders, updateReminderStatus } from "@/features/reminders/reminders.service";
+import {
+  deleteReminder,
+  fetchReminders,
+  postponeReminder,
+  updateReminderStatus,
+} from "@/features/reminders/reminders.service";
 import { colors, spacing, typography } from "@/theme";
 import type { Reminder } from "@/types/database.types";
 import { getErrorMessage } from "@/utils/errors";
@@ -40,7 +45,36 @@ export default function RemindersScreen() {
     }
   };
 
-  const activeReminders = reminders.filter((reminder) => reminder.statut === "actif");
+  const postpone = async (reminder: Reminder) => {
+    try {
+      await postponeReminder(reminder.id, 7);
+      await refresh();
+    } catch (error) {
+      Alert.alert("Report impossible", getErrorMessage(error));
+    }
+  };
+
+  const remove = async (reminder: Reminder) => {
+    Alert.alert("Supprimer le rappel", reminder.titre, [
+      { text: "Annuler", style: "cancel" },
+      {
+        text: "Supprimer",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteReminder(reminder.id);
+            await refresh();
+          } catch (error) {
+            Alert.alert("Suppression impossible", getErrorMessage(error));
+          }
+        },
+      },
+    ]);
+  };
+
+  const activeReminders = reminders.filter(
+    (reminder) => reminder.statut === "actif" || reminder.statut === "reporte",
+  );
 
   return (
     <Screen style={styles.screen}>
@@ -63,7 +97,7 @@ export default function RemindersScreen() {
       {reminders.length === 0 ? (
         <EmptyState
           icon="bell-outline"
-          title="Aucun rappel actif"
+          title="Aucun rappel"
           description="Créez un rappel pour recevoir une notification le jour J."
         />
       ) : (
@@ -74,6 +108,8 @@ export default function RemindersScreen() {
               reminder={reminder}
               onComplete={(item) => changeStatus(item, "termine")}
               onCancel={(item) => changeStatus(item, "annule")}
+              onPostpone={postpone}
+              onDelete={remove}
             />
           ))}
         </View>

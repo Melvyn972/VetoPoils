@@ -23,6 +23,7 @@ import { computeHealthScore } from "@/utils/healthScore";
 const actions = [
   { label: "Historique", icon: "history", route: "timeline" },
   { label: "Documents", icon: "file-document-outline", route: "documents" },
+  { label: "Journal", icon: "notebook-outline", route: "journal" },
   { label: "Partage", icon: "account-multiple-plus-outline", route: "share" },
   { label: "QR Code", icon: "qrcode", route: "qr" },
   { label: "Rappel", icon: "bell-plus-outline", route: "reminders" },

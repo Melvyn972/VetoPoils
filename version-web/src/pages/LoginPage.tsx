@@ -42,7 +42,7 @@ export function LoginPage() {
   }
 
   if (isConnected) {
-    return <Navigate to="/consultation" replace />
+    return <Navigate to="/mes-patients" replace />
   }
 
   function switchView(nextView: AuthView) {
@@ -119,7 +119,7 @@ export function LoginPage() {
       return
     }
 
-    navigate('/consultation')
+    navigate('/mes-patients')
   }
 
   return (

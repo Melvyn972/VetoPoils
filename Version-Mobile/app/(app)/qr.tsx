@@ -8,7 +8,8 @@ import { AppButton } from "@/components/ui/AppButton";
 import { AppCard } from "@/components/ui/AppCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Screen } from "@/components/ui/Screen";
-import { generateVetToken, revokeVetToken } from "@/features/qr/qr.service";
+import { generateVetToken, fetchActiveVetTokens, revokeVetToken } from "@/features/qr/qr.service";
+import { useAnimalAccess } from "@/hooks/useAnimalAccess";
 import { useAnimals } from "@/hooks/useAnimals";
 import { colors, radius, spacing, typography } from "@/theme";
 import type { VetAccessToken } from "@/types/database.types";
@@ -16,13 +17,39 @@ import { getErrorMessage } from "@/utils/errors";
 
 export default function QrScreen() {
   const { animals, selectedAnimal, selectedAnimalId, setSelectedAnimalId, refresh } = useAnimals();
+  const { access } = useAnimalAccess(selectedAnimalId);
   const [token, setToken] = useState<VetAccessToken | null>(null);
   const [loading, setLoading] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+
+  const restoreActiveToken = useCallback(async (animalId: string) => {
+    setRestoring(true);
+    try {
+      const tokens = await fetchActiveVetTokens(animalId);
+      const active = tokens.find((item) => new Date(item.expire_le).getTime() > Date.now()) ?? null;
+      setToken(active);
+    } catch (error) {
+      setToken(null);
+      Alert.alert("QR impossible", getErrorMessage(error));
+    } finally {
+      setRestoring(false);
+    }
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       refresh();
     }, [refresh]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!selectedAnimalId) {
+        setToken(null);
+        return;
+      }
+      void restoreActiveToken(selectedAnimalId);
+    }, [restoreActiveToken, selectedAnimalId]),
   );
 
   const generate = async () => {
@@ -65,7 +92,6 @@ export default function QrScreen() {
                   style={[styles.animalCard, active && styles.animalCardActive]}
                   onPress={() => {
                     setSelectedAnimalId(animal.id);
-                    setToken(null);
                   }}
                 >
                   <AnimalAvatar animal={animal} size={56} />
@@ -99,9 +125,15 @@ export default function QrScreen() {
         </AppCard>
       ) : null}
 
-      {token ? <QrCodeCard token={token} /> : null}
+      {token ? <QrCodeCard token={token} /> : restoring ? (
+        <Text style={styles.text}>Recherche d'un code encore valide...</Text>
+      ) : null}
 
-      {token ? (
+      {!access.canWrite ? (
+        <Text style={styles.text}>
+          Seul le propriétaire peut générer ou révoquer un code d'accès vétérinaire.
+        </Text>
+      ) : token ? (
         <AppButton title="Révoquer le code" variant="danger" onPress={revoke} />
       ) : (
         <AppButton
