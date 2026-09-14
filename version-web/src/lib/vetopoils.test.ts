@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { dateInputToIso, isValidEmail } from './consultation'
 import { isVetAccessCode, normalizeVetAccessCode, buildEventPayload } from './vet'
-import { mapVetRpcError } from './vetErrors'
+import { mapVetRpcError, toVetError } from './vetErrors'
 
 describe('codes d’accès vétérinaires', () => {
   it('normalise et accepte un code 6 caractères sans 0/1/O/I', () => {
@@ -50,5 +50,12 @@ describe('erreurs RPC', () => {
     expect(mapVetRpcError(new Error('syntax error at or near SELECT'))).toBe(
       'Impossible de finaliser l’opération. Vérifiez le code d’accès et réessayez.',
     )
+  })
+
+  it('mappe un objet PostgREST (pas une instance Error)', () => {
+    expect(toVetError({ message: "Code d'accès invalide.", code: 'P0001' }).message).toMatch(
+      /invalide/i,
+    )
+    expect(toVetError({ message: 'Code d’accès expiré.', code: 'P0001' }).message).toMatch(/expiré/i)
   })
 })

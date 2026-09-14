@@ -4,10 +4,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
 }
 
-export function Button({ children, className = '', disabled, ...props }: ButtonProps) {
+export function Button({ children, className = '', disabled, type = 'button', ...props }: ButtonProps) {
   return (
     <button
-      type="button"
+      type={type}
       disabled={disabled}
       className={[
         'w-full rounded-14 px-4 py-3 font-body text-sm font-semibold text-white transition-colors',
