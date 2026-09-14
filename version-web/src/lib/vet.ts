@@ -42,7 +42,7 @@ export function buildEventPayload(input: VetConsultationInput) {
 
   return {
     p_type: input.eventType,
-    p_titre: `${getMedicalEventTypeLabel(input.eventType)} — ${input.veterinarianName.trim()}`,
+    p_titre: `${getMedicalEventTypeLabel(input.eventType)} - ${input.veterinarianName.trim()}`,
     p_diagnostic: input.diagnosis?.trim() || null,
     p_traitement: input.notes?.trim() || null,
     p_poids_kg: input.weightKg ?? null,

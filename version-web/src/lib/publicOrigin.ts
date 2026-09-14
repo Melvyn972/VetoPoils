@@ -1,4 +1,4 @@
-/** URL publique du portail — sur Vercel = domaine courant, sans variable manuelle. */
+/** URL publique du portail - sur Vercel = domaine courant, sans variable manuelle. */
 export function getVetPortalPublicUrl(): string {
   if (typeof window !== 'undefined') {
     return window.location.origin

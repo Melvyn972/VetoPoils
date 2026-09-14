@@ -79,12 +79,12 @@ async function fetchDeployedVetWebUrl(): Promise<string | null> {
   }
 }
 
-/** URL synchrone pour les QR — toujours Vercel sauf opt-in local. */
+/** URL synchrone pour les QR - toujours Vercel sauf opt-in local. */
 export function getVetWebUrl() {
   return getConfiguredPublicUrl() ?? getDefaultProductionVetWebUrl();
 }
 
-/** Résolution async — purge le cache local et privilégie Vercel. */
+/** Résolution async - purge le cache local et privilégie Vercel. */
 export async function resolveVetWebUrl(): Promise<string> {
   const configured = getConfiguredPublicUrl();
   if (configured) {

@@ -72,7 +72,7 @@ export function PartnerSuggestions({
         Suggestions partenaires
       </p>
       <p className="mt-1 font-body text-xs text-fg-secondary">
-        Liens utiles selon l’espèce — ouverture dans un nouvel onglet.
+        Liens utiles selon l’espèce - ouverture dans un nouvel onglet.
       </p>
       <ul className="mt-3 flex flex-col gap-2">
         {partners.map((partner) => (

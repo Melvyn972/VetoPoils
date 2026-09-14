@@ -55,7 +55,7 @@ FROM (
       'SantéVet',
       'assurance',
       'https://www.santevet.com',
-      'Assurance santé animale — comparer sans engagement.',
+      'Assurance santé animale - comparer sans engagement.',
       true,
       ARRAY['chien', 'chat']::text[]
     ),

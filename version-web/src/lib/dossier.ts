@@ -43,7 +43,7 @@ export function buildVetDossierHtml(dossier: VetDossier) {
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <title>Dossier Vet'OPoil — ${escapeHtml(animal.nom)}</title>
+    <title>Dossier Vet'OPoil - ${escapeHtml(animal.nom)}</title>
     <style>
       body { font-family: Inter, system-ui, sans-serif; color: #1a1a1a; margin: 32px; }
       h1, h2 { color: #2c6e63; }
@@ -68,7 +68,7 @@ export function buildVetDossierHtml(dossier: VetDossier) {
     ${eventsHtml}
     <h2>Documents</h2>
     ${documentsHtml}
-    <footer>Document généré par Vet'OPoil — usage informatif.</footer>
+    <footer>Document généré par Vet'OPoil - usage informatif.</footer>
   </body>
 </html>`
 }
@@ -97,7 +97,7 @@ export function printVetDossier(dossier: VetDossier) {
 }
 
 export function mailtoDossierFallback(animalName: string) {
-  const subject = encodeURIComponent(`Dossier médical Vet'OPoil — ${animalName}`)
+  const subject = encodeURIComponent(`Dossier médical Vet'OPoil - ${animalName}`)
   const body = encodeURIComponent(
     `Bonjour,\n\nLe dossier de ${animalName} peut être imprimé depuis le portail Vet'OPoil (bouton Imprimer le dossier), puis joint à cet e-mail.\n`,
   )

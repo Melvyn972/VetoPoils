@@ -75,7 +75,7 @@ export default function SharingInvitesScreen() {
       <View>
         <Text style={styles.title}>Invitations de partage</Text>
         <Text style={styles.subtitle}>
-          Compte connecté : {inviteEmail || "—"}. Seules les invitations envoyées à cet email
+          Compte connecté : {inviteEmail || "-"}. Seules les invitations envoyées à cet email
           apparaissent ici.
         </Text>
       </View>
@@ -99,7 +99,7 @@ export default function SharingInvitesScreen() {
           {invites.map((invite) => {
             const animal = invite.animaux;
             const animalName = animal?.nom ?? invite.animal_nom ?? "Animal partagé";
-            const animalSpecies = animal?.espece ?? invite.animal_espece ?? "—";
+            const animalSpecies = animal?.espece ?? invite.animal_espece ?? "-";
 
             return (
               <AppCard key={invite.id}>

@@ -20,7 +20,7 @@
 -- INSERT INTO public.medical_events (animal_id, type, titre, diagnostic, status, date_event)
 -- VALUES
 --   ('11111111-1111-1111-1111-111111111111', 'vaccination', 'Vaccin annuel', 'CHPPi + rage', 'validated', now() - interval '40 days'),
---   ('11111111-1111-1111-1111-111111111111', 'consultation', 'Contrôle post-op — en attente', 'Cicatrisation à surveiller', 'pending', now() - interval '1 day');
+--   ('11111111-1111-1111-1111-111111111111', 'consultation', 'Contrôle post-op - en attente', 'Cicatrisation à surveiller', 'pending', now() - interval '1 day');
 --
 -- INSERT INTO public.reminders (animal_id, type, date_echeance, titre, notes, statut)
 -- VALUES

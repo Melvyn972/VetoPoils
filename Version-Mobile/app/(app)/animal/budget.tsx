@@ -111,7 +111,7 @@ export default function BudgetScreen() {
   };
 
   const remove = (expense: Expense) => {
-    Alert.alert("Supprimer la dépense", `${formatEuro(Number(expense.montant))} — ${expense.description || expenseCategoryLabels[expense.category]}`, [
+    Alert.alert("Supprimer la dépense", `${formatEuro(Number(expense.montant))} - ${expense.description || expenseCategoryLabels[expense.category]}`, [
       { text: "Annuler", style: "cancel" },
       {
         text: "Supprimer",

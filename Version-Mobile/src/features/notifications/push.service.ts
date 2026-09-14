@@ -47,7 +47,7 @@ export async function registerPushToken(userId: string) {
       .update({ expo_push_token: tokenData.data })
       .eq("id", userId);
   } catch {
-    // Expo push token unavailable in Expo Go — local notifications still work
+    // Expo push token unavailable in Expo Go - local notifications still work
   }
 }
 
@@ -139,7 +139,7 @@ export async function syncReminderNotifications(
     await Notifications.scheduleNotificationAsync({
       identifier: reminderNotificationId(reminder.id),
       content: {
-        title: overdue ? `En retard — ${animalName}` : `Rappel — ${animalName}`,
+        title: overdue ? `En retard - ${animalName}` : `Rappel - ${animalName}`,
         body: `${reminder.titre} · ${new Date(reminder.date_echeance).toLocaleDateString("fr-FR")}`,
         sound: true,
         badge: active.length,
@@ -156,7 +156,7 @@ export async function syncReminderNotifications(
   await Notifications.setBadgeCountAsync(active.length);
 }
 
-/** @deprecated Utiliser syncReminderNotifications — conserve un alias pour les imports existants. */
+/** @deprecated Utiliser syncReminderNotifications - conserve un alias pour les imports existants. */
 export async function scheduleReminderNotifications(
   reminders: Reminder[],
   animalName: string,
@@ -171,6 +171,6 @@ export async function checkDueReminders() {
   try {
     await supabase.rpc("notifier_rappels_dus");
   } catch {
-    // RPC may not exist yet — local scheduling covers reminders
+    // RPC may not exist yet - local scheduling covers reminders
   }
 }

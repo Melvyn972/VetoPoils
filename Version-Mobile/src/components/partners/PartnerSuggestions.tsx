@@ -32,7 +32,7 @@ export function PartnerSuggestions({ animal, contexte }: PartnerSuggestionsProps
   return (
     <View style={styles.wrapper}>
       <Text style={styles.kicker}>Suggestions partenaires</Text>
-      <Text style={styles.hint}>Liens utiles, sans publicité intrusive — ouverture dans le navigateur.</Text>
+      <Text style={styles.hint}>Liens utiles, sans publicité intrusive - ouverture dans le navigateur.</Text>
       {partners.map((partner) => (
         <Pressable
           key={partner.id}

@@ -46,7 +46,7 @@ export function WelcomePage() {
 
         <ul className="flex flex-col gap-3 rounded-14 border border-fg-tertiary/20 bg-surface-secondary p-4">
           <li className="font-body text-sm text-fg-secondary">
-            Code temporaire, usage unique — expiré, révoqué ou déjà servi : message clair.
+            Code temporaire, usage unique - expiré, révoqué ou déjà servi : message clair.
           </li>
           <li className="font-body text-sm text-fg-secondary">
             Compte véto optionnel pour retrouver vos patients et préremplir votre identité.

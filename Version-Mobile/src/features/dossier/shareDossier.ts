@@ -37,14 +37,14 @@ export async function shareAnimalDossier(params: {
   }
 
   await Share.share({
-    title: `Dossier Vet'OPoil — ${params.animal.nom}`,
+    title: `Dossier Vet'OPoil - ${params.animal.nom}`,
     message: `Dossier médical de ${params.animal.nom} généré par Vet'OPoil.`,
     url: uri,
   });
 }
 
 export async function emailAnimalDossierFallback(animal: Animal) {
-  const subject = encodeURIComponent(`Dossier médical Vet'OPoil — ${animal.nom}`);
+  const subject = encodeURIComponent(`Dossier médical Vet'OPoil - ${animal.nom}`);
   const body = encodeURIComponent(
     `Bonjour,\n\nVous trouverez ci-joint (à ajouter manuellement) le dossier médical de ${animal.nom} généré depuis Vet'OPoil.\n\nSi le PDF n’est pas attaché, utilisez d’abord « Exporter le PDF » puis joignez le fichier depuis le partage du téléphone.\n`,
   );

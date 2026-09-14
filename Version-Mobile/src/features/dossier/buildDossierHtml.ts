@@ -69,7 +69,7 @@ export function buildDossierHtml(input: DossierInput) {
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <title>Dossier Vet'OPoil — ${escapeHtml(input.animal.nom)}</title>
+    <title>Dossier Vet'OPoil - ${escapeHtml(input.animal.nom)}</title>
     <style>
       body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: #17211F; margin: 32px; }
       h1, h2 { color: #0F7B6C; }
@@ -102,7 +102,7 @@ export function buildDossierHtml(input: DossierInput) {
     ${documentsHtml}
     <h2>Rappels actifs</h2>
     ${remindersHtml ? `<ul>${remindersHtml}</ul>` : "<p>Aucun rappel actif.</p>"}
-    <footer>Document généré par Vet'OPoil — à usage informatif, ne remplace pas un dossier clinique officiel.</footer>
+    <footer>Document généré par Vet'OPoil - à usage informatif, ne remplace pas un dossier clinique officiel.</footer>
   </body>
 </html>`;
 }

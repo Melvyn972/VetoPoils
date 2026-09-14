@@ -60,12 +60,6 @@ const config: ExpoConfig = {
   scheme: "vetopoil",
   icon: "./assets/icon.png",
   userInterfaceStyle: "light",
-  newArchEnabled: true,
-  splash: {
-    image: "./assets/splash-icon.png",
-    resizeMode: "contain",
-    backgroundColor: "#F7F6F2",
-  },
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.vetopoil.mobile",
@@ -76,7 +70,6 @@ const config: ExpoConfig = {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#F7F6F2",
     },
-    edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
   },
   web: {
@@ -86,6 +79,19 @@ const config: ExpoConfig = {
     "expo-router",
     "expo-secure-store",
     "expo-notifications",
+    "expo-image",
+    "expo-sharing",
+    "expo-status-bar",
+    "expo-font",
+    [
+      "expo-splash-screen",
+      {
+        image: "./assets/splash-icon.png",
+        backgroundColor: "#F7F6F2",
+        resizeMode: "contain",
+        imageWidth: 200,
+      },
+    ],
     "@react-native-community/datetimepicker",
     [
       "expo-image-picker",

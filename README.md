@@ -1,6 +1,6 @@
 # Vet'OPoil
 
-Carnet de santé animal — monorepo.
+Carnet de santé animal - monorepo.
 
 | Dossier | Rôle |
 | --- | --- |

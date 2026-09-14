@@ -276,7 +276,7 @@ export function MedicalEventForm({
 
       <div className="flex flex-col gap-2 rounded-12 border border-dashed border-fg-tertiary/30 bg-surface p-4">
         <label className="font-body text-sm font-medium text-fg-primary">Document médical (optionnel)</label>
-        <p className="font-body text-xs text-fg-tertiary">PDF ou image — ordonnance, analyse, radio...</p>
+        <p className="font-body text-xs text-fg-tertiary">PDF ou image - ordonnance, analyse, radio...</p>
         <input
           type="file"
           accept="application/pdf,image/*"

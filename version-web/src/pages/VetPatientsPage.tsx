@@ -88,7 +88,7 @@ export function VetPatientsPage() {
           <div>
             <h1 className="font-title text-2xl font-bold text-fg-primary lg:text-3xl">Mes patients</h1>
             <p className="font-body text-sm text-fg-secondary">
-              Bonjour {displayName} — sélectionnez un animal pour voir son carnet et choisir une action.
+              Bonjour {displayName} - sélectionnez un animal pour voir son carnet et choisir une action.
             </p>
           </div>
           <button

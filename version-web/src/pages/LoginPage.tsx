@@ -133,7 +133,7 @@ export function LoginPage() {
           <p className="font-body text-sm text-fg-secondary">
             {view === 'login'
               ? 'Connectez-vous pour préremplir vos consultations.'
-              : 'Compte réservé aux vétérinaires — distinct des comptes propriétaires.'}
+              : 'Compte réservé aux vétérinaires - distinct des comptes propriétaires.'}
           </p>
         </div>
 

@@ -1,4 +1,4 @@
-# Vet'OPoil — Portail vétérinaire
+# Vet'OPoil - Portail vétérinaire
 
 Application Vite + React (espace praticien). Production : https://veto-poils.vercel.app
 
