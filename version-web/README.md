@@ -54,4 +54,4 @@ DEMO_OWNER_PASSWORD='MotDePasseLocal!' \
 npm run seed
 ```
 
-Le script `scripts/seed-demo.mjs` n’est pas branché par défaut : ajoutez `"seed": "node scripts/seed-demo.mjs"` si vous l’utilisez, ou lancez-le avec `node scripts/seed-demo.mjs`. Alternative SQL commentée : `../supabase/seed.sql`.
+Le script est branché via `npm run seed`. Alternative SQL commentée : `../supabase/seed.sql`.

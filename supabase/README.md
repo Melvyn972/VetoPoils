@@ -11,7 +11,7 @@ Les migrations de ce dossier sont la source de vérité **incrémentale** (à pa
 2. Coller le contenu du fichier `migrations/*.sql` **dans l’ordre des timestamps**.
 3. Exécuter.
 
-Les deux migrations MVP (`rejected` enum, puis RPCs) ont déjà été appliquées sur le projet `lmdszelnnibexzvnaubp`. Relancer un fichier déjà appliqué est en général idempotent (`IF NOT EXISTS`, `CREATE OR REPLACE`).
+Les migrations MVP (`rejected` enum, RPCs, suppression de la surcharge `vet_creer_document_metadata`) ont déjà été appliquées sur le projet `lmdszelnnibexzvnaubp`. Relancer un fichier déjà appliqué est en général idempotent (`IF NOT EXISTS`, `CREATE OR REPLACE`, `DROP FUNCTION IF EXISTS`).
 
 ### Point d’attention Postgres
 

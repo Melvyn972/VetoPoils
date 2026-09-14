@@ -113,9 +113,10 @@ export function LoginPage() {
     }
 
     if (needsEmailConfirmation) {
+      setView('login')
+      setErrors({})
       setInfoMessage('Compte créé. Vérifiez votre boîte mail pour confirmer votre adresse.')
       setIsSubmitting(false)
-      switchView('login')
       return
     }
 

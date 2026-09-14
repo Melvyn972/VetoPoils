@@ -28,7 +28,7 @@ export default function RegisterScreen() {
     }
 
     if (!isStrongEnoughPassword(password)) {
-      Alert.alert("Mot de passe trop court", "Le CDC impose au moins 8 caractères.");
+      Alert.alert("Mot de passe trop court", "Le mot de passe doit contenir au moins 8 caractères.");
       return;
     }
 

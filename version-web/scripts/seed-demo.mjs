@@ -99,33 +99,65 @@ if (animals.length === 0) {
 
 const milo = animals.find((animal) => animal.nom === 'Milo') ?? animals[0]
 
-await supabase.from('medical_events').insert([
-  {
-    animal_id: milo.id,
-    type: 'vaccination',
-    titre: 'Vaccin annuel',
-    diagnostic: 'CHPPi + rage',
-    status: 'validated',
-    date_event: new Date(Date.now() - 40 * 86400000).toISOString(),
-  },
-  {
-    animal_id: milo.id,
-    type: 'consultation',
-    titre: 'Contrôle — en attente de validation',
-    diagnostic: 'Cicatrisation à surveiller',
-    status: 'pending',
-    date_event: new Date().toISOString(),
-  },
-])
+const { count: eventCount, error: eventCountError } = await supabase
+  .from('medical_events')
+  .select('id', { count: 'exact', head: true })
+  .eq('animal_id', milo.id)
 
-await supabase.from('reminders').insert({
-  animal_id: milo.id,
-  type: 'antiparasitaire',
-  titre: 'Pipette antiparasitaire',
-  notes: 'À poser le soir',
-  date_echeance: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
-  statut: 'actif',
-  canal: 'both',
-})
+if (eventCountError) {
+  console.error(eventCountError)
+  process.exit(1)
+}
+
+if (!eventCount) {
+  const { error: eventsError } = await supabase.from('medical_events').insert([
+    {
+      animal_id: milo.id,
+      type: 'vaccination',
+      titre: 'Vaccin annuel',
+      diagnostic: 'CHPPi + rage',
+      status: 'validated',
+      date_event: new Date(Date.now() - 40 * 86400000).toISOString(),
+    },
+    {
+      animal_id: milo.id,
+      type: 'consultation',
+      titre: 'Contrôle — en attente de validation',
+      diagnostic: 'Cicatrisation à surveiller',
+      status: 'pending',
+      date_event: new Date().toISOString(),
+    },
+  ])
+  if (eventsError) {
+    console.error(eventsError)
+    process.exit(1)
+  }
+}
+
+const { count: reminderCount, error: reminderCountError } = await supabase
+  .from('reminders')
+  .select('id', { count: 'exact', head: true })
+  .eq('animal_id', milo.id)
+
+if (reminderCountError) {
+  console.error(reminderCountError)
+  process.exit(1)
+}
+
+if (!reminderCount) {
+  const { error: reminderError } = await supabase.from('reminders').insert({
+    animal_id: milo.id,
+    type: 'antiparasitaire',
+    titre: 'Pipette antiparasitaire',
+    notes: 'À poser le soir',
+    date_echeance: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
+    statut: 'actif',
+    canal: 'both',
+  })
+  if (reminderError) {
+    console.error(reminderError)
+    process.exit(1)
+  }
+}
 
 console.log(`Seed OK — propriétaire ${email}, animaux : ${animals.map((a) => a.nom).join(', ')}`)

@@ -65,7 +65,7 @@ export function SuccessPage() {
             onClick={handleNewConsultation}
             className="font-body text-sm font-semibold text-primary"
           >
-            Nouveau QR code
+            Saisir un autre code
           </Link>
         </div>
       </div>
