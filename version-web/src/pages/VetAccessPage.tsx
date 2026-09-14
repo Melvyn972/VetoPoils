@@ -73,8 +73,9 @@ export function VetAccessPage() {
         <div className="flex flex-col gap-3">
           <h1 className="font-title text-2xl font-bold text-fg-primary">Accès vétérinaire</h1>
           <p className="font-body text-sm leading-relaxed text-fg-secondary">
-            Saisissez le code unique fourni par le propriétaire. Ce code est temporaire et lié au
-            dossier de l’animal.
+            Saisissez le code unique fourni par le propriétaire. Ce code est temporaire, à usage
+            unique, et lié au dossier de l’animal. Un code déjà servi, expiré ou révoqué ne donne
+            plus accès.
           </p>
         </div>
 

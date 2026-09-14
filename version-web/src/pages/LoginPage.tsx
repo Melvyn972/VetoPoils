@@ -209,7 +209,13 @@ export function LoginPage() {
           {infoMessage && <p className="font-body text-sm text-success">{infoMessage}</p>}
 
           <Button type="submit" disabled={isSubmitting}>
-            {view === 'login' ? 'Se connecter' : 'Créer mon compte vétérinaire'}
+            {isSubmitting
+              ? view === 'login'
+                ? 'Connexion...'
+                : 'Création du compte...'
+              : view === 'login'
+                ? 'Se connecter'
+                : 'Créer mon compte vétérinaire'}
           </Button>
         </form>
 

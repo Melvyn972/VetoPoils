@@ -69,7 +69,7 @@ export default function SettingsScreen() {
     <Screen style={styles.screen} scroll>
       <View>
         <Text style={styles.title}>Compte</Text>
-        <Text style={styles.subtitle}>Profil, notifications et invitations.</Text>
+        <Text style={styles.subtitle}>Profil, notifications, lectures OCR et invitations.</Text>
       </View>
 
       <AppCard style={styles.profile}>
@@ -122,6 +122,14 @@ export default function SettingsScreen() {
           enabled={pushEnabled}
           onChange={togglePush}
         />
+      </AppCard>
+
+      <AppCard>
+        <Text style={styles.settingTitle}>Lecture automatique (OCR)</Text>
+        <Text style={styles.settingDescription}>
+          Compteur informatif — aucun blocage sans abonnement. Ce mois-ci : {profile?.ocr_usage ?? 0} analyse
+          {(profile?.ocr_usage ?? 0) > 1 ? "s" : ""}.
+        </Text>
       </AppCard>
 
       <AppCard>

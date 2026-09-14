@@ -33,14 +33,28 @@ export function WelcomePage() {
     <MobileShell>
       <div className="flex flex-col gap-8 py-6">
         <div className="flex flex-col gap-3">
-          <h1 className="font-title text-2xl font-bold text-fg-primary">
-            Portail vétérinaire Vet&apos;OPoil
-          </h1>
+          <p className="font-body text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            Portail vétérinaire
+          </p>
+          <h1 className="font-title text-2xl font-bold text-fg-primary">Vet&apos;OPoil</h1>
           <p className="font-body text-sm leading-relaxed text-fg-secondary">
-            Scannez le QR code fourni par le propriétaire ou saisissez le code d’accès temporaire
-            pour consulter le dossier et enregistrer la consultation.
+            Accédez au carnet de l’animal avec le QR ou le code 6 caractères fourni par le
+            propriétaire, puis enregistrez la consultation. L’entrée reste en attente jusqu’à
+            validation dans l’app.
           </p>
         </div>
+
+        <ul className="flex flex-col gap-3 rounded-14 border border-fg-tertiary/20 bg-surface-secondary p-4">
+          <li className="font-body text-sm text-fg-secondary">
+            Code temporaire, usage unique — expiré, révoqué ou déjà servi : message clair.
+          </li>
+          <li className="font-body text-sm text-fg-secondary">
+            Compte véto optionnel pour retrouver vos patients et préremplir votre identité.
+          </li>
+          <li className="font-body text-sm text-fg-secondary">
+            Dossier imprimable en PDF depuis la consultation.
+          </li>
+        </ul>
 
         <div className="flex flex-col gap-3">
           <Button type="button" onClick={() => navigate('/acces')}>

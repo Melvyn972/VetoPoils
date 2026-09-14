@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import { dateInputToIso, isValidEmail } from './consultation'
+import { suggestDocumentCategory, expensesToCsv, partnerMatchesAnimal } from './cdc'
+import { computeHealthScore } from './healthScore'
+import { buildVetDossierHtml, formatSexe } from './dossier'
 import { isVetAccessCode, normalizeVetAccessCode, buildEventPayload } from './vet'
 import { getVetErrorMessage, mapVetRpcError, toVetError } from './vetErrors'
 
@@ -73,3 +76,106 @@ describe('erreurs RPC', () => {
     )
   })
 })
+
+describe('OCR et budget', () => {
+  it('suggère une catégorie depuis le nom de fichier', () => {
+    expect(suggestDocumentCategory('facture-clinique.pdf')).toBe('facture')
+    expect(suggestDocumentCategory('ordonnance-otite.jpg')).toBe('ordonnance')
+    expect(suggestDocumentCategory('vaccin-rappel.png')).toBe('vaccination')
+    expect(suggestDocumentCategory('bilan-sanguin.pdf')).toBe('analyse_sanguine')
+    expect(suggestDocumentCategory('scan.jpg')).toBe('autre')
+  })
+
+  it('exporte un CSV budget avec séparateur point-virgule', () => {
+    const csv = expensesToCsv([
+      {
+        date_depense: '2026-09-14',
+        category: 'veterinaire',
+        montant: 45.5,
+        description: 'Consultation',
+        animalNom: 'Luna',
+      },
+    ])
+    expect(csv).toContain('Catégorie')
+    expect(csv).toContain('Vétérinaire')
+    expect(csv).toContain('45,50')
+    expect(csv).toContain('Luna')
+  })
+
+  it('filtre les partenaires selon l’espèce', () => {
+    expect(partnerMatchesAnimal({ cibles: ['tous'] }, { espece: 'Chat', race: null })).toBe(true)
+    expect(partnerMatchesAnimal({ cibles: ['chien'] }, { espece: 'Chat', race: null })).toBe(false)
+    expect(partnerMatchesAnimal({ cibles: ['chat'] }, { espece: 'Chat', race: 'Siamois' })).toBe(true)
+  })
+})
+
+describe('score santé', () => {
+  it('pénalise l’absence de consultation et les rappels en retard', () => {
+    const result = computeHealthScore({
+      animal: { date_naissance: null, puce: null },
+      events: [],
+      reminders: [
+        {
+          type: 'vaccination',
+          statut: 'actif',
+          date_echeance: '2020-01-01T00:00:00.000Z',
+        },
+      ],
+    })
+
+    expect(result).not.toBeNull()
+    expect(result!.score).toBeLessThan(100)
+    expect(result!.details.lateReminderCount).toBe(1)
+    expect(result!.details.factors.some((factor) => factor.code === 'vaccin_retard')).toBe(true)
+  })
+
+  it('reste à 100 sans facteur négatif', () => {
+    const result = computeHealthScore({
+      animal: { date_naissance: '2022-01-01', puce: '250269801234567' },
+      events: [
+        {
+          type: 'consultation',
+          status: 'validated',
+          date_event: new Date().toISOString(),
+          poids_kg: 5,
+        },
+        {
+          type: 'consultation',
+          status: 'validated',
+          date_event: new Date(Date.now() - 40 * 86_400_000).toISOString(),
+          poids_kg: 5.1,
+        },
+      ],
+      reminders: [],
+    })
+
+    expect(result?.score).toBe(100)
+  })
+})
+
+describe('dossier PDF', () => {
+  it('formate le sexe et inclut le nom de l’animal', () => {
+    expect(formatSexe('male')).toBe('Mâle')
+    expect(formatSexe('femelle')).toBe('Femelle')
+    const html = buildVetDossierHtml({
+      animal: {
+        id: 'a1',
+        nom: 'Luna',
+        espece: 'Chat',
+        race: 'Siamois',
+        date_naissance: '2022-01-01',
+        sexe: 'femelle',
+        couleur: 'gris',
+        puce: '123',
+        photo_path: null,
+        proprietaire_id: 'p1',
+      },
+      medical_events: [],
+      documents: [],
+    })
+    expect(html).toContain('Luna')
+    expect(html).toContain('Femelle')
+    expect(html).toContain("Vet'OPoil")
+  })
+})
+

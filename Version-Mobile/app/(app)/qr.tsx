@@ -82,8 +82,8 @@ export default function QrScreen() {
       <View>
         <Text style={styles.title}>QR Code</Text>
         <Text style={styles.subtitle}>
-          Générez un accès temporaire de 4h pour le vétérinaire. Chaque code QR est utilisable une
-          seule fois lors d'une consultation.
+          Générez un accès temporaire de 4 h pour le vétérinaire. Chaque code est utilisable une
+          seule fois. S’il est expiré, révoqué ou déjà servi, le portail l’indique clairement.
         </Text>
       </View>
 

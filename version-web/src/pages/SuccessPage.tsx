@@ -49,8 +49,8 @@ export function SuccessPage() {
           </h1>
           <p className="font-body text-sm leading-relaxed text-fg-secondary">
             Les informations ont été transmises au carnet de santé de{' '}
-            <span className="font-semibold text-fg-primary">{animalName}</span>. Le propriétaire en
-            sera notifié.
+            <span className="font-semibold text-fg-primary">{animalName}</span>. Elles apparaissent
+            chez le propriétaire avec le statut « à valider ».
           </p>
         </div>
 

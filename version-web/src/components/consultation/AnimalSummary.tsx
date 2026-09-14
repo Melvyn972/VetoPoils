@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
+import { formatSexe } from '../../lib/dossier'
 import { getAnimalPhotoSignedUrl } from '../../lib/documents'
 import { useVetSession } from '../../context/VetSessionContext'
 import type { VetDossier, VetMedicalEvent } from '../../types/vet'
@@ -111,8 +112,8 @@ export function AnimalSummary({ dossier: dossierProp }: { dossier?: VetDossier |
           <p className="mt-1 font-body text-sm text-fg-secondary">
             {summary.species} · {summary.breed}
           </p>
-          <p className="font-body text-sm capitalize text-fg-tertiary">
-            {summary.sexe} · {summary.couleur}
+          <p className="font-body text-sm text-fg-tertiary">
+            {formatSexe(summary.sexe)} · {summary.couleur}
           </p>
         </div>
       </div>

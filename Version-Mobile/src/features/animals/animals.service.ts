@@ -48,6 +48,7 @@ export async function fetchAnimal(id: string) {
     .from("animaux")
     .select("*")
     .eq("id", id)
+    .is("deleted_at", null)
     .maybeSingle();
 
   if (error) throw error;

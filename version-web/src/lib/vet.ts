@@ -1,3 +1,4 @@
+import { suggestDocumentCategory } from './cdc'
 import { dateInputToIso } from './consultation'
 import { getSupabase } from './supabase'
 import { getMedicalEventTypeLabel } from './medicalLabels'
@@ -165,6 +166,7 @@ export async function uploadVetDocument(params: {
 
   const extension = params.file.name.split('.').pop() ?? 'bin'
   const path = `${params.dossier.animal.proprietaire_id}/${params.dossier.animal.id}/${Date.now()}.${extension}`
+  const category = suggestDocumentCategory(params.file.name, params.file.type)
 
   const { error: uploadError } = await supabase.storage
     .from('animal-documents')
@@ -184,7 +186,7 @@ export async function uploadVetDocument(params: {
       p_file_name: params.file.name,
       p_mime_type: params.file.type || 'application/octet-stream',
       p_taille_octets: params.file.size,
-      p_category_ocr: null,
+      p_category_ocr: category,
       p_medical_event_id: params.medicalEventId ?? null,
     })
 
@@ -202,7 +204,7 @@ export async function uploadVetDocument(params: {
     p_file_name: params.file.name,
     p_mime_type: params.file.type || 'application/octet-stream',
     p_taille_octets: params.file.size,
-    p_category_ocr: null,
+    p_category_ocr: category,
     p_medical_event_id: params.medicalEventId ?? null,
   })
 

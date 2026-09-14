@@ -157,6 +157,53 @@ export type DailyLog = {
   updated_at: string;
 };
 
+export type ExpenseCategory =
+  | "veterinaire"
+  | "alimentation"
+  | "accessoires"
+  | "pharmacie"
+  | "autre";
+
+export type Expense = {
+  id: string;
+  animal_id: string;
+  category: ExpenseCategory;
+  montant: number;
+  description: string | null;
+  medical_event_id: string | null;
+  cree_par: string;
+  date_depense: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type HealthScoreHistory = {
+  id: string;
+  animal_id: string;
+  score: number;
+  details: Json;
+  calcule_le: string;
+};
+
+export type Partner = {
+  id: string;
+  nom: string;
+  categorie: string;
+  url: string;
+  description: string | null;
+  actif: boolean;
+  cibles: string[];
+  created_at: string;
+};
+
+export type PartnerClick = {
+  id: string;
+  user_id: string;
+  partner_id: string;
+  contexte: string | null;
+  clique_le: string;
+};
+
 export type AnimalAccessLevel = "owner" | "contributor" | "read_only";
 
 export type AnimalAccess = {
@@ -219,6 +266,24 @@ export type Database = {
         Omit<Partial<DailyLog>, "id" | "created_at" | "updated_at"> & {
           animal_id: string;
           cree_par: string;
+        }
+      >;
+      expenses: Table<
+        Expense,
+        Omit<Partial<Expense>, "id" | "created_at" | "updated_at"> & {
+          animal_id: string;
+          category: ExpenseCategory;
+          montant: number;
+          cree_par: string;
+        }
+      >;
+      health_score_history: Table<HealthScoreHistory>;
+      partners: Table<Partner>;
+      partner_clicks: Table<
+        PartnerClick,
+        Omit<Partial<PartnerClick>, "id" | "clique_le"> & {
+          user_id: string;
+          partner_id: string;
         }
       >;
     };
@@ -306,6 +371,7 @@ export type Database = {
       partage_role: PartageRole;
       invitation_status: InvitationStatus;
       vet_token_status: VetTokenStatus;
+      expense_category: ExpenseCategory;
     };
     CompositeTypes: Record<string, never>;
   };
