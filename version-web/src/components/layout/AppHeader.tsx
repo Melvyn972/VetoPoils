@@ -26,7 +26,7 @@ export function AppHeader({ wide = false }: { wide?: boolean }) {
           />
           <div className="min-w-0">
             <span className="block truncate font-title text-sm font-semibold text-fg-primary sm:text-base">
-              Vetopoils — Accès Vétérinaire
+              Vet&apos;OPoil — Accès vétérinaire
             </span>
             {wide && animalName ? (
               <span className="hidden font-body text-xs text-fg-tertiary sm:block">

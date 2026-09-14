@@ -46,5 +46,9 @@ describe('erreurs RPC', () => {
     expect(mapVetRpcError(new Error('Code d’accès révoqué.'))).toMatch(/révoqué/i)
     expect(mapVetRpcError(new Error('Code d’accès déjà utilisé.'))).toMatch(/déjà servi/i)
     expect(mapVetRpcError(new Error('Code d’accès invalide.'))).toMatch(/invalide/i)
+    expect(mapVetRpcError(new Error('duplicate key value violates unique constraint'))).toMatch(/existe déjà/i)
+    expect(mapVetRpcError(new Error('syntax error at or near SELECT'))).toBe(
+      'Impossible de finaliser l’opération. Vérifiez le code d’accès et réessayez.',
+    )
   })
 })
