@@ -61,13 +61,16 @@ function vetPortalConfigPlugin(mode: string): Plugin {
 
 function resolveSupabaseEnv(env: Record<string, string>) {
   return {
-    url: env.VITE_SUPABASE_URL ?? env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    url:
+      env.VITE_SUPABASE_URL ??
+      env.NEXT_PUBLIC_SUPABASE_URL ??
+      'https://lmdszelnnibexzvnaubp.supabase.co',
     key:
       env.VITE_SUPABASE_ANON_KEY ??
       env.VITE_SUPABASE_PUBLISHABLE_KEY ??
       env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
       env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-      '',
+      'sb_publishable_wxfo-oDHdAFee8uSYP9Uxg_g41pInti',
   }
 }
 

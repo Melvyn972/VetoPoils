@@ -21,6 +21,9 @@ export function AppButton({
     <Pressable
       disabled={disabled}
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: Boolean(disabled) }}
       style={({ pressed }) => [
         styles.base,
         styles[variant],
@@ -29,9 +32,7 @@ export function AppButton({
         style,
       ]}
     >
-      <Text style={[styles.text, variant !== "primary" && styles.textSecondary]}>
-        {title}
-      </Text>
+      <Text style={[styles.text, variant !== "primary" && styles.textSecondary]}>{title}</Text>
     </Pressable>
   );
 }

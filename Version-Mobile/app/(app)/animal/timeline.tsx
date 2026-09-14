@@ -10,8 +10,10 @@ import { Screen } from "@/components/ui/Screen";
 import { fetchDocumentsByEventIds } from "@/features/documents/documents.service";
 import {
   fetchMedicalEvents,
+  rejectMedicalEvent,
   validateMedicalEvent,
 } from "@/features/medical/medical.service";
+import { useAnimalAccess } from "@/hooks/useAnimalAccess";
 import type { MedicalEventFilter } from "@/features/medical/medical.types";
 import { colors, spacing, typography } from "@/theme";
 import type { Document, MedicalEvent } from "@/types/database.types";
@@ -20,6 +22,7 @@ import { getErrorMessage } from "@/utils/errors";
 const filters = [
   { label: "Tout", value: "all" },
   { label: "À valider", value: "pending" },
+  { label: "Refusés", value: "rejected" },
   { label: "Consultations", value: "consultation" },
   { label: "Vaccins", value: "vaccination" },
   { label: "Analyses", value: "analyse" },
@@ -30,6 +33,7 @@ const filters = [
 
 export default function TimelineScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { access } = useAnimalAccess(id);
   const [events, setEvents] = useState<MedicalEvent[]>([]);
   const [documentsByEvent, setDocumentsByEvent] = useState<Record<string, Document[]>>({});
   const [filter, setFilter] = useState<MedicalEventFilter>("all");
@@ -49,6 +53,7 @@ export default function TimelineScreen() {
   const filtered = useMemo(() => {
     if (filter === "all") return events;
     if (filter === "pending") return events.filter((event) => event.status === "pending");
+    if (filter === "rejected") return events.filter((event) => event.status === "rejected");
     return events.filter((event) => event.type === filter);
   }, [events, filter]);
 
@@ -61,6 +66,15 @@ export default function TimelineScreen() {
     }
   };
 
+  const reject = async (eventId: string) => {
+    try {
+      await rejectMedicalEvent(eventId);
+      await refresh();
+    } catch (error) {
+      Alert.alert("Refus impossible", getErrorMessage(error));
+    }
+  };
+
   return (
     <Screen style={styles.screen} scroll>
       <View style={styles.header}>
@@ -70,11 +84,13 @@ export default function TimelineScreen() {
         </Text>
       </View>
       <FilterChips options={filters} value={filter} onChange={setFilter} />
-      <AppButton
-        title="Ajouter une consultation"
-        variant="secondary"
-        onPress={() => router.push({ pathname: "/(app)/modals/add-medical-event", params: { id } })}
-      />
+      {access.canWrite ? (
+        <AppButton
+          title="Ajouter une consultation"
+          variant="secondary"
+          onPress={() => router.push({ pathname: "/(app)/modals/add-medical-event", params: { id } })}
+        />
+      ) : null}
       {filtered.length === 0 ? (
         <EmptyState
           icon="history"
@@ -88,7 +104,12 @@ export default function TimelineScreen() {
               key={event.id}
               event={event}
               documents={documentsByEvent[event.id] ?? []}
-              onValidate={event.status === "pending" ? () => validate(event.id) : undefined}
+              onValidate={
+                event.status === "pending" && access.canWrite ? () => validate(event.id) : undefined
+              }
+              onReject={
+                event.status === "pending" && access.canWrite ? () => reject(event.id) : undefined
+              }
               isLast={index === filtered.length - 1}
             />
           ))}

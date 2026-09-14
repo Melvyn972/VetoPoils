@@ -25,14 +25,18 @@ export function AppHeader({ wide = false }: { wide?: boolean }) {
             aria-hidden="true"
           />
           <div className="min-w-0">
-            <span className="block truncate font-title text-sm font-semibold text-fg-primary sm:text-base">
-              Vetopoils — Accès Vétérinaire
+            <span className="block font-title text-sm font-semibold text-fg-primary sm:text-base">
+              Vet&apos;OPoil
             </span>
             {wide && animalName ? (
               <span className="hidden font-body text-xs text-fg-tertiary sm:block">
                 Consultation sécurisée · {animalName}
               </span>
-            ) : null}
+            ) : (
+              <span className="hidden font-body text-xs text-fg-tertiary sm:block">
+                Portail vétérinaire
+              </span>
+            )}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-3">
@@ -48,20 +52,20 @@ export function AppHeader({ wide = false }: { wide?: boolean }) {
               <button
                 type="button"
                 onClick={() => navigate('/mes-patients')}
-                className="hidden font-body text-xs text-primary underline sm:block"
+                className="font-body text-xs text-primary underline"
               >
                 Mes patients
               </button>
               <button
                 type="button"
                 onClick={() => void signOut()}
-                className="hidden font-body text-xs text-fg-tertiary underline sm:block"
+                className="font-body text-xs text-fg-tertiary underline"
               >
                 {displayName} · Déconnexion
               </button>
             </>
           ) : (
-            <Link to="/login" className="hidden font-body text-xs text-primary underline sm:block">
+            <Link to="/login" className="font-body text-xs text-primary underline">
               Connexion véto
             </Link>
           )}

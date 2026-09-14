@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 
 import { getTodayDateInputValue } from '../../lib/consultation'
 import { getReminderTypeLabel, REMINDER_TYPES, type ReminderTypeValue } from '../../lib/medicalLabels'
-import { mapVetRpcError } from '../../lib/vetErrors'
+import { getVetErrorMessage } from '../../lib/vetErrors'
 import { createVetReminder } from '../../lib/vet'
 import type { VetReminder } from '../../types/vet'
 import { Button } from '../ui/Button'
@@ -48,7 +48,7 @@ export function ReminderForm({ animalId, onCreated }: ReminderFormProps) {
       setNotes('')
       setType('rdv')
     } catch (submitError) {
-      setError(mapVetRpcError(submitError instanceof Error ? submitError : new Error('Erreur inconnue')))
+      setError(getVetErrorMessage(submitError))
     } finally {
       setIsSubmitting(false)
     }

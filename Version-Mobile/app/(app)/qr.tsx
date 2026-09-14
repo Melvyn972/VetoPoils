@@ -8,7 +8,8 @@ import { AppButton } from "@/components/ui/AppButton";
 import { AppCard } from "@/components/ui/AppCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Screen } from "@/components/ui/Screen";
-import { generateVetToken, revokeVetToken } from "@/features/qr/qr.service";
+import { generateVetToken, fetchActiveVetTokens, revokeVetToken } from "@/features/qr/qr.service";
+import { useAnimalAccess } from "@/hooks/useAnimalAccess";
 import { useAnimals } from "@/hooks/useAnimals";
 import { colors, radius, spacing, typography } from "@/theme";
 import type { VetAccessToken } from "@/types/database.types";
@@ -16,13 +17,39 @@ import { getErrorMessage } from "@/utils/errors";
 
 export default function QrScreen() {
   const { animals, selectedAnimal, selectedAnimalId, setSelectedAnimalId, refresh } = useAnimals();
+  const { access } = useAnimalAccess(selectedAnimalId);
   const [token, setToken] = useState<VetAccessToken | null>(null);
   const [loading, setLoading] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+
+  const restoreActiveToken = useCallback(async (animalId: string) => {
+    setRestoring(true);
+    try {
+      const tokens = await fetchActiveVetTokens(animalId);
+      const active = tokens.find((item) => new Date(item.expire_le).getTime() > Date.now()) ?? null;
+      setToken(active);
+    } catch (error) {
+      setToken(null);
+      Alert.alert("QR impossible", getErrorMessage(error));
+    } finally {
+      setRestoring(false);
+    }
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       refresh();
     }, [refresh]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!selectedAnimalId) {
+        setToken(null);
+        return;
+      }
+      void restoreActiveToken(selectedAnimalId);
+    }, [restoreActiveToken, selectedAnimalId]),
   );
 
   const generate = async () => {
@@ -39,8 +66,15 @@ export default function QrScreen() {
 
   const revoke = async () => {
     if (!token) return;
-    await revokeVetToken(token.token);
-    setToken(null);
+    setLoading(true);
+    try {
+      await revokeVetToken(token.token);
+      setToken(null);
+    } catch (error) {
+      Alert.alert("Révocation impossible", getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,8 +82,8 @@ export default function QrScreen() {
       <View>
         <Text style={styles.title}>QR Code</Text>
         <Text style={styles.subtitle}>
-          Générez un accès temporaire de 4h pour le vétérinaire. Chaque code QR est utilisable une
-          seule fois lors d'une consultation.
+          Générez un accès temporaire de 4 h pour le vétérinaire. Chaque code est utilisable une
+          seule fois. S’il est expiré, révoqué ou déjà servi, le portail l’indique clairement.
         </Text>
       </View>
 
@@ -65,7 +99,6 @@ export default function QrScreen() {
                   style={[styles.animalCard, active && styles.animalCardActive]}
                   onPress={() => {
                     setSelectedAnimalId(animal.id);
-                    setToken(null);
                   }}
                 >
                   <AnimalAvatar animal={animal} size={56} />
@@ -99,10 +132,21 @@ export default function QrScreen() {
         </AppCard>
       ) : null}
 
-      {token ? <QrCodeCard token={token} /> : null}
+      {token ? <QrCodeCard token={token} /> : restoring ? (
+        <Text style={styles.text}>Recherche d'un code encore valide...</Text>
+      ) : null}
 
-      {token ? (
-        <AppButton title="Révoquer le code" variant="danger" onPress={revoke} />
+      {!access.canWrite ? (
+        <Text style={styles.text}>
+          Seul le propriétaire peut générer ou révoquer un code d'accès vétérinaire.
+        </Text>
+      ) : token ? (
+        <AppButton
+          title={loading ? "Révocation..." : "Révoquer le code"}
+          variant="danger"
+          onPress={revoke}
+          disabled={loading}
+        />
       ) : (
         <AppButton
           title={loading ? "Génération..." : "Générer le QR code"}

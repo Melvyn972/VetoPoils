@@ -1,4 +1,3 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -8,13 +7,10 @@ import { AppCard } from "@/components/ui/AppCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Screen } from "@/components/ui/Screen";
 import { useAnimals } from "@/hooks/useAnimals";
-import { useSession } from "@/hooks/useSession";
-import { colors, radius, spacing, typography } from "@/theme";
+import { colors, spacing, typography } from "@/theme";
 
 export default function AnimalsScreen() {
   const { animals } = useAnimals();
-  const { profile } = useSession();
-  const isFreeLimited = profile?.plan === "free" && animals.length >= 1;
 
   return (
     <Screen style={styles.screen}>
@@ -24,20 +20,6 @@ export default function AnimalsScreen() {
           <Text style={styles.subtitle}>Gérez les carnets de santé de vos compagnons.</Text>
         </View>
       </View>
-
-      <AppCard style={styles.planCard}>
-        <View style={styles.planIcon}>
-          <MaterialCommunityIcons name="crown-outline" size={22} color={colors.accent} />
-        </View>
-        <View style={styles.planContent}>
-          <Text style={styles.planTitle}>Plan {profile?.plan ?? "free"}</Text>
-          <Text style={styles.planText}>
-            {profile?.plan === "premium"
-              ? "Animaux illimités et fonctions avancées."
-              : "1 animal inclus. Premium débloquera le multi-animaux illimité."}
-          </Text>
-        </View>
-      </AppCard>
 
       {animals.length === 0 ? (
         <EmptyState
@@ -58,11 +40,7 @@ export default function AnimalsScreen() {
         </View>
       )}
 
-      <AppButton
-        title={isFreeLimited ? "Premium requis pour ajouter" : "Ajouter un animal"}
-        disabled={isFreeLimited}
-        onPress={() => router.push("/(app)/modals/add-animal")}
-      />
+      <AppButton title="Ajouter un animal" onPress={() => router.push("/(app)/modals/add-animal")} />
     </Screen>
   );
 }
@@ -81,29 +59,6 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   subtitle: {
-    color: colors.textMuted,
-  },
-  planCard: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  planIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.pill,
-    backgroundColor: colors.accentSoft,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  planContent: {
-    flex: 1,
-  },
-  planTitle: {
-    ...typography.cardTitle,
-    color: colors.text,
-    textTransform: "capitalize",
-  },
-  planText: {
     color: colors.textMuted,
   },
   list: {

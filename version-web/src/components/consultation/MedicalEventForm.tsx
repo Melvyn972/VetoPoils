@@ -2,13 +2,13 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useAuth } from '../../context/AuthContext'
-import { getTodayDateInputValue } from '../../lib/consultation'
+import { getTodayDateInputValue, isValidEmail } from '../../lib/consultation'
 import {
   MEDICAL_EVENT_TYPES,
   requiresDiagnosis,
   type MedicalEventTypeValue,
 } from '../../lib/medicalLabels'
-import { mapVetRpcError } from '../../lib/vetErrors'
+import { getVetErrorMessage } from '../../lib/vetErrors'
 import {
   submitVetAnimalEvent,
   submitVetConsultation,
@@ -106,6 +106,7 @@ export function MedicalEventForm({
     if (mode === 'token' && !isConnected) {
       if (!form.guestFullName.trim()) nextErrors.fullName = 'Le nom complet est requis'
       if (!form.guestEmail.trim()) nextErrors.email = "L'email est requis"
+      else if (!isValidEmail(form.guestEmail)) nextErrors.email = 'Email invalide'
     }
 
     return nextErrors
@@ -147,6 +148,7 @@ export function MedicalEventForm({
         .filter(Boolean)
         .join('\n'),
       weightKg: parsedWeight,
+      visitDate: form.visitDate,
     }
 
     try {
@@ -156,19 +158,29 @@ export function MedicalEventForm({
           : await submitVetConsultation(payload)
 
       if (document) {
-        await uploadVetDocument({
-          token: mode === 'token' ? token : undefined,
-          animalId: mode === 'connected' ? animalId : undefined,
-          dossier,
-          file: document,
-          medicalEventId: (createdEvent as { id?: string })?.id,
-        })
+        try {
+          await uploadVetDocument({
+            token: mode === 'token' ? token : undefined,
+            animalId: mode === 'connected' ? animalId : undefined,
+            dossier,
+            file: document,
+            medicalEventId: (createdEvent as { id?: string })?.id,
+          })
+        } catch (uploadError) {
+          setErrors({
+            form: `L’événement a été enregistré, mais le document n’a pas pu être envoyé. ${getVetErrorMessage(
+              uploadError,
+              'Upload impossible',
+            )}`,
+          })
+          return
+        }
       }
 
       onSuccess()
     } catch (submitError) {
       setErrors({
-        form: mapVetRpcError(submitError instanceof Error ? submitError : new Error('Erreur inconnue')),
+        form: getVetErrorMessage(submitError),
       })
     } finally {
       setIsSubmitting(false)

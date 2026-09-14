@@ -42,7 +42,7 @@ export function LoginPage() {
   }
 
   if (isConnected) {
-    return <Navigate to="/consultation" replace />
+    return <Navigate to="/mes-patients" replace />
   }
 
   function switchView(nextView: AuthView) {
@@ -113,13 +113,14 @@ export function LoginPage() {
     }
 
     if (needsEmailConfirmation) {
+      setView('login')
+      setErrors({})
       setInfoMessage('Compte créé. Vérifiez votre boîte mail pour confirmer votre adresse.')
       setIsSubmitting(false)
-      switchView('login')
       return
     }
 
-    navigate('/consultation')
+    navigate('/mes-patients')
   }
 
   return (
@@ -208,7 +209,13 @@ export function LoginPage() {
           {infoMessage && <p className="font-body text-sm text-success">{infoMessage}</p>}
 
           <Button type="submit" disabled={isSubmitting}>
-            {view === 'login' ? 'Se connecter' : 'Créer mon compte vétérinaire'}
+            {isSubmitting
+              ? view === 'login'
+                ? 'Connexion...'
+                : 'Création du compte...'
+              : view === 'login'
+                ? 'Se connecter'
+                : 'Créer mon compte vétérinaire'}
           </Button>
         </form>
 

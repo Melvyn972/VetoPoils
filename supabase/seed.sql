@@ -1,0 +1,30 @@
+-- Seed de démonstration (à lancer APRÈS création des comptes Auth).
+-- Ne crée pas les utilisateurs : Auth reste dans le dashboard / le script Node.
+--
+-- 1. Créer un compte propriétaire dans Authentication (email + mot de passe).
+-- 2. Remplacer les UUID ci-dessous.
+-- 3. Exécuter dans le SQL Editor (rôle postgres).
+--
+-- Les inserts passent outre RLS (SQL Editor). Ne pas exécuter cela depuis le client anon.
+
+-- \set owner_id '00000000-0000-0000-0000-000000000001'
+
+-- Exemple une fois l'UUID connu :
+--
+-- INSERT INTO public.animaux (id, proprietaire_id, nom, espece, race, sexe, couleur)
+-- VALUES
+--   ('11111111-1111-1111-1111-111111111111', :'owner_id', 'Milo', 'Chien', 'Labrador', 'male', 'Sable'),
+--   ('22222222-2222-2222-2222-222222222222', :'owner_id', 'Luna', 'Chat', 'Européen', 'femelle', 'Gris')
+-- ON CONFLICT (id) DO NOTHING;
+--
+-- INSERT INTO public.medical_events (animal_id, type, titre, diagnostic, status, date_event)
+-- VALUES
+--   ('11111111-1111-1111-1111-111111111111', 'vaccination', 'Vaccin annuel', 'CHPPi + rage', 'validated', now() - interval '40 days'),
+--   ('11111111-1111-1111-1111-111111111111', 'consultation', 'Contrôle post-op — en attente', 'Cicatrisation à surveiller', 'pending', now() - interval '1 day');
+--
+-- INSERT INTO public.reminders (animal_id, type, date_echeance, titre, notes, statut)
+-- VALUES
+--   ('11111111-1111-1111-1111-111111111111', 'antiparasitaire', current_date + 7, 'Pipette antiparasitaire', 'À poser le soir', 'actif');
+--
+-- Préférer le script `version-web/scripts/seed-demo.mjs` avec SUPABASE_SERVICE_ROLE_KEY
+-- (variable d'environnement locale, jamais commitée).

@@ -7,6 +7,8 @@ import { AnimalSummary } from './AnimalSummary'
 import { DocumentsPanel } from './DocumentsPanel'
 import { MedicalEventForm } from './MedicalEventForm'
 import { MedicalHistory } from './MedicalHistory'
+import { PrintDossierButton } from './PrintDossierButton'
+import { PartnerSuggestions } from '../partners/PartnerSuggestions'
 
 export function ConsultationForm() {
   const navigate = useNavigate()
@@ -35,6 +37,8 @@ export function ConsultationForm() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start lg:gap-8">
         <aside className="flex flex-col gap-5 lg:sticky lg:top-6">
           <AnimalSummary dossier={dossier} />
+          <PrintDossierButton dossier={dossier} />
+          <PartnerSuggestions animal={dossier.animal} contexte="consultation" />
           <DocumentsPanel documents={dossier.documents} />
           <MedicalHistory events={dossier.medical_events} />
         </aside>

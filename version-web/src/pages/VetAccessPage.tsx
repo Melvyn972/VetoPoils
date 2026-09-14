@@ -7,7 +7,7 @@ import { Button } from '../components/ui/Button'
 import { FormAlert } from '../components/ui/FormAlert'
 import { Input } from '../components/ui/Input'
 import { isVetAccessCode, normalizeVetAccessCode } from '../lib/vet'
-import { mapVetRpcError } from '../lib/vetErrors'
+import { getVetErrorMessage } from '../lib/vetErrors'
 
 export function VetAccessPage() {
   const navigate = useNavigate()
@@ -34,11 +34,7 @@ export function VetAccessPage() {
       })
       .catch((submitError) => {
         if (!cancelled) {
-          setError(
-            mapVetRpcError(
-              submitError instanceof Error ? submitError : new Error('Code invalide.'),
-            ),
-          )
+          setError(getVetErrorMessage(submitError, 'Code d’accès invalide. Vérifiez le code saisi.'))
         }
       })
       .finally(() => {
@@ -52,6 +48,12 @@ export function VetAccessPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (!isVetAccessCode(code)) {
+      setError('Le code doit contenir 6 caractères (lettres et chiffres, sans 0, 1, I, O).')
+      return
+    }
+
     setIsSubmitting(true)
     setError(null)
 
@@ -59,7 +61,7 @@ export function VetAccessPage() {
       await activateToken(code)
       navigate('/consultation', { replace: true })
     } catch (submitError) {
-      setError(mapVetRpcError(submitError instanceof Error ? submitError : new Error('Code invalide.')))
+      setError(getVetErrorMessage(submitError, 'Code d’accès invalide. Vérifiez le code saisi.'))
     } finally {
       setIsSubmitting(false)
     }
@@ -71,8 +73,9 @@ export function VetAccessPage() {
         <div className="flex flex-col gap-3">
           <h1 className="font-title text-2xl font-bold text-fg-primary">Accès vétérinaire</h1>
           <p className="font-body text-sm leading-relaxed text-fg-secondary">
-            Saisissez le code unique fourni par le propriétaire. Ce code est temporaire et lié au
-            dossier de l’animal.
+            Saisissez le code unique fourni par le propriétaire. Ce code est temporaire, à usage
+            unique, et lié au dossier de l’animal. Un code déjà servi, expiré ou révoqué ne donne
+            plus accès.
           </p>
         </div>
 
@@ -91,10 +94,13 @@ export function VetAccessPage() {
           spellCheck={false}
           className="text-center text-lg font-semibold tracking-[0.35em]"
         />
+        <p className="font-body text-xs text-fg-tertiary">
+          6 caractères, sans 0, 1, I ni O — identique au code affiché sous le QR.
+        </p>
 
         {error ? <FormAlert>{error}</FormAlert> : null}
 
-        <Button type="submit" disabled={isSubmitting || !isVetAccessCode(code)}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Vérification...' : 'Accéder au dossier'}
         </Button>
       </form>

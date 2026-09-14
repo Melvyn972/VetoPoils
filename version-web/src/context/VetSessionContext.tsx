@@ -17,7 +17,7 @@ import {
   normalizeVetAccessCode,
   saveVetToken,
 } from '../lib/vet'
-import { mapVetRpcError } from '../lib/vetErrors'
+import { getVetErrorMessage } from '../lib/vetErrors'
 import type { VetDossier } from '../types/vet'
 
 interface VetSessionContextValue {
@@ -58,7 +58,7 @@ export function VetSessionProvider({ children }: { children: ReactNode }) {
     try {
       await loadDossier(token)
     } catch (loadError) {
-      setError(mapVetRpcError(loadError instanceof Error ? loadError : new Error('Accès refusé.')))
+      setError(getVetErrorMessage(loadError, 'Accès refusé.'))
       setDossier(null)
     } finally {
       setIsLoading(false)
@@ -71,7 +71,7 @@ export function VetSessionProvider({ children }: { children: ReactNode }) {
       try {
         await loadDossier(nextToken)
       } catch (loadError) {
-        setError(mapVetRpcError(loadError instanceof Error ? loadError : new Error('Accès refusé.')))
+        setError(getVetErrorMessage(loadError, 'Accès refusé.'))
         setDossier(null)
         setToken(null)
         clearVetToken()
