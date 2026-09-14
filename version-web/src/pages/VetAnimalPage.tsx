@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { AnimalSummary } from '../components/consultation/AnimalSummary'
@@ -47,7 +47,7 @@ export function VetAnimalPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  async function loadDossier() {
+  const loadDossier = useCallback(async () => {
     if (!animalId) return
 
     setIsLoading(true)
@@ -61,11 +61,11 @@ export function VetAnimalPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [animalId])
 
   useEffect(() => {
     void loadDossier()
-  }, [animalId])
+  }, [loadDossier])
 
   function setView(nextView: AnimalHubView) {
     if (nextView === 'overview') {

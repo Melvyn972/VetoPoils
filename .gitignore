@@ -6,6 +6,9 @@
 !Version-Mobile/**
 !version-web/
 !version-web/**
+!supabase/
+!supabase/**
+!README.md
 
 # Conserver ce fichier
 !.gitignore

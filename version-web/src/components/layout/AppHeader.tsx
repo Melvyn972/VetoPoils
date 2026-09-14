@@ -48,20 +48,20 @@ export function AppHeader({ wide = false }: { wide?: boolean }) {
               <button
                 type="button"
                 onClick={() => navigate('/mes-patients')}
-                className="hidden font-body text-xs text-primary underline sm:block"
+                className="font-body text-xs text-primary underline"
               >
                 Mes patients
               </button>
               <button
                 type="button"
                 onClick={() => void signOut()}
-                className="hidden font-body text-xs text-fg-tertiary underline sm:block"
+                className="font-body text-xs text-fg-tertiary underline"
               >
                 {displayName} · Déconnexion
               </button>
             </>
           ) : (
-            <Link to="/login" className="hidden font-body text-xs text-primary underline sm:block">
+            <Link to="/login" className="font-body text-xs text-primary underline">
               Connexion véto
             </Link>
           )}

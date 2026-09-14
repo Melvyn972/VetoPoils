@@ -7,7 +7,10 @@ import { AppButton } from "@/components/ui/AppButton";
 import { AppCard } from "@/components/ui/AppCard";
 import { Badge } from "@/components/ui/Badge";
 import { Screen } from "@/components/ui/Screen";
-import { fetchNotifications } from "@/features/notifications/notifications.service";
+import {
+  fetchNotifications,
+  markNotificationAsRead,
+} from "@/features/notifications/notifications.service";
 import { syncPushPreference } from "@/features/notifications/push.service";
 import { useReminderAlerts } from "@/features/reminders/ReminderAlertsProvider";
 import { countPendingInvitations } from "@/features/sharing/sharing.service";
@@ -66,7 +69,7 @@ export default function SettingsScreen() {
     <Screen style={styles.screen} scroll>
       <View>
         <Text style={styles.title}>Compte</Text>
-        <Text style={styles.subtitle}>Profil, préférences et abonnement.</Text>
+        <Text style={styles.subtitle}>Profil, notifications et invitations.</Text>
       </View>
 
       <AppCard style={styles.profile}>
@@ -78,7 +81,7 @@ export default function SettingsScreen() {
             {profile?.prenom} {profile?.nom}
           </Text>
           <Text style={styles.email}>{profile?.email}</Text>
-          <Badge label={profile?.plan === "premium" ? "Premium" : "Free"} tone="info" />
+          <Badge label="Espace propriétaire" tone="info" />
         </View>
       </AppCard>
 
@@ -129,7 +132,15 @@ export default function SettingsScreen() {
           <Text style={styles.text}>Aucune notification pour le moment.</Text>
         ) : (
           notifications.slice(0, 5).map((notification) => (
-            <View key={notification.id} style={styles.notificationRow}>
+            <Pressable
+              key={notification.id}
+              style={styles.notificationRow}
+              onPress={() => {
+                void markNotificationAsRead(notification.id).then(() =>
+                  fetchNotifications().then(setNotifications).catch(() => undefined),
+                );
+              }}
+            >
               <MaterialCommunityIcons
                 name={
                   notification.type === "rappel"
@@ -148,16 +159,9 @@ export default function SettingsScreen() {
                   {formatRelativeDueDate(notification.created_at)}
                 </Text>
               </View>
-            </View>
+            </Pressable>
           ))
         )}
-      </AppCard>
-
-      <AppCard>
-        <Text style={styles.sectionTitle}>Abonnement</Text>
-        <Text style={styles.text}>
-          Le paiement Stripe est prévu côté web. L'app lit votre plan pour appliquer les quotas.
-        </Text>
       </AppCard>
 
       <AppButton title="Se déconnecter" variant="danger" onPress={logout} />

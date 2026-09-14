@@ -10,11 +10,19 @@ type ReminderCardProps = {
   reminder: Reminder;
   onComplete?: (reminder: Reminder) => void;
   onCancel?: (reminder: Reminder) => void;
+  onPostpone?: (reminder: Reminder) => void;
+  onDelete?: (reminder: Reminder) => void;
 };
 
-export function ReminderCard({ reminder, onComplete, onCancel }: ReminderCardProps) {
+export function ReminderCard({
+  reminder,
+  onComplete,
+  onCancel,
+  onPostpone,
+  onDelete,
+}: ReminderCardProps) {
   const late = new Date(reminder.date_echeance).getTime() < Date.now();
-  const active = reminder.statut === "actif";
+  const active = reminder.statut === "actif" || reminder.statut === "reporte";
 
   return (
     <AppCard>
@@ -36,6 +44,12 @@ export function ReminderCard({ reminder, onComplete, onCancel }: ReminderCardPro
           </Pressable>
           <Pressable style={[styles.action, styles.cancel]} onPress={() => onCancel?.(reminder)}>
             <Text style={styles.cancelText}>Annuler</Text>
+          </Pressable>
+          <Pressable style={[styles.action, styles.cancel]} onPress={() => onPostpone?.(reminder)}>
+            <Text style={styles.cancelText}>+7 j</Text>
+          </Pressable>
+          <Pressable style={[styles.action, styles.cancel]} onPress={() => onDelete?.(reminder)}>
+            <Text style={styles.cancelText}>Supprimer</Text>
           </Pressable>
         </View>
       ) : (
@@ -65,6 +79,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
   action: {

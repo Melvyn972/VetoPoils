@@ -12,18 +12,14 @@ import { Screen } from "@/components/ui/Screen";
 import { fetchAnimal } from "@/features/animals/animals.service";
 import { fetchMedicalEvents } from "@/features/medical/medical.service";
 import { fetchReminders } from "@/features/reminders/reminders.service";
+import { useAnimalAccess } from "@/hooks/useAnimalAccess";
 import { colors, radius, spacing, typography } from "@/theme";
 import type { Animal, MedicalEvent, Reminder } from "@/types/database.types";
 import { computeHealthScore } from "@/utils/healthScore";
 
-const links = [
-  { label: "Historique de consultation", icon: "history", route: "timeline" },
-  { label: "Documents", icon: "file-document-outline", route: "documents" },
-  { label: "Partage", icon: "account-multiple-plus-outline", route: "share" },
-] as const;
-
 export default function AnimalDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { access } = useAnimalAccess(id);
   const [animal, setAnimal] = useState<Animal | null>(null);
   const [events, setEvents] = useState<MedicalEvent[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -41,6 +37,16 @@ export default function AnimalDetailScreen() {
 
   useEffect(refresh, [refresh]);
   useFocusEffect(refresh);
+
+  const links: { label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; route: string }[] = [
+    { label: "Historique de consultation", icon: "history", route: "timeline" },
+    { label: "Documents", icon: "file-document-outline", route: "documents" },
+    { label: "Journal quotidien", icon: "notebook-outline", route: "journal" },
+  ];
+
+  if (access.canManageShares) {
+    links.push({ label: "Partage", icon: "account-multiple-plus-outline", route: "share" });
+  }
 
   if (!animal) {
     return (
@@ -64,13 +70,21 @@ export default function AnimalDetailScreen() {
         <Badge label={animal.puce ? "Puce renseignée" : "Puce à compléter"} tone="info" />
       </AppCard>
 
-      <Pressable
-        style={styles.editButton}
-        onPress={() => router.push({ pathname: "/(app)/animal/edit", params: { id: animal.id } })}
-      >
-        <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.primary} />
-        <Text style={styles.editText}>Modifier la fiche</Text>
-      </Pressable>
+      {access.canWrite ? (
+        <Pressable
+          style={styles.editButton}
+          onPress={() => router.push({ pathname: "/(app)/animal/edit", params: { id: animal.id } })}
+        >
+          <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.primary} />
+          <Text style={styles.editText}>Modifier la fiche</Text>
+        </Pressable>
+      ) : (
+        <Text style={styles.subtitle}>
+          {access.level === "contributor"
+            ? "Accès contributeur : vous pouvez remplir le journal quotidien."
+            : "Accès lecture seule."}
+        </Text>
+      )}
 
       <AnimalInfoCards dateNaissance={animal.date_naissance} events={events} />
 

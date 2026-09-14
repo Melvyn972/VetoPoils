@@ -33,7 +33,7 @@ export default function RegisterScreen() {
     }
 
     setLoading(true);
-    const { error } = await signUp({
+    const { data, error } = await signUp({
       email: email.trim(),
       password,
       prenom: prenom.trim(),
@@ -46,10 +46,16 @@ export default function RegisterScreen() {
       return;
     }
 
-    Alert.alert(
-      "Compte créé",
-      "Si la confirmation email est active, validez votre adresse avant connexion.",
-    );
+    if (!data.session) {
+      Alert.alert(
+        "Confirmez votre email",
+        "Un message de confirmation a été envoyé. Validez votre adresse puis reconnectez-vous.",
+      );
+      router.replace("/(auth)/login");
+      return;
+    }
+
+    Alert.alert("Compte créé", "Votre espace propriétaire est prêt.");
     router.replace("/(app)/dashboard");
   };
 

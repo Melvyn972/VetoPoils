@@ -1,10 +1,12 @@
 import type { ExpoConfig } from "expo/config";
 
 const supabaseUrl =
+  process.env.EXPO_PUBLIC_SUPABASE_URL ??
   process.env.NEXT_PUBLIC_SUPABASE_URL ??
   "https://lmdszelnnibexzvnaubp.supabase.co";
 
 const supabasePublishableKey =
+  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
   "sb_publishable_wxfo-oDHdAFee8uSYP9Uxg_g41pInti";
 

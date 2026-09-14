@@ -1,37 +1,52 @@
 # Vet'OPoil Mobile
 
-Application mobile React Native avec Expo SDK 54, centrée sur l'espace utilisateur propriétaire.
+Application propriétaire — Expo SDK 54 / Expo Router. Le portail vétérinaire est dans `version-web`.
 
-## Périmètre
+## Périmètre MVP
 
-- Inclus : inscription/connexion, dashboard, multi-animaux, fiche animal, timeline médicale, documents, Smart Scan préparé, QR/code unique, rappels, partage et synchronisation des événements en attente.
-- Exclu : espace vétérinaire, écran public `/vet/:token`, formulaire de consultation vétérinaire et toute fonctionnalité destinée aux praticiens.
+- Inscription / connexion / restauration de session (Supabase Auth + profil)
+- Multi-animaux (création, édition, archivage)
+- Timeline médicale (filtre, validation / refus des événements vétérinaires en attente)
+- Documents : upload image/PDF, aperçu. OCR optionnel (sans clé API : upload + saisie manuelle)
+- QR / code 6 caractères (4 h, compte à rebours, révocation, restauration du code actif)
+- Rappels (création, terminer, annuler, reporter +7 j, supprimer) + préférence push
+- Partage email lecture seule / contributeur + écran d’invitations
+- Journal quotidien pour le contributeur (pet-sitting)
 
-## Supabase
-
-Le projet utilise :
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://lmdszelnnibexzvnaubp.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_wxfo-oDHdAFee8uSYP9Uxg_g41pInti
-```
-
-Ces valeurs sont aussi présentes en fallback dans `app.config.ts`.
+Hors scope : paiements Stripe, téléconsultation vidéo.
 
 ## Lancer le projet
 
 ```bash
 cd Version-Mobile
+cp .env.example .env
 npm install
+npm run typecheck
 npm run start
 ```
 
-Puis ouvrir avec Expo Go sur iOS/Android ou lancer :
+Expo Go (iOS/Android) ou `npm run android` / `npm run ios`.
 
-```bash
-npm run android
-npm run ios
-```
+## Variables d’environnement
+
+Voir `.env.example`.
+
+| Variable | Rôle |
+| --- | --- |
+| `EXPO_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_URL` | URL projet |
+| `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Clé publishable (jamais `service_role`) |
+| `EXPO_PUBLIC_VET_WEB_URL` | Base URL encodée dans les QR (`https://veto-poils.vercel.app`) |
+| `EXPO_PUBLIC_OCR_API_URL` / `EXPO_PUBLIC_OCR_API_KEY` | Optionnel. Absents = pas d’OCR, upload manuel OK |
+
+Les valeurs publishable sont aussi en fallback dans `app.config.ts` pour un démarrage démo.
+
+## Parcours de démo
+
+1. Créer un compte propriétaire → dashboard.
+2. Ajouter 1–2 animaux.
+3. Générer un QR (onglet QR) → ouvrir le portail véto avec le code.
+4. Valider ou refuser la consultation dans Historique.
+5. Inviter un second compte (partage) ; le contributeur remplit le Journal quotidien.
 
 ## Vérification
 
@@ -39,11 +54,4 @@ npm run ios
 npm run typecheck
 ```
 
-## Structure
-
-- `app/` : routes Expo Router.
-- `src/components/` : composants UI et métier réutilisables.
-- `src/features/` : services Supabase par domaine.
-- `src/lib/` : client Supabase, env, realtime, storage paths.
-- `src/theme/` : tokens visuels inspirés des maquettes `exemple`.
-- `src/types/` : types Supabase nécessaires au mobile.
+Les notifications push distantes (token Expo) ne fonctionnent pas dans Expo Go ; les rappels locaux restent planifiés à 9 h le jour J si la préférence est activée.

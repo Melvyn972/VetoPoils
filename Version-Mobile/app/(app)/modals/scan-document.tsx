@@ -13,6 +13,7 @@ import {
   pickImageFromLibrary,
 } from "@/features/documents/documents.service";
 import { useSession } from "@/hooks/useSession";
+import { isOcrConfigured } from "@/lib/env";
 import { supabase } from "@/lib/supabase";
 import { buildAnimalStoragePath } from "@/lib/storagePaths";
 import { colors, radius, spacing, typography } from "@/theme";
@@ -23,7 +24,7 @@ async function uploadScannedImage(params: {
   ownerId: string;
   asset: ImagePickerAsset;
 }) {
-  await incrementOcrUsage();
+  await incrementOcrUsage().catch(() => undefined);
 
   const fileName = params.asset.fileName ?? `scan-${Date.now()}.jpg`;
   const path = buildAnimalStoragePath({
@@ -76,7 +77,9 @@ export default function ScanDocumentScreen() {
 
       Alert.alert(
         "Document enregistré",
-        "Le fichier a été ajouté au dossier. L'extraction OCR automatique n'est pas encore active : les champs ne sont pas lus pour le moment.",
+        isOcrConfigured()
+          ? "Le fichier a été ajouté. Si l'OCR est configuré, les champs extraits apparaîtront après traitement."
+          : "Le fichier a été ajouté au dossier. Aucune clé OCR n'est configurée : créez l'événement médical à la main depuis l'historique.",
       );
       router.back();
     } catch (error) {
@@ -89,10 +92,11 @@ export default function ScanDocumentScreen() {
   return (
     <Screen scroll={false} style={styles.screen}>
       <View style={styles.header}>
-        <Text style={styles.title}>Smart Scan OCR</Text>
+        <Text style={styles.title}>Photographier un document</Text>
         <Text style={styles.subtitle}>
-          Photographiez un document médical pour l'ajouter au dossier. L'OCR (lecture automatique)
-          n'est pas encore branché.
+          {isOcrConfigured()
+            ? "Photographiez un document médical. L'OCR tentera d'en extraire les informations."
+            : "Photographiez un document médical pour l'ajouter au dossier. La lecture automatique (OCR) n'est pas configurée sur cet environnement : l'upload reste disponible."}
         </Text>
       </View>
       <View style={styles.viewfinder}>

@@ -110,6 +110,33 @@ export async function updateAnimal(id: string, values: Partial<Animal>) {
   return data as Animal;
 }
 
+export async function softDeleteAnimal(id: string) {
+  const { data: tokens, error: tokensError } = await supabase
+    .from("vet_access_tokens")
+    .select("token")
+    .eq("animal_id", id)
+    .eq("statut", "actif");
+
+  if (tokensError) throw tokensError;
+
+  for (const row of tokens ?? []) {
+    const { error: revokeError } = await supabase.rpc("revoquer_vet_token", {
+      p_token: row.token,
+    });
+    if (revokeError) throw revokeError;
+  }
+
+  const { data, error } = await supabase
+    .from("animaux")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return data as Animal;
+}
+
 export async function uploadAnimalPhoto(params: {
   ownerId: string;
   animalId: string;

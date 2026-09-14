@@ -14,16 +14,22 @@ export function ConsultationHistoryCard({
   event,
   documents,
   onValidate,
+  onReject,
   isLast,
 }: {
   event: MedicalEvent;
   documents: Document[];
   onValidate?: () => void;
+  onReject?: () => void;
   isLast?: boolean;
 }) {
   const [expanded, setExpanded] = useState(event.status === "pending");
   const typeLabel = getMedicalEventTypeLabel(event.type);
   const summary = getMedicalEventSummary(event);
+  const statusLabel =
+    event.status === "pending" ? "À valider" : event.status === "rejected" ? "Refusé" : "Validé";
+  const statusTone =
+    event.status === "pending" ? "warning" : event.status === "rejected" ? "danger" : "success";
 
   return (
     <View style={styles.wrapper}>
@@ -41,8 +47,8 @@ export function ConsultationHistoryCard({
           <View style={styles.headerBadges}>
             {event.vet_token_id ? <Badge label="Vétérinaire" tone="info" /> : null}
             <Badge
-              label={event.status === "pending" ? "À valider" : "Validé"}
-              tone={event.status === "pending" ? "warning" : "success"}
+              label={statusLabel}
+              tone={statusTone}
             />
             <MaterialCommunityIcons
               name={expanded ? "chevron-up" : "chevron-down"}
@@ -131,8 +137,13 @@ export function ConsultationHistoryCard({
               )}
             </View>
 
-            {event.status === "pending" && onValidate ? (
-              <AppButton title="Valider la consultation" onPress={onValidate} />
+            {event.status === "pending" && (onValidate || onReject) ? (
+              <View style={styles.pendingActions}>
+                {onValidate ? <AppButton title="Valider la consultation" onPress={onValidate} /> : null}
+                {onReject ? (
+                  <AppButton title="Refuser" variant="danger" onPress={onReject} />
+                ) : null}
+              </View>
             ) : null}
           </View>
         ) : null}
@@ -259,5 +270,9 @@ const styles = StyleSheet.create({
   docMeta: {
     color: colors.textMuted,
     fontSize: 11,
+  },
+  pendingActions: {
+    gap: spacing.sm,
+    marginTop: spacing.sm,
   },
 });

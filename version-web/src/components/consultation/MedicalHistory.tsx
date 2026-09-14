@@ -42,9 +42,16 @@ export function MedicalHistory({ events }: { events: VetMedicalEvent[] }) {
                     {event.vet_token_id ? ' · Saisi par un vétérinaire' : ''}
                   </p>
                 </div>
-                <span className="shrink-0 rounded-10 bg-primary-15 px-2.5 py-1 font-body text-xs font-medium text-primary">
-                  {getMedicalEventTypeLabel(event.type)}
-                </span>
+                <div className="flex flex-wrap justify-end gap-2">
+                  {event.status === 'pending' ? (
+                    <span className="shrink-0 rounded-10 bg-accent-orange-15 px-2.5 py-1 font-body text-xs font-medium text-accent-orange">
+                      En attente du propriétaire
+                    </span>
+                  ) : null}
+                  <span className="shrink-0 rounded-10 bg-primary-15 px-2.5 py-1 font-body text-xs font-medium text-primary">
+                    {getMedicalEventTypeLabel(event.type)}
+                  </span>
+                </div>
               </div>
 
               {event.diagnostic ? (
