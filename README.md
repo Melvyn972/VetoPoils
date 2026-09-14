@@ -8,7 +8,7 @@ Carnet de santé animal — monorepo.
 | `version-web/` | Portail vétérinaire Vite, déployé sur [veto-poils.vercel.app](https://veto-poils.vercel.app) |
 | `supabase/` | Migrations SQL incrémentales + consignes de seed |
 
-Backend : projet Supabase `lmdszelnnibexzvnaubp`. Pas de Symfony, pas de Stripe Checkout dans le MVP.
+Backend : projet Supabase `lmdszelnnibexzvnaubp`. Pas de Symfony. Stripe Checkout hors périmètre.
 
 ## Démarrage rapide
 

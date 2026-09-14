@@ -20,6 +20,9 @@ export function GuestIdentityFields({
 }: GuestIdentityFieldsProps) {
   return (
     <div className="flex flex-col gap-4">
+      <p className="font-body text-sm text-fg-secondary">
+        Identité requise pour tracer la consultation dans le carnet du propriétaire.
+      </p>
       <Input
         label="Nom complet"
         required

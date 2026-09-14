@@ -2,18 +2,22 @@
 
 Application propriétaire — Expo SDK 54 / Expo Router. Le portail vétérinaire est dans `version-web`.
 
-## Périmètre MVP
+## Périmètre
 
 - Inscription / connexion / restauration de session (Supabase Auth + profil)
-- Multi-animaux (création, édition, archivage)
+- Multi-animaux (création, édition, archivage — tokens véto révoqués)
 - Timeline médicale (filtre, validation / refus des événements vétérinaires en attente)
-- Documents : upload image/PDF, aperçu. OCR optionnel (sans clé API : upload + saisie manuelle)
+- Documents + Smart Scan : photo/PDF, suggestion de catégorie, OCR optionnel, événement / dépense
+- Budget vétérinaire (CRUD, graphiques, export CSV)
+- Score santé 0–100 persisté (`animaux.score_sante` + historique)
+- PDF du dossier (partage / e-mail mailto)
+- Suggestions partenaires (espèce/race) + `partner_clicks`
 - QR / code 6 caractères (4 h, compte à rebours, révocation, restauration du code actif)
-- Rappels (création, terminer, annuler, reporter +7 j, supprimer) + préférence push
-- Partage email lecture seule / contributeur + écran d’invitations
+- Rappels + préférence push locale
+- Partage email lecture seule / contributeur + invitations accepter / refuser
 - Journal quotidien pour le contributeur (pet-sitting)
 
-Hors scope : paiements Stripe, téléconsultation vidéo.
+Hors scope : paiements Stripe, téléconsultation vidéo, certificats APNs/FCM de production.
 
 ## Lancer le projet
 

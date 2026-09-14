@@ -9,20 +9,22 @@ import { RecentActivityItem } from "@/components/medical/RecentActivityItem";
 import { AppCard } from "@/components/ui/AppCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Screen } from "@/components/ui/Screen";
+import { useHealthScore } from "@/features/health/useHealthScore";
 import { fetchMedicalEvents } from "@/features/medical/medical.service";
 import { useReminderAlerts } from "@/features/reminders/ReminderAlertsProvider";
 import { fetchReminders } from "@/features/reminders/reminders.service";
+import { useAnimalAccess } from "@/hooks/useAnimalAccess";
 import { useAnimals } from "@/hooks/useAnimals";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { useSession } from "@/hooks/useSession";
 import { colors, radius, spacing, typography } from "@/theme";
 import type { MedicalEvent, Reminder } from "@/types/database.types";
 import { formatDate, formatRelativeDueDate } from "@/utils/dates";
-import { computeHealthScore } from "@/utils/healthScore";
 
 const actions = [
   { label: "Historique", icon: "history", route: "timeline" },
   { label: "Documents", icon: "file-document-outline", route: "documents" },
+  { label: "Budget", icon: "cash-multiple", route: "budget" },
   { label: "Journal", icon: "notebook-outline", route: "journal" },
   { label: "Partage", icon: "account-multiple-plus-outline", route: "share" },
   { label: "QR Code", icon: "qrcode", route: "qr" },
@@ -33,6 +35,7 @@ const actions = [
 export default function DashboardScreen() {
   const { profile, user } = useSession();
   const { animals, selectedAnimal, selectedAnimalId, setSelectedAnimalId, refresh } = useAnimals();
+  const { access } = useAnimalAccess(selectedAnimalId);
   const { activeCount, overdueCount, refresh: refreshReminderAlerts } = useReminderAlerts();
   const [events, setEvents] = useState<MedicalEvent[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -62,10 +65,14 @@ export default function DashboardScreen() {
   useRealtimeSync(user?.id, loadData);
 
   const nextReminder = reminders.find((reminder) => reminder.statut === "actif");
-  const healthScore = computeHealthScore({
+  const { result: healthScore, saving, refresh: refreshScore } = useHealthScore({
     animal: selectedAnimal,
     events,
     reminders,
+    canPersist: access.canWrite,
+    onPersisted: () => {
+      void refresh();
+    },
   });
 
   return (
@@ -73,7 +80,7 @@ export default function DashboardScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Bonjour {profile?.prenom ?? ""}</Text>
-          <Text style={styles.subtitle}>Votre espace santé animal</Text>
+          <Text style={styles.subtitle}>Votre espace santé Vet'OPoil</Text>
         </View>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{profile?.prenom?.slice(0, 1) ?? "V"}</Text>
@@ -149,7 +156,11 @@ export default function DashboardScreen() {
         ))}
       </View>
 
-      <HealthScoreCard score={healthScore} />
+      <HealthScoreCard
+        result={healthScore}
+        saving={saving}
+        onRefresh={access.canWrite ? () => void refreshScore() : undefined}
+      />
 
       <AppCard>
         <View style={styles.sectionHeader}>

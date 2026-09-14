@@ -13,6 +13,8 @@ import {
   viewTitle,
   type AnimalHubView,
 } from '../components/vet/AnimalActionHub'
+import { PrintDossierButton } from '../components/consultation/PrintDossierButton'
+import { PartnerSuggestions } from '../components/partners/PartnerSuggestions'
 import { CarnetSummary } from '../components/vet/AnimalCarnetSummary'
 import { FormAlert } from '../components/ui/FormAlert'
 import { saveConsultationResult } from '../lib/consultation'
@@ -155,7 +157,9 @@ export function VetAnimalPage() {
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="flex flex-col gap-5">
               <AnimalSummary dossier={dossier} />
+              <PrintDossierButton dossier={dossier} />
               <CarnetSummary dossier={dossier} />
+              <PartnerSuggestions animal={dossier.animal} contexte="vet-animal" />
             </div>
             <AnimalActionHub
               eventsCount={dossier.medical_events.length}

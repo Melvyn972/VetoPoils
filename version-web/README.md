@@ -2,7 +2,7 @@
 
 Application Vite + React (espace praticien). Production : https://veto-poils.vercel.app
 
-Le backend est **Supabase** (`lmdszelnnibexzvnaubp`), pas Symfony. Stripe n’est pas dans le périmètre MVP.
+Le backend est **Supabase** (`lmdszelnnibexzvnaubp`), pas Symfony. Stripe n’est pas dans le périmètre.
 
 ## Lancer en local
 
@@ -30,7 +30,7 @@ Voir `.env.example`. Vite lit `VITE_*` ; les alias `NEXT_PUBLIC_*` sont aussi ac
 
 Ne jamais committer de `service_role` ni de mot de passe.
 
-OCR : aucune clé n’est requise pour le portail. L’upload PDF/image passe par Storage `animal-documents`.
+OCR : aucune clé n’est requise pour le portail. L’upload PDF/image passe par Storage `animal-documents` ; une catégorie est suggérée d’après le nom de fichier. Le dossier s’imprime / s’enregistre en PDF depuis la consultation.
 
 ## Parcours de démo
 

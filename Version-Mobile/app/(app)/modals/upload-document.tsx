@@ -4,20 +4,19 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { Screen } from "@/components/ui/Screen";
-import {
-  createDocumentMetadata,
-  pickDocumentFromDevice,
-} from "@/features/documents/documents.service";
+import { pickDocumentFromDevice } from "@/features/documents/documents.service";
+import { uploadAndAnalyzeDocument } from "@/features/documents/scan.service";
+import { setPendingScanReview } from "@/features/documents/scanReview.store";
 import { useSession } from "@/hooks/useSession";
-import { supabase } from "@/lib/supabase";
-import { buildAnimalStoragePath } from "@/lib/storagePaths";
+import { isOcrConfigured } from "@/lib/env";
 import { colors, typography } from "@/theme";
 import { getErrorMessage } from "@/utils/errors";
 
 export default function UploadDocumentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { profile } = useSession();
+  const { profile, user } = useSession();
   const [loading, setLoading] = useState(false);
+  const ocrReady = isOcrConfigured();
 
   const upload = async () => {
     if (!id || !profile?.id) return;
@@ -29,35 +28,26 @@ export default function UploadDocumentScreen() {
     setLoading(true);
 
     try {
-      const path = buildAnimalStoragePath({
-        ownerId: profile.compte_proprietaire_id ?? profile.id,
+      const analyzed = await uploadAndAnalyzeDocument({
         animalId: id,
+        ownerId: profile.compte_proprietaire_id ?? profile.id,
+        userId: user?.id,
+        uri: asset.uri,
         fileName: asset.name,
-      });
-      const response = await fetch(asset.uri);
-      const fileBody = await response.arrayBuffer();
-
-      const { error: uploadError } = await supabase.storage
-        .from("animal-documents")
-        .upload(path, fileBody, {
-          contentType: asset.mimeType ?? "application/octet-stream",
-          upsert: false,
-        });
-
-      if (uploadError) throw uploadError;
-
-      await createDocumentMetadata({
-        animal_id: id,
-        file_path: path,
-        file_name: asset.name,
-        mime_type: asset.mimeType ?? "application/octet-stream",
-        taille_octets: asset.size ?? 1,
-        category_ocr: null,
+        mimeType: asset.mimeType ?? "application/octet-stream",
+        size: asset.size ?? 1,
       });
 
-      router.back();
+      setPendingScanReview({
+        animalId: id,
+        document: analyzed.document,
+        extraction: analyzed.extraction,
+        ocrConfigured: ocrReady,
+        ocrError: analyzed.ocrError,
+      });
+      router.replace({ pathname: "/(app)/modals/scan-review", params: { id } });
     } catch (error) {
-      Alert.alert("Upload impossible", getErrorMessage(error));
+      Alert.alert("Import impossible", getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -66,11 +56,19 @@ export default function UploadDocumentScreen() {
   return (
     <Screen>
       <View>
-        <Text style={styles.title}>Uploader un document</Text>
-        <Text style={styles.subtitle}>PDF, ordonnance, analyse ou photo médicale.</Text>
+        <Text style={styles.title}>Importer un document</Text>
+        <Text style={styles.subtitle}>
+          PDF, ordonnance, analyse ou photo médicale. Une catégorie sera proposée
+          {ocrReady ? " après lecture automatique" : " d’après le nom du fichier"} — vous pourrez la
+          corriger.
+        </Text>
       </View>
-      <AppButton title={loading ? "Upload..." : "Choisir un fichier"} onPress={upload} disabled={loading} />
-      <AppButton title="Annuler" variant="secondary" onPress={() => router.back()} />
+      <AppButton
+        title={loading ? "Import en cours..." : "Choisir un fichier"}
+        onPress={() => void upload()}
+        disabled={loading}
+      />
+      <AppButton title="Annuler" variant="secondary" onPress={() => router.back()} disabled={loading} />
     </Screen>
   );
 }
@@ -82,5 +80,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: colors.textMuted,
+    lineHeight: 22,
   },
 });

@@ -17,6 +17,8 @@ export async function createMedicalEvent(values: {
   type: MedicalEventType;
   titre?: string;
   description?: string;
+  diagnostic?: string;
+  traitement?: string;
   poids_kg?: number;
   date_event?: string;
 }) {
