@@ -127,7 +127,7 @@ export default function QrScreen() {
           <Text style={styles.cardTitle}>Accès pour {selectedAnimal.nom}</Text>
           <Text style={styles.text}>
             Le code permet au vétérinaire de consulter le dossier et rédiger une consultation. Une
-            fois utilisé, il ne pourra plus être réemployé — générez-en un nouveau si besoin.
+            fois utilisé, il ne pourra plus être réemployé - générez-en un nouveau si besoin.
           </Text>
         </AppCard>
       ) : null}

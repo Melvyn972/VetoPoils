@@ -122,7 +122,7 @@ if (!eventCount) {
     {
       animal_id: milo.id,
       type: 'consultation',
-      titre: 'Contrôle — en attente de validation',
+      titre: 'Contrôle - en attente de validation',
       diagnostic: 'Cicatrisation à surveiller',
       status: 'pending',
       date_event: new Date().toISOString(),
@@ -160,4 +160,4 @@ if (!reminderCount) {
   }
 }
 
-console.log(`Seed OK — propriétaire ${email}, animaux : ${animals.map((a) => a.nom).join(', ')}`)
+console.log(`Seed OK - propriétaire ${email}, animaux : ${animals.map((a) => a.nom).join(', ')}`)

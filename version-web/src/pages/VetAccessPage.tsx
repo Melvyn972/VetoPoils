@@ -95,7 +95,7 @@ export function VetAccessPage() {
           className="text-center text-lg font-semibold tracking-[0.35em]"
         />
         <p className="font-body text-xs text-fg-tertiary">
-          6 caractères, sans 0, 1, I ni O — identique au code affiché sous le QR.
+          6 caractères, sans 0, 1, I ni O - identique au code affiché sous le QR.
         </p>
 
         {error ? <FormAlert>{error}</FormAlert> : null}

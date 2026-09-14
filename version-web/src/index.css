@@ -7,7 +7,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* -------------------------------------------------------------------------- */
-/* Tokens Tailwind — référencent les variables CSS sémantiques ci-dessous     */
+/* Tokens Tailwind - référencent les variables CSS sémantiques ci-dessous     */
 /* -------------------------------------------------------------------------- */
 @theme inline {
   /* Couleurs de marque */
@@ -81,7 +81,7 @@
   --accent-blue: #7eb6f6;
   --accent-orange: #efa83c;
 
-  /* Fonds boutons à 15 % — dérivés des couleurs d'état */
+  /* Fonds boutons à 15 % - dérivés des couleurs d'état */
   --primary-hover-15: color-mix(in srgb, var(--primary-hover) 15%, transparent);
   --primary-pressed-15: color-mix(in srgb, var(--primary-pressed) 15%, transparent);
   --primary-disabled-15: color-mix(in srgb, var(--primary-disabled) 15%, transparent);

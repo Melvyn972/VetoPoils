@@ -119,7 +119,7 @@ export default function DashboardScreen() {
               </View>
               <Text style={styles.alertText}>
                 {overdueCount > 0
-                  ? `${overdueCount} en retard — touchez pour ouvrir`
+                  ? `${overdueCount} en retard - touchez pour ouvrir`
                   : nextReminder
                     ? `Prochain : ${nextReminder.titre} · ${formatRelativeDueDate(nextReminder.date_echeance)} · ${formatDate(nextReminder.date_echeance)}`
                     : "Touchez pour voir la liste"}

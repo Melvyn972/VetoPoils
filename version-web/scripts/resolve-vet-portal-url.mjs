@@ -1,4 +1,4 @@
-/** Résout l'URL publique du portail — utilisé au build Vercel et en local. */
+/** Résout l'URL publique du portail - utilisé au build Vercel et en local. */
 export function resolveVetPortalUrl() {
   const production = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim()
   if (production) {

@@ -1,11 +1,11 @@
 # Vet'OPoil Mobile
 
-Application propriétaire — Expo SDK 54 / Expo Router. Le portail vétérinaire est dans `version-web`.
+Application propriétaire - Expo SDK 57 / Expo Router. Le portail vétérinaire est dans `version-web`.
 
 ## Périmètre
 
 - Inscription / connexion / restauration de session (Supabase Auth + profil)
-- Multi-animaux (création, édition, archivage — tokens véto révoqués)
+- Multi-animaux (création, édition, archivage - tokens véto révoqués)
 - Timeline médicale (filtre, validation / refus des événements vétérinaires en attente)
 - Documents + Smart Scan : photo/PDF, suggestion de catégorie, OCR optionnel, événement / dépense
 - Budget vétérinaire (CRUD, graphiques, export CSV)

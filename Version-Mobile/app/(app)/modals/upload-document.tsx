@@ -59,7 +59,7 @@ export default function UploadDocumentScreen() {
         <Text style={styles.title}>Importer un document</Text>
         <Text style={styles.subtitle}>
           PDF, ordonnance, analyse ou photo médicale. Une catégorie sera proposée
-          {ocrReady ? " après lecture automatique" : " d’après le nom du fichier"} — vous pourrez la
+          {ocrReady ? " après lecture automatique" : " d’après le nom du fichier"} - vous pourrez la
           corriger.
         </Text>
       </View>

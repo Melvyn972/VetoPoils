@@ -35,7 +35,7 @@ export function AnimalAvatar({ animal, size = 58 }: { animal?: Animal; size?: nu
   return (
     <View style={[styles.avatar, { width: size, height: size, borderRadius: size / 2 }]}>
       {signedUrl ? (
-        <Image source={{ uri: signedUrl }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
+        <Image source={{ uri: signedUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
       ) : (
         <Text style={[styles.text, { fontSize: size * 0.36 }]}>
           {animal?.nom?.slice(0, 1).toUpperCase() ?? "🐾"}

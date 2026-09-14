@@ -45,7 +45,7 @@ export function ReminderAlertsProvider({ children }: PropsWithChildren) {
       await syncReminderNotifications(active, animalNames);
       await Notifications.setBadgeCountAsync(active.length);
     } catch {
-      // Supabase / permissions peuvent être indisponibles — le compteur local reste utile
+      // Supabase / permissions peuvent être indisponibles - le compteur local reste utile
     }
   }, []);
 

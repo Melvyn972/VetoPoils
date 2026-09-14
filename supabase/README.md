@@ -1,4 +1,4 @@
-# Supabase — Vet'OPoil
+# Supabase - Vet'OPoil
 
 Projet : `lmdszelnnibexzvnaubp`  
 URL : `https://lmdszelnnibexzvnaubp.supabase.co`

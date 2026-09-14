@@ -128,7 +128,7 @@ export default function ScanReviewScreen() {
         <Text style={styles.title}>Vérifier le document</Text>
         <Text style={styles.subtitle}>
           {ocrReady
-            ? "Champs extraits automatiquement — corrigez-les si besoin avant d’enregistrer."
+            ? "Champs extraits automatiquement - corrigez-les si besoin avant d’enregistrer."
             : isOcrConfigured()
               ? pending.ocrError
                 ? `Analyse indisponible (${pending.ocrError}). Complétez les champs à la main.`
