@@ -16,7 +16,7 @@ import {
 import { CarnetSummary } from '../components/vet/AnimalCarnetSummary'
 import { FormAlert } from '../components/ui/FormAlert'
 import { saveConsultationResult } from '../lib/consultation'
-import { mapVetRpcError } from '../lib/vetErrors'
+import { getVetErrorMessage } from '../lib/vetErrors'
 import { fetchVetAnimalDossier } from '../lib/vet'
 import type { VetAnimalDossier, VetReminder } from '../types/vet'
 
@@ -56,7 +56,7 @@ export function VetAnimalPage() {
     try {
       setDossier(await fetchVetAnimalDossier(animalId))
     } catch (loadError) {
-      setError(mapVetRpcError(loadError instanceof Error ? loadError : new Error('Erreur inconnue')))
+      setError(getVetErrorMessage(loadError))
       setDossier(null)
     } finally {
       setIsLoading(false)

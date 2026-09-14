@@ -75,3 +75,19 @@ export function toVetError(error: unknown): Error {
 
   return new Error(mapVetRpcError(new Error('Erreur inconnue')))
 }
+
+const DEFAULT_VET_ERROR =
+  'Impossible de finaliser l’opération. Vérifiez le code d’accès et réessayez.'
+
+/** Message déjà traduit (toVetError) : ne jamais re-passer dans mapVetRpcError. */
+export function getVetErrorMessage(error: unknown, fallback = DEFAULT_VET_ERROR): string {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message
+  }
+
+  if (isMessageBearer(error)) {
+    return mapVetRpcError(error as PostgrestError)
+  }
+
+  return fallback
+}

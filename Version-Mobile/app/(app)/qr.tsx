@@ -66,8 +66,15 @@ export default function QrScreen() {
 
   const revoke = async () => {
     if (!token) return;
-    await revokeVetToken(token.token);
-    setToken(null);
+    setLoading(true);
+    try {
+      await revokeVetToken(token.token);
+      setToken(null);
+    } catch (error) {
+      Alert.alert("Révocation impossible", getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -134,7 +141,12 @@ export default function QrScreen() {
           Seul le propriétaire peut générer ou révoquer un code d'accès vétérinaire.
         </Text>
       ) : token ? (
-        <AppButton title="Révoquer le code" variant="danger" onPress={revoke} />
+        <AppButton
+          title={loading ? "Révocation..." : "Révoquer le code"}
+          variant="danger"
+          onPress={revoke}
+          disabled={loading}
+        />
       ) : (
         <AppButton
           title={loading ? "Génération..." : "Générer le QR code"}
