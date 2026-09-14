@@ -6,7 +6,7 @@ import { MobileShell } from '../components/layout/MobileShell'
 import { Button } from '../components/ui/Button'
 import { FormAlert } from '../components/ui/FormAlert'
 import { getMedicalEventTypeLabel, formatMedicalEventDate } from '../lib/medicalLabels'
-import { mapVetRpcError } from '../lib/vetErrors'
+import { getVetErrorMessage } from '../lib/vetErrors'
 import { fetchVetPatients } from '../lib/vet'
 import type { VetPatientSummary } from '../types/vet'
 
@@ -76,7 +76,7 @@ export function VetPatientsPage() {
     void fetchVetPatients()
       .then(setPatients)
       .catch((loadError) => {
-        setError(mapVetRpcError(loadError instanceof Error ? loadError : new Error('Erreur inconnue')))
+        setError(getVetErrorMessage(loadError))
       })
       .finally(() => setIsLoading(false))
   }, [])

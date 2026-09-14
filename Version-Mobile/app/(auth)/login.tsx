@@ -66,6 +66,9 @@ export default function LoginScreen() {
       <Link href="/(auth)/register" style={styles.link}>
         Créer un compte
       </Link>
+      <Link href="/(auth)/onboarding" style={styles.linkMuted}>
+        Retour à l'accueil
+      </Link>
     </Screen>
   );
 }
@@ -86,5 +89,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: colors.primary,
     fontWeight: "800",
+  },
+  linkMuted: {
+    textAlign: "center",
+    color: colors.textMuted,
+    fontWeight: "700",
   },
 });

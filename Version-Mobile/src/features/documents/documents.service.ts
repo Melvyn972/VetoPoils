@@ -77,7 +77,7 @@ export async function pickDocumentFromDevice() {
   });
 }
 
-export async function pickImageFromLibrary() {
+export async function pickImageFromLibrary(options?: { includeBase64?: boolean }) {
   const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (!permission.granted) {
     throw new Error("Permission galerie refusée. Autorisez l'accès aux photos dans les réglages.");
@@ -87,10 +87,11 @@ export async function pickImageFromLibrary() {
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     quality: 0.85,
     allowsEditing: true,
+    base64: options?.includeBase64 ?? false,
   });
 }
 
-export async function pickImageFromCamera() {
+export async function pickImageFromCamera(options?: { includeBase64?: boolean }) {
   const permission = await ImagePicker.requestCameraPermissionsAsync();
   if (!permission.granted) {
     throw new Error("Permission caméra refusée. Autorisez l'accès à la caméra dans les réglages.");
@@ -100,6 +101,7 @@ export async function pickImageFromCamera() {
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     quality: 0.85,
     allowsEditing: true,
+    base64: options?.includeBase64 ?? false,
   });
 }
 
@@ -110,6 +112,9 @@ export async function createDocumentMetadata(values: {
   mime_type: string;
   taille_octets: number;
   category_ocr?: DocumentCategory | null;
+  raw_ocr_json?: Record<string, unknown> | null;
+  medical_event_id?: string | null;
+  uploade_par?: string | null;
 }) {
   const { data, error } = await supabase
     .from("documents")
@@ -117,6 +122,19 @@ export async function createDocumentMetadata(values: {
     .select("*")
     .single();
 
+  if (error) throw error;
+  return data;
+}
+
+export async function updateDocumentMetadata(
+  id: string,
+  values: {
+    category_ocr?: DocumentCategory | null;
+    raw_ocr_json?: Record<string, unknown> | null;
+    medical_event_id?: string | null;
+  },
+) {
+  const { data, error } = await supabase.from("documents").update(values).eq("id", id).select("*").single();
   if (error) throw error;
   return data;
 }

@@ -48,6 +48,7 @@ export async function fetchAnimal(id: string) {
     .from("animaux")
     .select("*")
     .eq("id", id)
+    .is("deleted_at", null)
     .maybeSingle();
 
   if (error) throw error;
@@ -102,6 +103,33 @@ export async function updateAnimal(id: string, values: Partial<Animal>) {
   const { data, error } = await supabase
     .from("animaux")
     .update(values)
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return data as Animal;
+}
+
+export async function softDeleteAnimal(id: string) {
+  const { data: tokens, error: tokensError } = await supabase
+    .from("vet_access_tokens")
+    .select("token")
+    .eq("animal_id", id)
+    .eq("statut", "actif");
+
+  if (tokensError) throw tokensError;
+
+  for (const row of tokens ?? []) {
+    const { error: revokeError } = await supabase.rpc("revoquer_vet_token", {
+      p_token: row.token,
+    });
+    if (revokeError) throw revokeError;
+  }
+
+  const { data, error } = await supabase
+    .from("animaux")
+    .update({ deleted_at: new Date().toISOString() })
     .eq("id", id)
     .select("*")
     .single();

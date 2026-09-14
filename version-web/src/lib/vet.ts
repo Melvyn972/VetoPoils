@@ -1,3 +1,5 @@
+import { suggestDocumentCategory } from './cdc'
+import { dateInputToIso } from './consultation'
 import { getSupabase } from './supabase'
 import { getMedicalEventTypeLabel } from './medicalLabels'
 import { toVetError } from './vetErrors'
@@ -32,7 +34,7 @@ export function isVetAccessCode(value: string) {
   return VET_ACCESS_CODE_PATTERN.test(normalizeVetAccessCode(value))
 }
 
-function buildEventPayload(input: VetConsultationInput) {
+export function buildEventPayload(input: VetConsultationInput) {
   const descriptionParts = [
     input.clinic?.trim() ? `Clinique : ${input.clinic.trim()}` : null,
     input.notes?.trim() ? input.notes.trim() : null,
@@ -45,6 +47,7 @@ function buildEventPayload(input: VetConsultationInput) {
     p_traitement: input.notes?.trim() || null,
     p_poids_kg: input.weightKg ?? null,
     p_description: descriptionParts.join('\n\n') || null,
+    p_date_event: input.visitDate ? dateInputToIso(input.visitDate) : null,
   }
 }
 
@@ -163,6 +166,7 @@ export async function uploadVetDocument(params: {
 
   const extension = params.file.name.split('.').pop() ?? 'bin'
   const path = `${params.dossier.animal.proprietaire_id}/${params.dossier.animal.id}/${Date.now()}.${extension}`
+  const category = suggestDocumentCategory(params.file.name, params.file.type)
 
   const { error: uploadError } = await supabase.storage
     .from('animal-documents')
@@ -182,7 +186,7 @@ export async function uploadVetDocument(params: {
       p_file_name: params.file.name,
       p_mime_type: params.file.type || 'application/octet-stream',
       p_taille_octets: params.file.size,
-      p_category_ocr: null,
+      p_category_ocr: category,
       p_medical_event_id: params.medicalEventId ?? null,
     })
 
@@ -200,7 +204,7 @@ export async function uploadVetDocument(params: {
     p_file_name: params.file.name,
     p_mime_type: params.file.type || 'application/octet-stream',
     p_taille_octets: params.file.size,
-    p_category_ocr: null,
+    p_category_ocr: category,
     p_medical_event_id: params.medicalEventId ?? null,
   })
 

@@ -16,7 +16,7 @@ export type MedicalEventType =
   | "ordonnance"
   | "analyse"
   | "autre";
-export type MedicalEventStatus = "pending" | "validated";
+export type MedicalEventStatus = "pending" | "validated" | "rejected";
 export type DocumentCategory =
   | "ordonnance"
   | "facture"
@@ -144,6 +144,76 @@ export type AppNotification = {
   created_at: string;
 };
 
+export type DailyLog = {
+  id: string;
+  animal_id: string;
+  date_journal: string;
+  repas: string | null;
+  sortie: string | null;
+  comportement: string | null;
+  notes: string | null;
+  cree_par: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ExpenseCategory =
+  | "veterinaire"
+  | "alimentation"
+  | "accessoires"
+  | "pharmacie"
+  | "autre";
+
+export type Expense = {
+  id: string;
+  animal_id: string;
+  category: ExpenseCategory;
+  montant: number;
+  description: string | null;
+  medical_event_id: string | null;
+  cree_par: string;
+  date_depense: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type HealthScoreHistory = {
+  id: string;
+  animal_id: string;
+  score: number;
+  details: Json;
+  calcule_le: string;
+};
+
+export type Partner = {
+  id: string;
+  nom: string;
+  categorie: string;
+  url: string;
+  description: string | null;
+  actif: boolean;
+  cibles: string[];
+  created_at: string;
+};
+
+export type PartnerClick = {
+  id: string;
+  user_id: string;
+  partner_id: string;
+  contexte: string | null;
+  clique_le: string;
+};
+
+export type AnimalAccessLevel = "owner" | "contributor" | "read_only";
+
+export type AnimalAccess = {
+  level: AnimalAccessLevel;
+  isOwner: boolean;
+  canWrite: boolean;
+  canWriteDailyLog: boolean;
+  canManageShares: boolean;
+};
+
 type Table<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
   Row: Row;
   Insert: Insert;
@@ -191,8 +261,49 @@ export type Database = {
       animal_shares: Table<AnimalShare>;
       vet_access_tokens: Table<VetAccessToken>;
       notifications: Table<AppNotification>;
+      daily_logs: Table<
+        DailyLog,
+        Omit<Partial<DailyLog>, "id" | "created_at" | "updated_at"> & {
+          animal_id: string;
+          cree_par: string;
+        }
+      >;
+      expenses: Table<
+        Expense,
+        Omit<Partial<Expense>, "id" | "created_at" | "updated_at"> & {
+          animal_id: string;
+          category: ExpenseCategory;
+          montant: number;
+          cree_par: string;
+        }
+      >;
+      health_score_history: Table<HealthScoreHistory>;
+      partners: Table<Partner>;
+      partner_clicks: Table<
+        PartnerClick,
+        Omit<Partial<PartnerClick>, "id" | "clique_le"> & {
+          user_id: string;
+          partner_id: string;
+        }
+      >;
     };
     Functions: {
+      creer_animal: {
+        Args: {
+          p_nom: string;
+          p_espece: string;
+          p_race?: string | null;
+          p_date_naissance?: string | null;
+          p_sexe?: AnimalSexe;
+          p_couleur?: string | null;
+          p_puce?: string | null;
+        };
+        Returns: Animal;
+      };
+      ensure_owner_profile: {
+        Args: Record<string, never>;
+        Returns: Profile;
+      };
       generer_vet_token: {
         Args: { p_animal_id: string; p_duree_heures?: number };
         Returns: VetAccessToken;
@@ -202,6 +313,10 @@ export type Database = {
         Returns: undefined;
       };
       valider_medical_event: {
+        Args: { p_event_id: string };
+        Returns: MedicalEvent;
+      };
+      refuser_medical_event: {
         Args: { p_event_id: string };
         Returns: MedicalEvent;
       };
@@ -256,6 +371,7 @@ export type Database = {
       partage_role: PartageRole;
       invitation_status: InvitationStatus;
       vet_token_status: VetTokenStatus;
+      expense_category: ExpenseCategory;
     };
     CompositeTypes: Record<string, never>;
   };

@@ -25,6 +25,8 @@ export function FilterChips<T extends string>({
         return (
           <Pressable
             key={option.value}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
             onPress={() => onChange(option.value)}
             style={[styles.chip, active && styles.active]}
           >

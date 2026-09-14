@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { AnimalSummary } from '../components/consultation/AnimalSummary'
@@ -13,10 +13,12 @@ import {
   viewTitle,
   type AnimalHubView,
 } from '../components/vet/AnimalActionHub'
+import { PrintDossierButton } from '../components/consultation/PrintDossierButton'
+import { PartnerSuggestions } from '../components/partners/PartnerSuggestions'
 import { CarnetSummary } from '../components/vet/AnimalCarnetSummary'
 import { FormAlert } from '../components/ui/FormAlert'
 import { saveConsultationResult } from '../lib/consultation'
-import { mapVetRpcError } from '../lib/vetErrors'
+import { getVetErrorMessage } from '../lib/vetErrors'
 import { fetchVetAnimalDossier } from '../lib/vet'
 import type { VetAnimalDossier, VetReminder } from '../types/vet'
 
@@ -47,7 +49,7 @@ export function VetAnimalPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  async function loadDossier() {
+  const loadDossier = useCallback(async () => {
     if (!animalId) return
 
     setIsLoading(true)
@@ -56,16 +58,16 @@ export function VetAnimalPage() {
     try {
       setDossier(await fetchVetAnimalDossier(animalId))
     } catch (loadError) {
-      setError(mapVetRpcError(loadError instanceof Error ? loadError : new Error('Erreur inconnue')))
+      setError(getVetErrorMessage(loadError))
       setDossier(null)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [animalId])
 
   useEffect(() => {
     void loadDossier()
-  }, [animalId])
+  }, [loadDossier])
 
   function setView(nextView: AnimalHubView) {
     if (nextView === 'overview') {
@@ -155,7 +157,9 @@ export function VetAnimalPage() {
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="flex flex-col gap-5">
               <AnimalSummary dossier={dossier} />
+              <PrintDossierButton dossier={dossier} />
               <CarnetSummary dossier={dossier} />
+              <PartnerSuggestions animal={dossier.animal} contexte="vet-animal" />
             </div>
             <AnimalActionHub
               eventsCount={dossier.medical_events.length}

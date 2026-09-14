@@ -1,3 +1,10 @@
+export function dateInputToIso(value?: string | null) {
+  if (!value) return null;
+  const day = value.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return null;
+  return `${day}T12:00:00.000Z`;
+}
+
 export function formatDate(value?: string | null) {
   if (!value) return "Non renseigné";
   return new Intl.DateTimeFormat("fr-FR", {
@@ -38,6 +45,20 @@ export function formatShortVisitDate(value?: string | null) {
     day: "numeric",
     month: "long",
   }).format(new Date(value));
+}
+
+export function formatCountdown(expireAt: string, now = Date.now()) {
+  const remainingMs = new Date(expireAt).getTime() - now;
+  if (Number.isNaN(remainingMs) || remainingMs <= 0) return "Expiré";
+
+  const totalSeconds = Math.floor(remainingMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) return `${hours} h ${minutes} min`;
+  if (minutes > 0) return `${minutes} min ${seconds.toString().padStart(2, "0")} s`;
+  return `${seconds} s`;
 }
 
 export function computeAgeLabel(value?: string | Date | null) {

@@ -13,7 +13,7 @@ type AnimalCardProps = {
 
 export function AnimalCard({ animal, onPress }: AnimalCardProps) {
   return (
-    <Pressable onPress={onPress} style={styles.card}>
+    <Pressable onPress={onPress} style={styles.card} accessibilityRole="button" accessibilityLabel={animal.nom}>
       <AnimalAvatar animal={animal} />
       <View style={styles.content}>
         <Text style={styles.name}>{animal.nom}</Text>
@@ -21,11 +21,13 @@ export function AnimalCard({ animal, onPress }: AnimalCardProps) {
           {animal.espece}
           {animal.race ? ` • ${animal.race}` : ""}
         </Text>
-        <Text style={styles.meta}>Né le {formatDate(animal.date_naissance)}</Text>
+        <Text style={styles.meta}>
+          {animal.date_naissance ? `Né le ${formatDate(animal.date_naissance)}` : "Date de naissance à compléter"}
+        </Text>
       </View>
       <Badge
-        label={animal.score_sante ? `${animal.score_sante}/100` : "Nouveau"}
-        tone={animal.score_sante && animal.score_sante < 60 ? "warning" : "success"}
+        label={animal.score_sante == null ? "Nouveau" : `${animal.score_sante}/100`}
+        tone={animal.score_sante != null && animal.score_sante < 60 ? "warning" : "success"}
       />
     </Pressable>
   );

@@ -138,8 +138,8 @@ export default function ShareScreen() {
       <View>
         <Text style={styles.title}>Partage de l'animal</Text>
         <Text style={styles.subtitle}>
-          L'invité doit déjà avoir un compte Vet'OPoil. Nous vérifions l'email avant d'envoyer.
-          Il accepte ensuite dans Compte → Invitations.
+          L'invité doit déjà avoir un compte Vet'OPoil. Lecture seule : consulter le dossier.
+          Contributeur : remplir le journal quotidien (pet-sitting).
         </Text>
       </View>
       <AppCard>

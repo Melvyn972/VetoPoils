@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { AnimalShare, PartageRole } from "@/types/database.types";
+import type { AnimalAccess, AnimalShare, PartageRole } from "@/types/database.types";
 
 export type PendingInvitation = AnimalShare & {
   animal_nom?: string | null;
@@ -208,4 +208,61 @@ export async function countPendingInvitations(email: string) {
   } catch {
     return 0;
   }
+}
+
+export async function fetchAnimalAccess(animalId: string, userId: string): Promise<AnimalAccess> {
+  const { data: animal, error: animalError } = await supabase
+    .from("animaux")
+    .select("proprietaire_id")
+    .eq("id", animalId)
+    .maybeSingle();
+
+  if (animalError) throw animalError;
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, compte_proprietaire_id")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+
+  const ownerAccountId = profile?.compte_proprietaire_id ?? userId;
+  if (animal?.proprietaire_id === userId || animal?.proprietaire_id === ownerAccountId) {
+    return {
+      level: "owner",
+      isOwner: true,
+      canWrite: true,
+      canWriteDailyLog: true,
+      canManageShares: true,
+    };
+  }
+
+  const { data: share, error: shareError } = await supabase
+    .from("animal_shares")
+    .select("role")
+    .eq("animal_id", animalId)
+    .eq("user_id", userId)
+    .eq("statut", "acceptee")
+    .maybeSingle();
+
+  if (shareError) throw shareError;
+
+  if (share?.role === "contributor") {
+    return {
+      level: "contributor",
+      isOwner: false,
+      canWrite: false,
+      canWriteDailyLog: true,
+      canManageShares: false,
+    };
+  }
+
+  return {
+    level: "read_only",
+    isOwner: false,
+    canWrite: false,
+    canWriteDailyLog: false,
+    canManageShares: false,
+  };
 }
