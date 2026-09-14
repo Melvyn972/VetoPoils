@@ -52,6 +52,12 @@ export function VetAccessPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (!isVetAccessCode(code)) {
+      setError('Le code doit contenir 6 caractères (lettres et chiffres, sans 0, 1, I, O).')
+      return
+    }
+
     setIsSubmitting(true)
     setError(null)
 
@@ -91,10 +97,13 @@ export function VetAccessPage() {
           spellCheck={false}
           className="text-center text-lg font-semibold tracking-[0.35em]"
         />
+        <p className="font-body text-xs text-fg-tertiary">
+          6 caractères, sans 0, 1, I ni O — identique au code affiché sous le QR.
+        </p>
 
         {error ? <FormAlert>{error}</FormAlert> : null}
 
-        <Button type="submit" disabled={isSubmitting || !isVetAccessCode(code)}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Vérification...' : 'Accéder au dossier'}
         </Button>
       </form>
