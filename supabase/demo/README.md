@@ -10,13 +10,11 @@ Appliquer d’abord les fichiers de `supabase/migrations`, dans l’ordre. Le re
 
 ## Seed
 
-Dans le SQL Editor du projet démo :
+Dans le SQL Editor du projet démo, **une seule exécution** : le réglage ne survit pas d’une requête à l’autre. Collez d’abord la ligne `SET`, puis le contenu de `seed.sql` en dessous.
 
 ```sql
 SET vetopoil.allow_demo_seed = 'on';
 ```
-
-Puis exécuter `seed.sql`.
 
 Comptes fictifs :
 
@@ -28,11 +26,13 @@ Relancer le seed réinitialise le dossier clinique de ces deux animaux.
 
 ## Reset
 
+Même contrainte : `SET` et `reset.sql` dans la même exécution.
+
 ```sql
 SET vetopoil.allow_demo_reset = 'on';
 ```
 
-Puis exécuter `reset.sql`. Cela crée `public.demo_reset()` et planifie `vetopoil-demo-reset` toutes les 30 minutes.
+Le script crée `public.demo_reset()` et planifie `vetopoil-demo-reset` toutes les 30 minutes.
 
 La fonction n’est pas appelable par `anon`, `authenticated` ni `service_role`. Elle ne fait rien si les deux comptes fictifs ne sont pas exactement ceux du seed. Elle ne supprime que :
 
