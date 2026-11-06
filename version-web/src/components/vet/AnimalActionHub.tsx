@@ -18,7 +18,7 @@ function ActionCard({ title, description, badge, onClick }: ActionCardProps) {
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col gap-2 rounded-14 border border-fg-tertiary/20 bg-surface p-4 text-left transition-all hover:border-primary/35 hover:shadow-sm"
+      className="press flex flex-col gap-2 rounded-[18px] border border-line-soft bg-white p-4 text-left shadow-card transition-transform hover:-translate-y-0.5"
     >
       <div className="flex items-start justify-between gap-2">
         <p className="font-title text-base font-semibold text-fg-primary">{title}</p>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { trackEvent } from '../../lib/analytics'
 import { mailtoDossierFallback, printVetDossier } from '../../lib/dossier'
 import { getVetErrorMessage } from '../../lib/vetErrors'
 import type { VetDossier } from '../../types/vet'
@@ -19,6 +20,7 @@ export function PrintDossierButton({ dossier }: { dossier: VetDossier }) {
             setError(null)
             try {
               printVetDossier(dossier)
+              trackEvent('pdf_exported')
             } catch (printError) {
               setError(getVetErrorMessage(printError))
             }

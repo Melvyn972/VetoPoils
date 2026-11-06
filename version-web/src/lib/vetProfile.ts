@@ -29,22 +29,19 @@ export async function ensureVetProfile(): Promise<VetProfile> {
 
 export async function updateVetProfile(
   userId: string,
-  input: Pick<VetProfile, 'nom_complet' | 'clinique' | 'telephone'>,
+  input: Pick<VetProfile, 'nom_complet' | 'clinique' | 'telephone'> & { numero_ordre?: string | null },
 ) {
   const supabase = getSupabase()
   if (!supabase) throw new Error('Supabase non configuré.')
 
-  const { data, error } = await supabase
-    .from('vet_profiles')
-    .update({
-      nom_complet: input.nom_complet.trim(),
-      clinique: input.clinique?.trim() || null,
-      telephone: input.telephone?.trim() || null,
-    })
-    .eq('id', userId)
-    .select('*')
-    .single()
+  const payload = {
+    nom_complet: input.nom_complet.trim(),
+    clinique: input.clinique?.trim() || null,
+    telephone: input.telephone?.trim() || null,
+    numero_ordre: input.numero_ordre?.trim() || null,
+  }
 
+  const { data, error } = await supabase.from('vet_profiles').update(payload).eq('id', userId).select('*').single()
   if (error) throw error
   return data as VetProfile
 }

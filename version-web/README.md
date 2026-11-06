@@ -1,14 +1,14 @@
-# Vet'OPoil - Portail vétérinaire
+# Vet'OPoil
 
-Application Vite + React (espace praticien). Production : https://veto-poils.vercel.app
+Site du carnet de santé animal (Vite + React). Production : https://veto-poils.vercel.app
 
-Le backend est **Supabase** (`lmdszelnnibexzvnaubp`), pas Symfony. Stripe n’est pas dans le périmètre.
+Le backend est Supabase (`lmdszelnnibexzvnaubp`, région eu-west-3) : Auth, Postgres et Storage. L’application Expo (`Version-Mobile`) utilise le même schéma. Stripe n’est pas dans le périmètre.
 
 ## Lancer en local
 
 ```bash
 cd version-web
-cp .env.example .env.local   # déjà renseigné avec l’URL et la clé publishable
+cp .env.example .env.local
 npm install
 npm run dev
 ```
@@ -22,36 +22,29 @@ Ouvrir http://localhost:5173
 | `npm run dev` | Serveur Vite |
 | `npm run lint` | ESLint |
 | `npm run build` | `tsc -b` + bundle production |
-| `npm run test` | Vitest (helpers codes / dates / erreurs RPC) |
+| `npm run test` | Vitest |
+| `npm run test:e2e` | Playwright (Chromium, Supabase réel) |
 
-## Variables d’environnement
+## Variables
 
-Voir `.env.example`. Vite lit `VITE_*` ; les alias `NEXT_PUBLIC_*` sont aussi acceptés (Vercel).
+Voir `.env.example`.
 
-Ne jamais committer de `service_role` ni de mot de passe.
+- `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` : projet `lmdszelnnibexzvnaubp`.
+- `VITE_OCR_API_URL` / `VITE_OCR_API_KEY` : optionnels. Sans clé, l’analyse propose une catégorie à partir du nom de fichier. Le contrat est `POST { image_base64, mime_type, file_name }` avec `Authorization: Bearer` et `x-api-key`.
+- `VITE_CLARITY_PROJECT_ID` : `z9d5jwu6j3` sur Vercel (production, preview, development). Le script n’est chargé qu’après consentement.
 
-OCR : aucune clé n’est requise pour le portail. L’upload PDF/image passe par Storage `animal-documents` ; une catégorie est suggérée d’après le nom de fichier. Le dossier s’imprime / s’enregistre en PDF depuis la consultation.
+Les redirections d’e-mail utilisent l’origine du site : `/auth/callback` pour la confirmation, `/reinitialiser-mot-de-passe` pour la réinitialisation. Ces URL doivent être autorisées dans Supabase Auth pour `https://veto-poils.vercel.app/**` et les aperçus Vercel. Le lien doit être ouvert dans le même navigateur (PKCE).
 
-## Parcours de démo
+Ne jamais committer de clé `service_role`.
 
-1. **Accès QR / code** : sur l’app propriétaire, générer un code 6 caractères → ouvrir `/consultation?token=XXXXXX` ou saisir le code sur `/acces`.
-2. **Consultation anonyme** : remplir le formulaire (date de visite, diagnostic, document optionnel) → événement `pending` + notification propriétaire.
-3. **Compte vétérinaire** : `/login` (inscription `account_type=veterinarian`) → `/mes-patients` puis dossier `/animal/:id`.
-4. Codes expirés, révoqués ou déjà utilisés : messages d’erreur en français, retour `/acces`.
+## Parcours
+
+- Public : `/` , `/inscription`, `/connexion`, `/acces`, `/consultation?token=`
+- Propriétaire : `/espace` et fiches `/espace/animaux/:id`
+- Vétérinaire : `/mes-patients`, `/animal/:id`, `/compte-veterinaire`
+
+L’impression du dossier passe par une iframe masquée (pas de pop-up). Le partage se fait par invitation e-mail.
 
 ## Déploiement
 
-`vercel.json` réécrit toutes les routes vers `index.html` (SPA). Le dossier de build est `dist`. Sur Vercel, la racine du projet doit rester `version-web`.
-
-## Données de démo
-
-```bash
-# Clé service_role UNIQUEMENT en local, jamais commitée
-SUPABASE_URL=https://lmdszelnnibexzvnaubp.supabase.co \
-SUPABASE_SERVICE_ROLE_KEY=... \
-DEMO_OWNER_EMAIL=demo.proprio@example.com \
-DEMO_OWNER_PASSWORD='MotDePasseLocal!' \
-npm run seed
-```
-
-Le script est branché via `npm run seed`. Alternative SQL commentée : `../supabase/seed.sql`.
+`vercel.json` réécrit les routes vers `index.html`. Racine Vercel : `version-web`. Le service worker et le manifeste sont émis au build.

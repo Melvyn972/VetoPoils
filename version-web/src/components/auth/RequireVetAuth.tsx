@@ -8,7 +8,7 @@ interface RequireVetAuthProps {
 }
 
 export function RequireVetAuth({ children }: RequireVetAuthProps) {
-  const { isLoading, isConnected } = useAuth()
+  const { isLoading, isConnected, isOwner } = useAuth()
   const location = useLocation()
 
   if (isLoading) {
@@ -19,8 +19,12 @@ export function RequireVetAuth({ children }: RequireVetAuthProps) {
     )
   }
 
+  if (isOwner) {
+    return <Navigate to="/espace" replace />
+  }
+
   if (!isConnected) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />
+    return <Navigate to="/connexion" replace state={{ from: location.pathname }} />
   }
 
   return children
