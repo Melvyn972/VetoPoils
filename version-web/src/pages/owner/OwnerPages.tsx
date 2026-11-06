@@ -263,10 +263,11 @@ function AnimalCard({ animal }: { animal: Animal }) {
     >
       <AnimalAvatar animal={animal} size="md" />
       <span className="min-w-0 flex-1">
-        <span className="block truncate font-title text-lg font-semibold text-ink">{animal.nom}</span>
-        <span className="block truncate font-body text-sm text-muted">
+        <span className="block font-title text-lg font-semibold leading-tight text-ink">{animal.nom}</span>
+        <span className="mt-0.5 block font-body text-sm leading-snug text-muted">
           {animal.espece}
-          {animal.race ? ` · ${animal.race}` : ''} · {ageLabel(animal.date_naissance)}
+          {animal.race ? ` · ${animal.race}` : ''}
+          <span className="whitespace-nowrap"> · {ageLabel(animal.date_naissance)}</span>
         </span>
         <span className="mt-1 block font-body text-xs font-semibold text-primary">Score {animal.score_sante ?? '—'}/100</span>
       </span>

@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link, NavLink, useNavigate, useParams } from 'react-router-dom'
 
 import { AnimalAvatar } from '../../components/animal/AnimalAvatar'
+import { FicheOverview } from '../../components/animal/FicheOverview'
 import { PageHeader } from '../../components/layout/AppShell'
 import { EventStatusBadge } from '../../components/ui/Badge'
 import { Donut, MonthlyBars, ScoreRing } from '../../components/ui/Charts'
@@ -195,6 +196,7 @@ function Fiche({
   ]
 
   return (
+    <div className="flex flex-col gap-4">
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
       <section className="surface p-5">
         <div className="flex flex-wrap items-center gap-4">
@@ -209,7 +211,7 @@ function Fiche({
           {facts.map(([label, value]) => (
             <div key={label} className="rounded-[14px] bg-canvas px-4 py-3">
               <dt className="font-body text-xs text-muted">{label}</dt>
-              <dd className="mt-0.5 font-body text-sm font-semibold text-ink">{value}</dd>
+              <dd className="mt-0.5 break-all font-body text-sm font-semibold leading-snug text-ink">{value}</dd>
             </div>
           ))}
         </dl>
@@ -237,6 +239,8 @@ function Fiche({
           </Button>
         </section>
       ) : null}
+    </div>
+    <FicheOverview animalId={animal.id} />
     </div>
   )
 }
