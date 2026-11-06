@@ -93,33 +93,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       let vet = await fetchVetProfile(user.id)
       let owner = await fetchOwnerProfile(user.id)
       const accountType = String(user.user_metadata?.account_type ?? '')
+      // Older vet accounts also received a `profiles` row from the first signup trigger,
+      // so the declared account type and the vet profile win over that row.
+      const isVetAccount =
+        accountType === 'veterinarian' || (accountType !== 'owner' && Boolean(vet) && !owner)
 
-      if (!vet && accountType === 'veterinarian') {
-        vet = await ensureVetProfile().catch(() => null)
-      }
-      if (!owner && accountType !== 'veterinarian') {
-        owner = await ensureOwnerProfile().catch(() => null)
+      if (isVetAccount) {
+        if (!vet) vet = await ensureVetProfile().catch(() => null)
+        if (vet) {
+          setVetProfile(vet)
+          setProfile(null)
+          setRole('veterinarian')
+          return 'veterinarian' as const
+        }
+        if (accountType === 'veterinarian') {
+          setRole(null)
+          setProfile(null)
+          setVetProfile(null)
+          return null
+        }
       }
 
-      if (vet && !owner) {
-        setVetProfile(vet)
-        setProfile(null)
-        setRole('veterinarian')
-        return 'veterinarian' as const
-      }
+      if (!owner) owner = await ensureOwnerProfile().catch(() => null)
 
       if (owner) {
         setProfile(owner)
-        setVetProfile(vet)
-        setRole(vet && !owner ? 'veterinarian' : 'owner')
+        setVetProfile(null)
+        setRole('owner')
         return 'owner' as const
-      }
-
-      if (vet) {
-        setVetProfile(vet)
-        setProfile(null)
-        setRole('veterinarian')
-        return 'veterinarian' as const
       }
 
       setRole(null)
