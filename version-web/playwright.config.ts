@@ -22,7 +22,7 @@ export default defineConfig({
         timeout: 120_000,
         env: {
           ...process.env,
-          VITE_GTM_ID: process.env.VITE_GTM_ID || 'GTM-MT4KRS2H',
+          VITE_GA_MEASUREMENT_ID: process.env.VITE_GA_MEASUREMENT_ID || 'G-WYTP4MV8TM',
         },
       },
 })

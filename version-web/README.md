@@ -32,7 +32,7 @@ Voir `.env.example`.
 - `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` : projet `lmdszelnnibexzvnaubp`.
 - `VITE_OCR_API_URL` / `VITE_OCR_API_KEY` : optionnels. Sans clé, l’analyse propose une catégorie à partir du nom de fichier. Le contrat est `POST { image_base64, mime_type, file_name }` avec `Authorization: Bearer` et `x-api-key`.
 - `VITE_CLARITY_PROJECT_ID` : mesure d’audience, seulement après consentement.
-- `VITE_GTM_ID` : conteneur Google Tag Manager, seulement après consentement. Le mode de consentement refuse la publicité ; l’acceptation n’ouvre que la mesure d’audience.
+- `VITE_GA_MEASUREMENT_ID` : balise Google Analytics, seulement après consentement. Le mode de consentement refuse la publicité ; l’acceptation n’ouvre que la mesure d’audience.
 
 Les redirections d’e-mail utilisent l’origine du site : `/auth/callback` pour la confirmation, `/reinitialiser-mot-de-passe` pour la réinitialisation. Ces URL doivent être autorisées dans Supabase Auth pour `https://veto-poils.vercel.app/**` et les aperçus Vercel. Le lien doit être ouvert dans le même navigateur (PKCE).
 

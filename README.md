@@ -194,7 +194,7 @@ Noms seulement. Les exemples sont dans `version-web/.env.example`. Ne jamais com
 | `VITE_OCR_API_URL` | Point d’entrée Smart Scan, optionnel |
 | `VITE_OCR_API_KEY` | Clé de cet appel, optionnelle |
 | `VITE_CLARITY_PROJECT_ID` | Mesure d’audience, optionnelle |
-| `VITE_GTM_ID` | Conteneur Google Tag Manager, optionnel |
+| `VITE_GA_MEASUREMENT_ID` | Balise Google Analytics, optionnelle |
 
 Le site accepte aussi les alias `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Sans URL ni clé OCR, l’import reste possible et la catégorie est proposée à partir du nom de fichier. Le contrat d’appel est un `POST` JSON `{ image_base64, mime_type, file_name }`.
 
@@ -227,7 +227,7 @@ Le site écoute sur `http://localhost:5173`.
 ## Tests
 
 - **Unitaires.** `version-web` : `npm test` (Vitest).
-- **Parcours.** `version-web` : `npm run test:e2e`. Playwright ouvre Chromium sur `http://127.0.0.1:4173` (le script de config réutilise un serveur déjà lancé, sinon il démarre Vite). Le parcours couvre la page d’accueil, l’inscription, la connexion, une fiche et un code vétérinaire, contre le projet Supabase réel. Un second parcours vérifie que Google Tag Manager n’est chargé qu’après acceptation des cookies.
+- **Parcours.** `version-web` : `npm run test:e2e`. Playwright ouvre Chromium sur `http://127.0.0.1:4173` (le script de config réutilise un serveur déjà lancé, sinon il démarre Vite). Le parcours couvre la page d’accueil, l’inscription, la connexion, une fiche et un code vétérinaire, contre le projet Supabase réel. Un second parcours vérifie que la balise Google Analytics n’est chargée qu’après acceptation des cookies.
 
 ## Déploiement
 
@@ -237,7 +237,7 @@ Les migrations s’appliquent dans l’ordre des noms de fichiers de `supabase/m
 
 ## Mesure d’audience
 
-Microsoft Clarity et Google Tag Manager ne sont chargés que si leur variable est définie **et** que la personne a accepté la mesure. Le refus n’injecte pas ces scripts. Avant tout chargement, le mode de consentement Google refuse `analytics_storage`, `ad_storage`, `ad_user_data` et `ad_personalization`. L’acceptation n’autorise que la mesure d’audience. Le choix est mémorisé dans le navigateur et peut être repris dans le compte. La page `/confidentialite` décrit ce fonctionnement ; le texte reste à valider avec Taylor et Mariama.
+Microsoft Clarity et Google Analytics ne sont chargés que si leur variable est définie **et** que la personne a accepté la mesure. Le refus n’injecte pas ces scripts. Avant tout chargement, le mode de consentement Google refuse `analytics_storage`, `ad_storage`, `ad_user_data` et `ad_personalization`. L’acceptation n’autorise que la mesure d’audience. Le choix est mémorisé dans le navigateur et peut être repris dans le compte. La page `/confidentialite` décrit ce fonctionnement ; le texte reste à valider avec Taylor et Mariama.
 
 ## Suite
 

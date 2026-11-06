@@ -19,7 +19,7 @@ export const env = {
   ocrApiUrl: read(import.meta.env.VITE_OCR_API_URL as string | undefined),
   ocrApiKey: read(import.meta.env.VITE_OCR_API_KEY as string | undefined),
   clarityProjectId: read(import.meta.env.VITE_CLARITY_PROJECT_ID as string | undefined),
-  gtmId: read(import.meta.env.VITE_GTM_ID as string | undefined),
+  gaMeasurementId: read(import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined),
 }
 
 export function isSupabaseConfigured(): boolean {
@@ -34,6 +34,6 @@ export function isClarityConfigured() {
   return Boolean(env.clarityProjectId)
 }
 
-export function isGtmConfigured() {
-  return Boolean(env.gtmId)
+export function isGaConfigured() {
+  return Boolean(env.gaMeasurementId)
 }

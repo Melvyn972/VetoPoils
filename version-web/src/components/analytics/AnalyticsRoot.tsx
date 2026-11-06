@@ -13,12 +13,12 @@ import {
   trackPage,
   type ConsentChoice,
 } from '../../lib/analytics'
-import { isClarityConfigured, isGtmConfigured } from '../../lib/env'
+import { isClarityConfigured, isGaConfigured } from '../../lib/env'
 
 function measurementTools() {
   const tools = [
     isClarityConfigured() ? 'Microsoft Clarity' : null,
-    isGtmConfigured() ? 'Google Tag Manager' : null,
+    isGaConfigured() ? 'Google Analytics' : null,
   ].filter((tool): tool is string => Boolean(tool))
   if (tools.length === 2) return `${tools[0]} et ${tools[1]}`
   return tools[0] ?? ''

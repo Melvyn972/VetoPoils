@@ -1,4 +1,4 @@
-import { env, isClarityConfigured, isGtmConfigured } from './env'
+import { env, isClarityConfigured, isGaConfigured } from './env'
 
 export const CONSENT_KEY = 'vetopoil-clarity-consent'
 const CONSENT_EVENT = 'vetopoil-consent'
@@ -65,21 +65,21 @@ function ensureGtag() {
   window.dataLayer = window.dataLayer || []
   if (window.gtag) return
   window.gtag = function gtag() {
-    // GTM lit l'objet Arguments, pas un tableau issu d'un paramètre rest.
+    // La balise Google lit l'objet Arguments, pas un tableau issu d'un paramètre rest.
     // eslint-disable-next-line prefer-rest-params
     window.dataLayer?.push(arguments)
   } as GtagFn
 }
 
 export function installConsentDefaults() {
-  if (!isGtmConfigured() || consentDefaultInstalled) return
+  if (!isGaConfigured() || consentDefaultInstalled) return
   ensureGtag()
   window.gtag?.('consent', 'default', { ...CONSENT_DENIED })
   consentDefaultInstalled = true
 }
 
-export function applyGtmConsent(choice: ConsentChoice) {
-  if (!isGtmConfigured()) return
+export function applyGaConsent(choice: ConsentChoice) {
+  if (!isGaConfigured()) return
   installConsentDefaults()
   if (choice === 'granted') {
     window.gtag?.('consent', 'update', {
@@ -93,18 +93,19 @@ export function applyGtmConsent(choice: ConsentChoice) {
   window.gtag?.('consent', 'update', { ...CONSENT_DENIED })
 }
 
-export function loadGtm() {
-  if (!isGtmConfigured() || getStoredConsent() !== 'granted') return
+export function loadGoogleTag() {
+  if (!isGaConfigured() || getStoredConsent() !== 'granted') return
   installConsentDefaults()
-  applyGtmConsent('granted')
-  if (document.getElementById('gtm-script')) return
+  applyGaConsent('granted')
+  if (document.getElementById('ga-script')) return
 
-  window.gtag?.('js', new Date())
   const script = document.createElement('script')
-  script.id = 'gtm-script'
+  script.id = 'ga-script'
   script.async = true
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${env.gtmId}`
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${env.gaMeasurementId}`
   document.head.appendChild(script)
+  window.gtag?.('js', new Date())
+  window.gtag?.('config', env.gaMeasurementId, { send_page_view: false })
 }
 
 export function loadClarity() {
@@ -138,12 +139,12 @@ export function activateAnalytics() {
   if (getStoredConsent() !== 'granted') return
   loadClarity()
   applyClarityConsent('granted')
-  loadGtm()
+  loadGoogleTag()
 }
 
 export function applyDeniedMeasurement() {
   applyClarityConsent('denied')
-  applyGtmConsent('denied')
+  applyGaConsent('denied')
 }
 
 export function trackEvent(name: AnalyticsEvent) {
@@ -157,13 +158,12 @@ export function trackPage(path: string) {
   activateAnalytics()
   window.clarity?.('set', 'page', path)
   window.clarity?.('event', 'page_view')
-  if (!isGtmConfigured()) return
+  if (!isGaConfigured()) return
   ensureGtag()
-  window.dataLayer?.push({
-    event: 'page_view',
+  window.gtag?.('event', 'page_view', {
     page_path: path,
-    page_title: document.title,
     page_location: new URL(path, window.location.origin).href,
+    page_title: document.title,
   })
 }
 

@@ -124,11 +124,11 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, rootDir, '')
   const supabase = resolveSupabaseEnv(env)
   const clarityProjectId = (env.VITE_CLARITY_PROJECT_ID || process.env.VITE_CLARITY_PROJECT_ID || '').trim()
-  const gtmId = (env.VITE_GTM_ID || process.env.VITE_GTM_ID || '').trim()
+  const gaMeasurementId = (env.VITE_GA_MEASUREMENT_ID || process.env.VITE_GA_MEASUREMENT_ID || '').trim()
   const ocrApiUrl = (env.VITE_OCR_API_URL || process.env.VITE_OCR_API_URL || '').trim()
   const ocrApiKey = (env.VITE_OCR_API_KEY || process.env.VITE_OCR_API_KEY || '').trim()
   console.log(`[vetopoil] VITE_CLARITY_PROJECT_ID: ${clarityProjectId ? 'present' : 'absent'}`)
-  console.log(`[vetopoil] VITE_GTM_ID: ${gtmId ? 'present' : 'absent'}`)
+  console.log(`[vetopoil] VITE_GA_MEASUREMENT_ID: ${gaMeasurementId ? 'present' : 'absent'}`)
 
   return {
     plugins: [react(), tailwindcss(), vetPortalConfigPlugin(mode), serviceWorkerPlugin()],
@@ -146,7 +146,7 @@ export default defineConfig(({ mode }) => {
         env.VERCEL_PROJECT_PRODUCTION_URL ?? '',
       ),
       'import.meta.env.VITE_CLARITY_PROJECT_ID': JSON.stringify(clarityProjectId),
-      'import.meta.env.VITE_GTM_ID': JSON.stringify(gtmId),
+      'import.meta.env.VITE_GA_MEASUREMENT_ID': JSON.stringify(gaMeasurementId),
       'import.meta.env.VITE_OCR_API_URL': JSON.stringify(ocrApiUrl),
       'import.meta.env.VITE_OCR_API_KEY': JSON.stringify(ocrApiKey),
     },

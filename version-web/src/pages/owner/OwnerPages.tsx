@@ -589,7 +589,7 @@ export function AccountPage() {
         <section className="surface space-y-3 p-5">
           <h2 className="font-title text-lg font-semibold">Mesure d’audience</h2>
           <p className="font-body text-sm text-muted">
-            Choix actuel : {consent === 'granted' ? 'acceptée' : consent === 'denied' ? 'refusée' : 'non renseigné'}. Microsoft Clarity et Google Tag Manager ne se chargent pas sans votre accord. Le refus coupe la mesure d’audience.
+            Choix actuel : {consent === 'granted' ? 'acceptée' : consent === 'denied' ? 'refusée' : 'non renseigné'}. Microsoft Clarity et Google Analytics ne se chargent pas sans votre accord. Le refus coupe la mesure d’audience.
           </p>
           <div className="flex gap-2">
             <Button fullWidth={false} onClick={() => { storeConsent('granted'); setConsent('granted') }}>Accepter</Button>

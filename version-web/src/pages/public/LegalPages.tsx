@@ -43,7 +43,7 @@ export function PrivacyPage() {
           le navigateur de cet appareil. Vous pouvez l’accepter ou le retirer depuis les paramètres du compte.
         </p>
         <p>
-          L’acceptation peut charger Microsoft Clarity et Google Tag Manager pour compter les pages vues et les
+          L’acceptation peut charger Microsoft Clarity et Google Analytics pour compter les pages vues et les
           interactions. Avant ce chargement, le mode de consentement Google refuse la mesure d’audience
           (analytics_storage), le stockage publicitaire (ad_storage), les données utilisateur publicitaires
           (ad_user_data) et la personnalisation publicitaire (ad_personalization). Accepter n’ouvre que la mesure
