@@ -2,7 +2,7 @@
 
 Site du carnet de santé animal (Vite + React). Production : https://veto-poils.vercel.app
 
-Le backend est Supabase (`lmdszelnnibexzvnaubp`, région eu-west-3) : Auth, Postgres et Storage. L’application Expo (`Version-Mobile`) utilise le même schéma. Stripe n’est pas dans le périmètre.
+Le backend est Supabase (`lmdszelnnibexzvnaubp`, région eu-west-3) : Auth, Postgres et Storage. Stripe n’est pas dans le périmètre.
 
 ## Lancer en local
 
@@ -31,7 +31,8 @@ Voir `.env.example`.
 
 - `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` : projet `lmdszelnnibexzvnaubp`.
 - `VITE_OCR_API_URL` / `VITE_OCR_API_KEY` : optionnels. Sans clé, l’analyse propose une catégorie à partir du nom de fichier. Le contrat est `POST { image_base64, mime_type, file_name }` avec `Authorization: Bearer` et `x-api-key`.
-- `VITE_CLARITY_PROJECT_ID` : `z9d5jwu6j3` sur Vercel (production, preview, development). Le script n’est chargé qu’après consentement.
+- `VITE_CLARITY_PROJECT_ID` : mesure d’audience, seulement après consentement.
+- `VITE_GTM_ID` : conteneur Google Tag Manager, seulement après consentement. Le mode de consentement refuse la publicité ; l’acceptation n’ouvre que la mesure d’audience.
 
 Les redirections d’e-mail utilisent l’origine du site : `/auth/callback` pour la confirmation, `/reinitialiser-mot-de-passe` pour la réinitialisation. Ces URL doivent être autorisées dans Supabase Auth pour `https://veto-poils.vercel.app/**` et les aperçus Vercel. Le lien doit être ouvert dans le même navigateur (PKCE).
 
@@ -47,4 +48,4 @@ L’impression du dossier passe par une iframe masquée (pas de pop-up). Le part
 
 ## Déploiement
 
-`vercel.json` réécrit les routes vers `index.html`. Racine Vercel : `version-web`. Le service worker et le manifeste sont émis au build.
+`vercel.json` réécrit les routes de l’application vers `index.html`. Les fichiers statiques avec une extension, dont `robots.txt`, `sitemap.xml` et le fichier Search Console, restent servis tels quels. Racine Vercel : `version-web`. Le service worker et le manifeste sont émis au build.

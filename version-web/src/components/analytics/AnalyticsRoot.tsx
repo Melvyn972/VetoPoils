@@ -1,19 +1,28 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import { useAuth } from '../../context/AuthContext'
 import {
   activateAnalytics,
-  applyClarityConsent,
+  applyDeniedMeasurement,
   getStoredConsent,
   identifyUser,
-  loadClarity,
+  installConsentDefaults,
   onConsentChange,
   storeConsent,
   trackPage,
   type ConsentChoice,
 } from '../../lib/analytics'
-import { isClarityConfigured } from '../../lib/env'
+import { isClarityConfigured, isGtmConfigured } from '../../lib/env'
+
+function measurementTools() {
+  const tools = [
+    isClarityConfigured() ? 'Microsoft Clarity' : null,
+    isGtmConfigured() ? 'Google Tag Manager' : null,
+  ].filter((tool): tool is string => Boolean(tool))
+  if (tools.length === 2) return `${tools[0]} et ${tools[1]}`
+  return tools[0] ?? ''
+}
 
 export function AnalyticsRoot() {
   const location = useLocation()
@@ -21,12 +30,17 @@ export function AnalyticsRoot() {
   const [consent, setConsent] = useState<ConsentChoice | null>(() =>
     typeof window === 'undefined' ? null : getStoredConsent(),
   )
+  const tools = measurementTools()
 
   useEffect(() => onConsentChange(() => setConsent(getStoredConsent())), [])
 
   useEffect(() => {
-    if (consent !== 'granted') return
-    activateAnalytics()
+    installConsentDefaults()
+  }, [])
+
+  useEffect(() => {
+    if (consent === 'granted') activateAnalytics()
+    else if (consent === 'denied') applyDeniedMeasurement()
   }, [consent])
 
   useEffect(() => {
@@ -39,23 +53,22 @@ export function AnalyticsRoot() {
     void identifyUser(user.id, role)
   }, [consent, role, user])
 
-  if (!isClarityConfigured() || consent) return null
+  if (!tools || consent) return null
 
   function choose(choice: ConsentChoice) {
     storeConsent(choice)
     setConsent(choice)
-    if (choice === 'granted') {
-      loadClarity()
-      applyClarityConsent('granted')
-    }
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 p-4 md:p-6">
+    <div role="region" aria-label="Mesure d’audience" className="fixed inset-x-0 bottom-0 z-50 p-4 md:p-6">
       <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-3xl border border-line bg-white p-4 shadow-lg md:flex-row md:items-center md:justify-between">
         <p className="font-body text-sm text-ink">
-          Vet'OPoil mesure l’usage du site avec Microsoft Clarity (pages visitées et interactions)
-          uniquement si vous l’acceptez. Aucun suivi n’est lancé avant ce choix.
+          Vet'OPoil mesure l’usage du site (pages visitées et interactions) avec {tools} uniquement si vous
+          l’acceptez. Aucun de ces scripts n’est chargé avant ce choix, et la publicité reste désactivée.{' '}
+          <Link to="/confidentialite" className="font-semibold text-primary">
+            Confidentialité
+          </Link>
         </p>
         <div className="flex shrink-0 gap-2">
           <button

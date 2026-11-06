@@ -10,7 +10,7 @@ CREATE POLICY animaux_insert ON public.animaux
     OR proprietaire_id = public.get_compte_proprietaire_id(auth.uid())
   );
 
--- RPC utilisée par l'application mobile pour créer un animal sans dépendre
+-- RPC utilisée par le site pour créer un animal sans dépendre
 -- d'un INSERT direct fragile côté RLS.
 CREATE OR REPLACE FUNCTION public.creer_animal(
   p_nom TEXT,

@@ -1,9 +1,7 @@
-# N'autoriser au commit que les deux applications.
+# N'autoriser au commit que le site et le schéma.
 # Tout le reste à la racine est ignoré.
 
 /*
-!Version-Mobile/
-!Version-Mobile/**
 !version-web/
 !version-web/**
 !supabase/
@@ -18,6 +16,6 @@
 .DS_Store
 .githooks/
 
-# Cursor / agents IA (jamais versionner)
+# Fichiers locaux d'éditeur
 .cursor/
 .mcp.json

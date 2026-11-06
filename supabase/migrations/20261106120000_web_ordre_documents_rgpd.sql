@@ -1,6 +1,6 @@
 -- Site web Vet'OPoil.
--- Compatible Expo : aucune colonne existante n'est renommée ni rendue obligatoire,
--- aucune signature de RPC déjà appelée par l'app n'est modifiée.
+-- Aucune colonne existante n'est renommée ni rendue obligatoire,
+-- aucune signature de RPC déjà appelée par le site n'est modifiée.
 -- Le budget n'est plus bloqué par un plan (Stripe hors périmètre), comme le quota animal.
 
 ALTER TABLE public.vet_profiles
@@ -75,7 +75,7 @@ CREATE POLICY animaux_update ON public.animaux
     )
   );
 
--- Relecture OCR (web et Expo) : le propriétaire peut corriger la catégorie et le lien médical.
+-- Relecture OCR : le propriétaire peut corriger la catégorie et le lien médical.
 DROP POLICY IF EXISTS documents_update ON public.documents;
 CREATE POLICY documents_update ON public.documents
   FOR UPDATE TO authenticated

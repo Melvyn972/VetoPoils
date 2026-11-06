@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="version-web/src/assets/logo-full.svg" alt="Vet'OPoil" width="280" />
+  <img src="version-web/src/assets/logo-full.svg" alt="Vet'OPoil" width="430" height="225" />
 </p>
-
-<h1 align="center">Vet'OPoil</h1>
 
 <p align="center">
   Carnet de santé numérique de l’animal.<br />
@@ -17,7 +15,7 @@
 
 Vet'OPoil relie le propriétaire et la clinique autour d’un seul dossier : identité de l’animal, événements médicaux, documents, rappels, budget et partage. Le propriétaire reste maître des données. Chaque ajout fait depuis un accès vétérinaire attend sa validation.
 
-Le site public présente le concept. L’espace propriétaire et le portail clinique sont la même application web, installable (PWA). L’application mobile reprend le parcours propriétaire sur iOS et Android. Les deux clients parlent au même projet Supabase.
+Le site public présente le concept. L’espace propriétaire et le portail clinique sont la même application, une PWA React servie par Vite. Elle s’utilise sur grand écran comme sur téléphone. Les données sont sur Supabase.
 
 ## Équipe PIE
 
@@ -25,7 +23,7 @@ Le site public présente le concept. L’espace propriétaire et le portail clin
 | --- | --- |
 | Taylor et Mariama | Gestion de projet, RGPD |
 | Melvyn | Full-stack |
-| Lucas | Mobile, design |
+| Lucas | Design |
 | Fiona | Authentification, front |
 
 Les pages `/cgu` et `/confidentialite` décrivent le cadre du service. Elles ne remplacent pas une relecture juridique : le traitement des données de santé animale et des comptes reste à valider avec Taylor et Mariama.
@@ -35,7 +33,7 @@ Les pages `/cgu` et `/confidentialite` décrivent le cadre du service. Elles ne 
 - **Smart Scan.** Import d’une photo ou d’un PDF, proposition de catégorie, lecture optionnelle du document, création d’un événement ou d’une dépense.
 - **Accès vétérinaire.** Code à 6 caractères et QR, valable 4 heures, à usage limité, révocable. Le dossier se referme ensuite.
 - **Health Score.** Score de 0 à 100, enregistré sur l’animal et dans un historique.
-- **Rappels.** Vaccin, antiparasitaire, rendez-vous. Préférence de notification sur mobile.
+- **Rappels.** Vaccin, antiparasitaire, rendez-vous, avec une préférence dans le compte.
 - **Partage.** Invitation par e-mail en lecture seule ou en contribution (journal de pet-sitting).
 - **Journal.** Repas, sorties, comportement, notes.
 - **Budget.** Dépenses par catégorie, graphiques, export CSV.
@@ -51,10 +49,7 @@ Stripe, les abonnements et la téléconsultation ne font pas partie du produit.
 
 ```mermaid
 flowchart LR
-  subgraph clients [Clients]
-    mobile[Application Expo]
-    web[PWA Vite]
-  end
+  web[PWA React et Vite]
 
   subgraph supabase [Supabase]
     auth[Auth]
@@ -63,10 +58,6 @@ flowchart LR
     rpc[RPC]
   end
 
-  mobile --> auth
-  mobile --> db
-  mobile --> storage
-  mobile --> rpc
   web --> auth
   web --> db
   web --> storage
@@ -81,8 +72,7 @@ Le site est servi par Vercel. L’authentification, les données, les fichiers e
 
 ```text
 .
-├── Version-Mobile/          application propriétaire Expo
-├── version-web/             site, espace propriétaire et portail clinique
+├── version-web/             PWA : site, espace propriétaire, portail clinique
 ├── supabase/
 │   ├── migrations/          schéma incrémental, dans l’ordre des horodatages
 │   ├── bootstrap_all.sql    photographie historique du schéma
@@ -97,7 +87,7 @@ Les correctifs SQL historiques (`supabase/fix_*.sql`) sont repris dans `migratio
 
 Versions déclarées dans les `package.json`. Le caret ou le tilde est celui du fichier.
 
-### Web — `version-web`
+### Application — `version-web`
 
 | Outil | Version déclarée |
 | --- | --- |
@@ -120,23 +110,6 @@ Versions déclarées dans les `package.json`. Le caret ou le tilde est celui du 
 | Vitest | ^3.2.4 |
 | Playwright | ^1.65.0 |
 
-### Mobile — `Version-Mobile`
-
-| Outil | Version déclarée |
-| --- | --- |
-| Expo | ~57.0.22 |
-| Expo Router | ~57.0.21 |
-| React | 19.2.3 |
-| React DOM | 19.2.3 |
-| React Native | 0.86.3 |
-| @supabase/supabase-js | ^2.110.0 |
-| react-native-qrcode-svg | ^6.3.21 |
-| react-native-svg | 15.15.4 |
-| @react-native-async-storage/async-storage | 2.2.0 |
-| TypeScript | ~6.0.3 |
-
-Modules Expo utilisés : `expo-image-picker` ~57.0.17, `expo-document-picker` ~57.0.2, `expo-file-system` ~57.0.7, `expo-print` ~57.0.2, `expo-notifications` ~57.0.18, `expo-secure-store` ~57.0.4, `expo-sharing` ~57.0.19, `expo-image` ~57.0.5, `expo-linking` ~57.0.10.
-
 ### Backend et hébergement
 
 | Brique | Rôle |
@@ -150,20 +123,14 @@ Modules Expo utilisés : `expo-image-picker` ~57.0.17, `expo-document-picker` ~5
 
 | Bibliothèque | Usage |
 | --- | --- |
-| React et React DOM | Interfaces web et mobile |
-| React Router | Routes du site |
-| Expo Router | Routes de l’application |
-| Vite | Dev, build et PWA du site |
-| Tailwind CSS | Styles du site |
-| GSAP et @gsap/react | Animations du site. Elles respectent `prefers-reduced-motion` |
-| @supabase/supabase-js | Auth, requêtes, fichiers et RPC, sur le web et le mobile |
-| qrcode | QR du code vétérinaire sur le web |
-| react-native-qrcode-svg | QR sur mobile |
-| expo-image-picker, expo-document-picker | Photo et PDF pour Smart Scan |
-| expo-print, expo-sharing | PDF du dossier sur mobile |
-| expo-notifications | Rappels locaux |
-| expo-secure-store | Session sur l’appareil |
-| Vitest | Tests unitaires du site |
+| React et React DOM | Interface |
+| React Router | Routes |
+| Vite | Dev, build et PWA |
+| Tailwind CSS | Styles |
+| GSAP et @gsap/react | Animations. Elles respectent `prefers-reduced-motion` |
+| @supabase/supabase-js | Auth, requêtes, fichiers et RPC |
+| qrcode | QR du code vétérinaire |
+| Vitest | Tests unitaires |
 | Playwright | Parcours navigateur du site |
 | ESLint et TypeScript | Contrôle statique |
 
@@ -212,26 +179,22 @@ Postgres applique le RLS sur les tables du dossier. Les politiques s’appuient 
 - **Vétérinaire.** Profil distinct (`vet_profiles`). Le code ouvre un dossier limité dans le temps. Une saisie faite avec ce code reste en attente de validation. Un animal déjà consulté peut être rouvert depuis le compte clinique.
 - **Anonyme.** Peut présenter un code encore valable. Sans code, pas d’accès au dossier.
 
-Les fonctions sensibles sont `SECURITY DEFINER` et vérifient `auth.uid()` ou le code. Les buckets sont privés : le chemin de fichier est préfixé par le propriétaire. Les clients n’utilisent que la clé publique. La clé `service_role` ne va ni dans le dépôt, ni dans les variables `VITE_` ou `EXPO_PUBLIC_`.
+Les fonctions sensibles sont `SECURITY DEFINER` et vérifient `auth.uid()` ou le code. Les buckets sont privés : le chemin de fichier est préfixé par le propriétaire. Le site n’utilise que la clé publique. La clé `service_role` ne va ni dans le dépôt, ni dans une variable `VITE_`.
 
 Les liens d’e-mail (`/auth/callback`, `/reinitialiser-mot-de-passe`) doivent être autorisés dans Auth pour `https://veto-poils.vercel.app/**` et les aperçus `https://*.vercel.app/**`. Le lien se termine dans le même navigateur (PKCE).
 
 ## Variables d’environnement
 
-Noms seulement. Les exemples vides sont dans `version-web/.env.example` et `Version-Mobile/.env.example`. Ne jamais committer de secret.
+Noms seulement. Les exemples sont dans `version-web/.env.example`. Ne jamais committer de secret.
 
-| Nom | Client | Rôle |
-| --- | --- | --- |
-| `VITE_SUPABASE_URL` | Web | URL du projet |
-| `VITE_SUPABASE_ANON_KEY` | Web | Clé publique |
-| `VITE_OCR_API_URL` | Web | Point d’entrée Smart Scan, optionnel |
-| `VITE_OCR_API_KEY` | Web | Clé de cet appel, optionnelle |
-| `VITE_CLARITY_PROJECT_ID` | Web | Mesure d’audience, optionnelle |
-| `EXPO_PUBLIC_SUPABASE_URL` | Mobile | Équivalent de l’URL |
-| `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Mobile | Équivalent de la clé publique |
-| `EXPO_PUBLIC_OCR_API_URL` | Mobile | Équivalent Smart Scan |
-| `EXPO_PUBLIC_OCR_API_KEY` | Mobile | Équivalent de la clé Smart Scan |
-| `EXPO_PUBLIC_VET_WEB_URL` | Mobile | Origine encodée dans le QR |
+| Nom | Rôle |
+| --- | --- |
+| `VITE_SUPABASE_URL` | URL du projet |
+| `VITE_SUPABASE_ANON_KEY` | Clé publique |
+| `VITE_OCR_API_URL` | Point d’entrée Smart Scan, optionnel |
+| `VITE_OCR_API_KEY` | Clé de cet appel, optionnelle |
+| `VITE_CLARITY_PROJECT_ID` | Mesure d’audience, optionnelle |
+| `VITE_GTM_ID` | Conteneur Google Tag Manager, optionnel |
 
 Le site accepte aussi les alias `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Sans URL ni clé OCR, l’import reste possible et la catégorie est proposée à partir du nom de fichier. Le contrat d’appel est un `POST` JSON `{ image_base64, mime_type, file_name }`.
 
@@ -261,37 +224,24 @@ Le site écoute sur `http://localhost:5173`.
 | `npm run test:e2e` | Playwright |
 | `npm run seed` | Jeu de données d’exemple, hors des secrets du dépôt |
 
-Application :
-
-```bash
-cd Version-Mobile
-cp .env.example .env
-npm install
-npm run typecheck
-npm run start
-```
-
-`npm run android`, `npm run ios` et `npm run web` lancent la cible correspondante. Expo Go suffit pour un essai sur téléphone.
-
 ## Tests
 
 - **Unitaires.** `version-web` : `npm test` (Vitest).
-- **Parcours.** `version-web` : `npm run test:e2e`. Playwright ouvre Chromium sur `http://127.0.0.1:4173` (le script de config réutilise un serveur déjà lancé, sinon il démarre Vite). Le parcours couvre la page d’accueil, l’inscription, la connexion, une fiche et un code vétérinaire, contre le projet Supabase réel.
-- **Mobile.** `npm run typecheck` dans `Version-Mobile`.
+- **Parcours.** `version-web` : `npm run test:e2e`. Playwright ouvre Chromium sur `http://127.0.0.1:4173` (le script de config réutilise un serveur déjà lancé, sinon il démarre Vite). Le parcours couvre la page d’accueil, l’inscription, la connexion, une fiche et un code vétérinaire, contre le projet Supabase réel. Un second parcours vérifie que Google Tag Manager n’est chargé qu’après acceptation des cookies.
 
 ## Déploiement
 
-Le projet Vercel pointe sur le dossier `version-web`. `vercel.json` lance `npm run build`, publie `dist/` et renvoie toutes les routes vers `index.html`. Le manifeste et le service worker sont produits au build.
+Le projet Vercel pointe sur le dossier `version-web`. `vercel.json` lance `npm run build`, publie `dist/` et renvoie les routes de l’application vers `index.html`. Un fichier statique qui porte une extension (`robots.txt`, `sitemap.xml`, le fichier de vérification Search Console, les assets) est servi tel quel. Le manifeste et le service worker sont produits au build.
 
 Les migrations s’appliquent dans l’ordre des noms de fichiers de `supabase/migrations/`, via l’éditeur SQL du projet. Un fichier déjà passé est en général réentrant (`IF NOT EXISTS`, `CREATE OR REPLACE`). `ALTER TYPE ... ADD VALUE` reste seul dans sa migration : la valeur nouvelle ne s’utilise pas dans la même transaction.
 
 ## Mesure d’audience
 
-Clarity n’est chargé que si `VITE_CLARITY_PROJECT_ID` est défini **et** que la personne a accepté la mesure. Le refus n’injecte pas le script. Le choix est mémorisé dans le navigateur.
+Microsoft Clarity et Google Tag Manager ne sont chargés que si leur variable est définie **et** que la personne a accepté la mesure. Le refus n’injecte pas ces scripts. Avant tout chargement, le mode de consentement Google refuse `analytics_storage`, `ad_storage`, `ad_user_data` et `ad_personalization`. L’acceptation n’autorise que la mesure d’audience. Le choix est mémorisé dans le navigateur et peut être repris dans le compte. La page `/confidentialite` décrit ce fonctionnement ; le texte reste à valider avec Taylor et Mariama.
 
 ## Suite
 
-Le paiement, Stripe et les quotas liés à un abonnement sont hors périmètre. Le contrôle de quota animal ne bloque plus la création de fiche. Les certificats de notification de production (APNs, FCM) ne sont pas livrés : les rappels mobiles restent locaux.
+Le paiement, Stripe et les quotas liés à un abonnement sont hors périmètre. Le contrôle de quota animal ne bloque plus la création de fiche.
 
 ## Licence et crédits
 

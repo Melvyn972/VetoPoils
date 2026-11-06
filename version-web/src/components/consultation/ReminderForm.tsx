@@ -59,7 +59,7 @@ export function ReminderForm({ animalId, onCreated }: ReminderFormProps) {
       <div>
         <h2 className="font-title text-lg font-semibold text-fg-primary">Créer un rappel</h2>
         <p className="mt-1 font-body text-sm text-fg-secondary">
-          Le propriétaire sera notifié dans l’app mobile.
+          Le propriétaire le verra dans son espace.
         </p>
       </div>
 

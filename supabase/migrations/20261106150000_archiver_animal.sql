@@ -1,8 +1,8 @@
--- Archivage d'un animal (web et Expo).
+-- Archivage d'un animal.
 -- Un UPDATE filtré sur animaux impose aussi animaux_select à la nouvelle ligne.
 -- Cette policy exige deleted_at IS NULL : l'UPDATE qui renseigne deleted_at est donc
 -- toujours rejeté, même avec le WITH CHECK élargi de la migration précédente.
--- La policy de lecture reste inchangée (Expo s'appuie dessus pour masquer les archives) ;
+-- La policy de lecture reste inchangée (elle masque les archives) ;
 -- l'archivage passe par une fonction réservée au compte propriétaire de l'animal.
 
 CREATE OR REPLACE FUNCTION public.archiver_animal(p_animal_id UUID)

@@ -52,7 +52,7 @@ export function mapAuthError(message: string): string {
 }
 
 const OWNER_ACCOUNT_MESSAGE =
-  'Ce compte est un compte propriétaire (app mobile). Créez un compte vétérinaire ou connectez-vous sans compte.'
+  'Ce compte est un compte propriétaire. Créez un compte vétérinaire ou connectez-vous sans compte.'
 
 export function mapVetAccountError(message: string): string {
   const normalized = message.toLowerCase()
