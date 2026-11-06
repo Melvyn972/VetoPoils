@@ -122,45 +122,6 @@ export function useLandingMotion(scope: RefObject<HTMLElement | null>) {
           })
         })
 
-        const cursor = root.querySelector<HTMLElement>('[data-cursor]')
-        const dot = root.querySelector<HTMLElement>('[data-cursor-dot]')
-        if (cursor && dot) {
-          const xTo = gsap.quickTo(cursor, 'x', { duration: 0.45, ease: 'power3' })
-          const yTo = gsap.quickTo(cursor, 'y', { duration: 0.45, ease: 'power3' })
-          let visible = false
-          let grown = false
-          const onMove = (event: PointerEvent) => {
-            if (event.pointerType !== 'mouse') return
-            if (!visible) {
-              visible = true
-              gsap.set(cursor, { x: event.clientX, y: event.clientY })
-              gsap.to(cursor, { autoAlpha: 1, duration: 0.3 })
-            }
-            xTo(event.clientX)
-            yTo(event.clientY)
-          }
-          const onOver = (event: PointerEvent) => {
-            const target = event.target as Element | null
-            const interactive = Boolean(target?.closest?.('a, button, summary, [role="tab"], [role="switch"], [data-cursor-grow]'))
-            if (interactive === grown) return
-            grown = interactive
-            gsap.to(cursor, { scale: interactive ? 1.85 : 1, duration: 0.4, ease: 'power3.out' })
-            gsap.to(dot, { autoAlpha: interactive ? 0 : 1, duration: 0.2 })
-          }
-          const onLeave = () => {
-            visible = false
-            gsap.to(cursor, { autoAlpha: 0, duration: 0.3 })
-          }
-          window.addEventListener('pointermove', onMove, { passive: true })
-          document.addEventListener('pointerover', onOver)
-          document.documentElement.addEventListener('pointerleave', onLeave)
-          cleanups.push(() => {
-            window.removeEventListener('pointermove', onMove)
-            document.removeEventListener('pointerover', onOver)
-            document.documentElement.removeEventListener('pointerleave', onLeave)
-          })
-        }
-
         return () => cleanups.forEach((cleanup) => cleanup())
       })
 

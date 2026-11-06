@@ -38,16 +38,6 @@ export function LandingPage() {
         className="fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-gradient-to-r from-primary via-teal to-logo-orange"
         style={{ transform: 'scaleX(0)' }}
       />
-      <div
-        data-cursor
-        aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 z-[70] hidden h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-[1.5px] border-primary/60 opacity-0 pointer-fine:block motion-reduce:!hidden"
-      />
-      <div
-        data-cursor-dot
-        aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 z-[70] hidden h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary opacity-0 pointer-fine:block motion-reduce:!hidden"
-      />
       <LandingHeader />
       <main id="contenu" tabIndex={-1} className="outline-none">
         <Hero />
