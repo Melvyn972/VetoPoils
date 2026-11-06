@@ -29,22 +29,37 @@ export async function ensureVetProfile(): Promise<VetProfile> {
 
 export async function updateVetProfile(
   userId: string,
-  input: Pick<VetProfile, 'nom_complet' | 'clinique' | 'telephone'>,
+  input: Pick<VetProfile, 'nom_complet' | 'clinique' | 'telephone'> & { numero_ordre?: string | null },
 ) {
   const supabase = getSupabase()
   if (!supabase) throw new Error('Supabase non configuré.')
 
-  const { data, error } = await supabase
-    .from('vet_profiles')
-    .update({
-      nom_complet: input.nom_complet.trim(),
-      clinique: input.clinique?.trim() || null,
-      telephone: input.telephone?.trim() || null,
-    })
-    .eq('id', userId)
-    .select('*')
-    .single()
+  const payload = {
+    nom_complet: input.nom_complet.trim(),
+    clinique: input.clinique?.trim() || null,
+    telephone: input.telephone?.trim() || null,
+    numero_ordre: input.numero_ordre?.trim() || null,
+  }
 
-  if (error) throw error
+  const { data, error } = await supabase.from('vet_profiles').update(payload).eq('id', userId).select('*').single()
+
+  if (error) {
+    const message = error.message.toLowerCase()
+    if (!message.includes('numero_ordre')) throw error
+    const { data: fallback, error: fallbackError } = await supabase
+      .from('vet_profiles')
+      .update({
+        nom_complet: payload.nom_complet,
+        clinique: payload.clinique,
+        telephone: payload.telephone,
+      })
+      .eq('id', userId)
+      .select('*')
+      .single()
+    if (fallbackError) throw fallbackError
+    await supabase.auth.updateUser({ data: { numero_ordre: payload.numero_ordre ?? '' } })
+    return { ...(fallback as VetProfile), numero_ordre: payload.numero_ordre }
+  }
+
   return data as VetProfile
 }

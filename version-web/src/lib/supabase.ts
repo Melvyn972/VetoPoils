@@ -15,8 +15,21 @@ export function getSupabase(): SupabaseClient | null {
   }
 
   if (!supabaseClient) {
-    supabaseClient = createClient(env.supabaseUrl!, env.supabaseAnonKey!)
+    supabaseClient = createClient(env.supabaseUrl!, env.supabaseAnonKey!, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce',
+      },
+    })
   }
 
   return supabaseClient
+}
+
+export function requireSupabase() {
+  const client = getSupabase()
+  if (!client) throw new Error('Supabase n’est pas configuré.')
+  return client
 }

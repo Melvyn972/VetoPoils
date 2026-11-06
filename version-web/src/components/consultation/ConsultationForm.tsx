@@ -52,7 +52,7 @@ export function ConsultationForm() {
               saveConsultationResult({ animalName: dossier.animal.nom })
               navigate('/succes')
             }}
-            submitLabel="Enregistrer"
+            submitLabel="Soumettre au propriétaire"
           />
         </div>
       </div>

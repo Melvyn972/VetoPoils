@@ -5,7 +5,6 @@ import { useVetSession } from '../context/VetSessionContext'
 import { MobileShell } from '../components/layout/MobileShell'
 import { Button } from '../components/ui/Button'
 import { FormAlert } from '../components/ui/FormAlert'
-import { Input } from '../components/ui/Input'
 import { isVetAccessCode, normalizeVetAccessCode } from '../lib/vet'
 import { getVetErrorMessage } from '../lib/vetErrors'
 
@@ -58,7 +57,7 @@ export function VetAccessPage() {
     setError(null)
 
     try {
-      await activateToken(code)
+      await activateToken(code, { track: true })
       navigate('/consultation', { replace: true })
     } catch (submitError) {
       setError(getVetErrorMessage(submitError, 'Code d’accès invalide. Vérifiez le code saisi.'))
@@ -79,29 +78,41 @@ export function VetAccessPage() {
           </p>
         </div>
 
-        <Input
-          label="Code d’accès"
-          required
+        <label className="font-body text-sm font-medium text-ink" htmlFor="vet-code">
+          Code d’accès
+        </label>
+        <input
+          id="vet-code"
           value={code}
           onChange={(event) =>
             setCode(normalizeVetAccessCode(event.target.value).replace(/[^2-9A-HJ-NP-Z]/g, ''))
           }
-          placeholder="ABC123"
           maxLength={6}
           inputMode="text"
           autoCapitalize="characters"
           autoComplete="off"
           spellCheck={false}
-          className="text-center text-lg font-semibold tracking-[0.35em]"
+          aria-label="Code d’accès"
+          className="w-full rounded-2xl border border-line bg-white px-3 py-3 text-center font-title text-2xl font-semibold tracking-[0.45em] text-ink outline-none focus:border-primary"
         />
-        <p className="font-body text-xs text-fg-tertiary">
-          6 caractères, sans 0, 1, I ni O - identique au code affiché sous le QR.
+        <div className="grid grid-cols-6 gap-2" aria-hidden="true">
+          {Array.from({ length: 6 }, (_, index) => (
+            <span
+              key={index}
+              className="flex h-12 items-center justify-center rounded-xl border border-line bg-canvas font-title text-lg font-semibold"
+            >
+              {code[index] ?? ''}
+            </span>
+          ))}
+        </div>
+        <p className="font-body text-xs text-muted">
+          6 caractères, sans 0, 1, I ni O — identique au code affiché sous le QR.
         </p>
 
         {error ? <FormAlert>{error}</FormAlert> : null}
 
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Vérification...' : 'Accéder au dossier'}
+          {isSubmitting ? 'Vérification…' : 'Ouvrir le dossier'}
         </Button>
       </form>
     </MobileShell>

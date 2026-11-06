@@ -59,6 +59,51 @@ function vetPortalConfigPlugin(mode: string): Plugin {
   }
 }
 
+function serviceWorkerPlugin(): Plugin {
+  return {
+    name: 'vetopoil-service-worker',
+    apply: 'build',
+    generateBundle(_options, bundle) {
+      const assets = Object.keys(bundle)
+        .filter((file) => !file.endsWith('.map'))
+        .map((file) => `/${file}`)
+      const source = `const CACHE = 'vetopoil-shell-v1'
+const ASSETS = ${JSON.stringify(['/', '/index.html', '/manifest.webmanifest', ...assets])}
+self.addEventListener('install', (event) => {
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)))
+  self.skipWaiting()
+})
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim()),
+  )
+})
+self.addEventListener('fetch', (event) => {
+  const request = event.request
+  if (request.method !== 'GET') return
+  const url = new URL(request.url)
+  if (url.origin !== self.location.origin) return
+  if (request.mode === 'navigate') {
+    event.respondWith(fetch(request).catch(() => caches.match('/index.html')))
+    return
+  }
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) return cached
+      return fetch(request).then((response) => {
+        const copy = response.clone()
+        caches.open(CACHE).then((cache) => cache.put(request, copy))
+        return response
+      })
+    }),
+  )
+})
+`
+      this.emitFile({ type: 'asset', fileName: 'sw.js', source })
+    },
+  }
+}
+
 function resolveSupabaseEnv(env: Record<string, string>) {
   return {
     url:
@@ -78,9 +123,13 @@ function resolveSupabaseEnv(env: Record<string, string>) {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, rootDir, '')
   const supabase = resolveSupabaseEnv(env)
+  const clarityProjectId = (env.VITE_CLARITY_PROJECT_ID || process.env.VITE_CLARITY_PROJECT_ID || '').trim()
+  const ocrApiUrl = (env.VITE_OCR_API_URL || process.env.VITE_OCR_API_URL || '').trim()
+  const ocrApiKey = (env.VITE_OCR_API_KEY || process.env.VITE_OCR_API_KEY || '').trim()
+  console.log(`[vetopoil] VITE_CLARITY_PROJECT_ID: ${clarityProjectId ? 'present' : 'absent'}`)
 
   return {
-    plugins: [react(), tailwindcss(), vetPortalConfigPlugin(mode)],
+    plugins: [react(), tailwindcss(), vetPortalConfigPlugin(mode), serviceWorkerPlugin()],
     server: {
       host: true,
       port: 5173,
@@ -94,6 +143,9 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_VERCEL_PROJECT_PRODUCTION_URL': JSON.stringify(
         env.VERCEL_PROJECT_PRODUCTION_URL ?? '',
       ),
+      'import.meta.env.VITE_CLARITY_PROJECT_ID': JSON.stringify(clarityProjectId),
+      'import.meta.env.VITE_OCR_API_URL': JSON.stringify(ocrApiUrl),
+      'import.meta.env.VITE_OCR_API_KEY': JSON.stringify(ocrApiKey),
     },
   }
 })

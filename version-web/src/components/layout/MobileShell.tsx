@@ -11,7 +11,7 @@ interface MobileShellProps {
 
 export function MobileShell({ children, wide = false }: MobileShellProps) {
   return (
-    <div className="relative flex min-h-screen flex-col bg-surface">
+    <div className="relative flex min-h-screen flex-col bg-canvas">
       <AppHeader wide={wide} />
 
       <main
