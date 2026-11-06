@@ -42,24 +42,6 @@ export async function updateVetProfile(
   }
 
   const { data, error } = await supabase.from('vet_profiles').update(payload).eq('id', userId).select('*').single()
-
-  if (error) {
-    const message = error.message.toLowerCase()
-    if (!message.includes('numero_ordre')) throw error
-    const { data: fallback, error: fallbackError } = await supabase
-      .from('vet_profiles')
-      .update({
-        nom_complet: payload.nom_complet,
-        clinique: payload.clinique,
-        telephone: payload.telephone,
-      })
-      .eq('id', userId)
-      .select('*')
-      .single()
-    if (fallbackError) throw fallbackError
-    await supabase.auth.updateUser({ data: { numero_ordre: payload.numero_ordre ?? '' } })
-    return { ...(fallback as VetProfile), numero_ordre: payload.numero_ordre }
-  }
-
+  if (error) throw error
   return data as VetProfile
 }

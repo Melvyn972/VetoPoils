@@ -35,7 +35,7 @@ import {
   rejectMedicalEvent,
   revokeShare,
   revokeVetToken,
-  softDeleteAnimal,
+  archiveAnimal,
   updateAnimal,
   updateReminderStatus,
   uploadAnimalPhoto,
@@ -268,7 +268,7 @@ function EditAnimal({ animal, onChange }: { animal: Animal; onChange: (animal: A
         variant="danger"
         onClick={() => {
           if (!window.confirm(`Archiver ${animal.nom} ?`)) return
-          void softDeleteAnimal(animal.id)
+          void archiveAnimal(animal.id)
             .then(() => navigate('/espace/animaux'))
             .catch((deleteError) => setError(getErrorMessage(deleteError)))
         }}
@@ -441,7 +441,7 @@ function ScanReview({ animal, userId, canWrite }: { animal: Animal; userId: stri
           cree_par: userId,
           description: draft.titre,
           medical_event_id: event.id,
-        }).catch(() => undefined)
+        })
       }
       setInfo('Document enregistré dans le dossier.')
       setFile(null)

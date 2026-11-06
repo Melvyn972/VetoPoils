@@ -1,5 +1,5 @@
 import { trackEvent } from '../../lib/analytics'
-import { getErrorMessage, isMissingRpc } from '../../lib/errors'
+import { isMissingRpc } from '../../lib/errors'
 import { requireSupabase } from '../../lib/supabase'
 import type {
   Animal,
@@ -143,22 +143,9 @@ export async function updateAnimal(id: string, values: Partial<Animal>) {
   return data as Animal
 }
 
-export async function softDeleteAnimal(id: string) {
+export async function archiveAnimal(id: string) {
   const supabase = requireSupabase()
-  const { data: tokens, error: tokensError } = await supabase
-    .from('vet_access_tokens')
-    .select('token')
-    .eq('animal_id', id)
-    .eq('statut', 'actif')
-  if (tokensError) throw tokensError
-  for (const row of tokens ?? []) {
-    const { error } = await supabase.rpc('revoquer_vet_token', { p_token: row.token })
-    if (error) throw error
-  }
-  const { error } = await supabase
-    .from('animaux')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id)
+  const { error } = await supabase.rpc('archiver_animal', { p_animal_id: id })
   if (error) throw error
 }
 
@@ -571,63 +558,16 @@ export async function fetchVetTokens(animalId: string) {
 export async function exportAccountData() {
   const supabase = requireSupabase()
   const { data, error } = await supabase.rpc('exporter_mes_donnees')
-  if (!error && data) return data
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error('Utilisateur non authentifié.')
-  const [profile, animals, events, documents, reminders, shares, logs, expenses] = await Promise.all([
-    fetchOwnerProfile(user.id),
-    fetchAnimals(),
-    supabase.from('medical_events').select('*').then((result) => result.data ?? []),
-    supabase.from('documents').select('*').then((result) => result.data ?? []),
-    fetchReminders(),
-    supabase.from('animal_shares').select('*').then((result) => result.data ?? []),
-    supabase.from('daily_logs').select('*').then((result) => result.data ?? []),
-    fetchExpenses(),
-  ])
-  if (error && !isMissingRpc(error)) {
-    return {
-      exporte_le: new Date().toISOString(),
-      profil: profile,
-      animaux: animals,
-      evenements: events,
-      documents,
-      rappels: reminders,
-      partages: shares,
-      journal: logs,
-      depenses: expenses,
-      avertissement: getErrorMessage(error),
-    }
-  }
-  return {
-    exporte_le: new Date().toISOString(),
-    profil: profile,
-    animaux: animals,
-    evenements: events,
-    documents,
-    rappels: reminders,
-    partages: shares,
-    journal: logs,
-    depenses: expenses,
-  }
+  if (error) throw error
+  return data as Record<string, unknown>
 }
 
 export async function deleteAccount() {
   const supabase = requireSupabase()
   const { error } = await supabase.rpc('supprimer_mon_compte')
-  if (!error) {
-    await supabase.auth.signOut()
-    return { deletedAuth: true as const }
-  }
-  if (!isMissingRpc(error)) throw error
-  const animals = await fetchAnimals()
-  for (const animal of animals) {
-    await softDeleteAnimal(animal.id)
-  }
-  await supabase.auth.signOut()
-  return { deletedAuth: false as const }
+  if (error) throw error
+  // The auth user no longer exists, so the server-side sign-out may fail; the local session must still go.
+  await supabase.auth.signOut({ scope: 'local' })
 }
 
 export async function fetchHealthHistory(animalId: string) {

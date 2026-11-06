@@ -391,12 +391,7 @@ export function AccountPage() {
           onClick={() => {
             if (!window.confirm('Supprimer le compte et les animaux dont vous êtes propriétaire ?')) return
             void deleteAccount()
-              .then((result) => {
-                if (!result.deletedAuth) {
-                  setMessage('Les animaux ont été archivés. La suppression du compte d’authentification attend encore l’application de la migration sur le projet.')
-                }
-                void signOut()
-              })
+              .then(() => signOut())
               .catch((deleteError) => setError(getErrorMessage(deleteError)))
           }}
         >

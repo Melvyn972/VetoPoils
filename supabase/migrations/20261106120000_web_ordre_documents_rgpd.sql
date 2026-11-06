@@ -38,7 +38,13 @@ BEGIN
       NULLIF(trim(NEW.raw_user_meta_data ->> 'clinique'), ''),
       NULLIF(trim(NEW.raw_user_meta_data ->> 'telephone'), ''),
       NULLIF(trim(NEW.raw_user_meta_data ->> 'numero_ordre'), '')
-    );
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      nom_complet = EXCLUDED.nom_complet,
+      email = EXCLUDED.email,
+      clinique = COALESCE(EXCLUDED.clinique, vet_profiles.clinique),
+      numero_ordre = COALESCE(EXCLUDED.numero_ordre, vet_profiles.numero_ordre),
+      updated_at = now();
   ELSE
     INSERT INTO public.profiles (id, nom, prenom, email)
     VALUES (
@@ -46,7 +52,8 @@ BEGIN
       COALESCE(NULLIF(trim(NEW.raw_user_meta_data ->> 'nom'), ''), split_part(COALESCE(v_full_name, NEW.email), ' ', 1)),
       COALESCE(NULLIF(trim(NEW.raw_user_meta_data ->> 'prenom'), ''), ''),
       NEW.email
-    );
+    )
+    ON CONFLICT (id) DO NOTHING;
   END IF;
 
   RETURN NEW;
@@ -165,6 +172,7 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.exporter_mes_donnees() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.exporter_mes_donnees() FROM anon;
 GRANT EXECUTE ON FUNCTION public.exporter_mes_donnees() TO authenticated;
 
 CREATE OR REPLACE FUNCTION public.supprimer_mon_compte()
@@ -194,4 +202,5 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.supprimer_mon_compte() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.supprimer_mon_compte() FROM anon;
 GRANT EXECUTE ON FUNCTION public.supprimer_mon_compte() TO authenticated;
