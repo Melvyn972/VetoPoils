@@ -48,6 +48,11 @@ export function MedicalHistory({ events }: { events: VetMedicalEvent[] }) {
                       En attente du propriétaire
                     </span>
                   ) : null}
+                  {event.status === 'rejected' ? (
+                    <span className="shrink-0 rounded-10 bg-error-15 px-2.5 py-1 font-body text-xs font-medium text-error">
+                      Refusé
+                    </span>
+                  ) : null}
                   <span className="shrink-0 rounded-10 bg-primary-15 px-2.5 py-1 font-body text-xs font-medium text-primary">
                     {getMedicalEventTypeLabel(event.type)}
                   </span>

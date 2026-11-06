@@ -7,7 +7,8 @@ import { MedicalEventForm } from '../components/consultation/MedicalEventForm'
 import { MedicalHistory } from '../components/consultation/MedicalHistory'
 import { ReminderForm } from '../components/consultation/ReminderForm'
 import { RemindersPanel } from '../components/consultation/RemindersPanel'
-import { MobileShell } from '../components/layout/MobileShell'
+import { VetWorkspace } from '../components/layout/VetWorkspace'
+import { ListSkeleton } from '../components/ui/Feedback'
 import {
   AnimalActionHub,
   viewTitle,
@@ -95,34 +96,34 @@ export function VetAnimalPage() {
 
   if (isLoading) {
     return (
-      <MobileShell wide>
-        <p className="font-body text-sm text-fg-secondary">Chargement du dossier...</p>
-      </MobileShell>
+      <VetWorkspace>
+        <ListSkeleton label="Chargement du dossier…" />
+      </VetWorkspace>
     )
   }
 
   if (error || !dossier || !animalId) {
     return (
-      <MobileShell wide>
+      <VetWorkspace>
         <div className="flex flex-col gap-4 py-4">
           {error ? <FormAlert>{error}</FormAlert> : null}
           <Link to="/mes-patients" className="font-body text-sm text-primary underline">
             Retour à mes patients
           </Link>
         </div>
-      </MobileShell>
+      </VetWorkspace>
     )
   }
 
   return (
-    <MobileShell wide>
+    <VetWorkspace>
       <div className="flex flex-col gap-6 py-2">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <Link to="/mes-patients" className="font-body text-sm text-primary underline">
               ← Mes patients
             </Link>
-            <h1 className="mt-2 font-title text-2xl font-bold text-fg-primary lg:text-3xl">
+            <h1 className="mt-2 font-title text-[32px] font-semibold tracking-[-0.03em] text-ink">
               {dossier.animal.nom}
             </h1>
             <p className="font-body text-sm text-fg-secondary">{viewTitle(view)}</p>
@@ -209,6 +210,6 @@ export function VetAnimalPage() {
           </div>
         ) : null}
       </div>
-    </MobileShell>
+    </VetWorkspace>
   )
 }

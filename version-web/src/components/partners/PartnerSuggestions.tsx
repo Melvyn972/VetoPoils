@@ -43,7 +43,7 @@ export function PartnerSuggestions({
       })
   }, [animal])
 
-  if (!animal || partners.length === 0) return null
+  if (!animal) return null
 
   async function openPartner(partner: Partner) {
     const supabase = getSupabase()
@@ -63,33 +63,39 @@ export function PartnerSuggestions({
     } catch {
       // Le clic reste utile même si le tracking échoue.
     }
-    window.open(partner.url, '_blank', 'noopener,noreferrer')
   }
 
   return (
-    <section className="rounded-14 border border-dashed border-fg-tertiary/25 bg-surface px-4 py-3">
-      <p className="font-body text-[11px] font-semibold uppercase tracking-wide text-fg-tertiary">
+    <section className="rounded-2xl border border-dashed border-line bg-white px-4 py-4">
+      <p className="font-body text-[11px] font-semibold uppercase tracking-wide text-muted">
         Suggestions partenaires
       </p>
-      <p className="mt-1 font-body text-xs text-fg-secondary">
-        Liens utiles selon l’espèce - ouverture dans un nouvel onglet.
-      </p>
-      <ul className="mt-3 flex flex-col gap-2">
-        {partners.map((partner) => (
-          <li key={partner.id}>
-            <button
-              type="button"
-              onClick={() => void openPartner(partner)}
-              className="w-full rounded-12 bg-surface-secondary px-3 py-2 text-left transition-colors hover:bg-primary-15"
-            >
-              <span className="block font-body text-sm font-semibold text-fg-primary">{partner.nom}</span>
-              <span className="block font-body text-xs text-fg-secondary">
-                {partner.description ?? partner.categorie}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      {partners.length === 0 ? (
+        <p className="mt-2 font-body text-sm text-muted">
+          Aucun partenaire ne correspond encore à cet animal. Les suggestions apparaîtront ici dès qu’une offre
+          correspond à son espèce.
+        </p>
+      ) : (
+        <>
+          <p className="mt-1 font-body text-xs text-muted">Liens utiles selon l’espèce, ouverts dans un nouvel onglet.</p>
+          <ul className="mt-3 flex flex-col gap-2">
+            {partners.map((partner) => (
+              <li key={partner.id}>
+                <a
+                  href={partner.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => void openPartner(partner)}
+                  className="block rounded-xl bg-canvas px-3 py-2 transition-colors hover:bg-primary-15"
+                >
+                  <span className="block font-body text-sm font-semibold text-ink">{partner.nom}</span>
+                  <span className="block font-body text-xs text-muted">{partner.description ?? partner.categorie}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </section>
   )
 }

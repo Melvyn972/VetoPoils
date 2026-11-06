@@ -38,8 +38,8 @@ export function SuccessPage() {
 
   return (
     <MobileShell>
-      <div className="flex flex-col items-center gap-6 py-12 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-15 text-primary">
+      <div className="mx-auto flex max-w-md flex-col items-center gap-6 rounded-[28px] bg-white px-6 py-12 text-center shadow-card ring-1 ring-line-soft">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-mint text-primary">
           <CheckIcon />
         </div>
 

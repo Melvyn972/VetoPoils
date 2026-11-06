@@ -1,3 +1,4 @@
+import { printHtmlDocument } from './print'
 import { formatMedicalEventDate, getMedicalEventTypeLabel } from './medicalLabels'
 import type { VetDossier, VetMedicalEvent } from '../types/vet'
 
@@ -85,15 +86,7 @@ function eventArticle(event: VetMedicalEvent) {
 }
 
 export function printVetDossier(dossier: VetDossier) {
-  const html = buildVetDossierHtml(dossier)
-  const popup = window.open('', '_blank', 'noopener,noreferrer')
-  if (!popup) {
-    throw new Error('Autorisez les fenêtres pop-up pour imprimer ou télécharger le dossier.')
-  }
-  popup.document.write(html)
-  popup.document.close()
-  popup.focus()
-  popup.print()
+  printHtmlDocument(buildVetDossierHtml(dossier))
 }
 
 export function mailtoDossierFallback(animalName: string) {

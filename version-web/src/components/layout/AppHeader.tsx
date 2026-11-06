@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 
+import { Logo } from '../brand/Logo'
 import { useAuth } from '../../context/AuthContext'
 import { useVetSession } from '../../context/VetSessionContext'
-import logoVp from '../../assets/logo-vp.svg'
 
 export function AppHeader({ wide = false }: { wide?: boolean }) {
   const navigate = useNavigate()
@@ -11,19 +11,14 @@ export function AppHeader({ wide = false }: { wide?: boolean }) {
   const animalName = dossier?.animal.nom
 
   return (
-    <header className="border-b border-fg-tertiary/20 bg-surface">
+    <header className="border-b border-line-soft bg-white/90 backdrop-blur-md">
       <div
         className={`mx-auto flex items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8 ${
           wide ? 'max-w-6xl' : 'max-w-md'
         }`}
       >
         <div className="flex min-w-0 items-center gap-3">
-          <img
-            src={logoVp}
-            alt=""
-            className="h-9 w-9 shrink-0 rounded-full"
-            aria-hidden="true"
-          />
+          <Logo variant="mark" className="h-9 w-9 shrink-0" />
           <div className="min-w-0">
             <span className="block font-title text-sm font-semibold text-fg-primary sm:text-base">
               Vet&apos;OPoil
@@ -56,6 +51,12 @@ export function AppHeader({ wide = false }: { wide?: boolean }) {
               >
                 Mes patients
               </button>
+              <Link to="/acces" className="font-body text-xs text-primary underline">
+                Accès par code
+              </Link>
+              <Link to="/compte-veterinaire" className="font-body text-xs text-primary underline">
+                Clinique
+              </Link>
               <button
                 type="button"
                 onClick={() => void signOut()}
@@ -65,8 +66,8 @@ export function AppHeader({ wide = false }: { wide?: boolean }) {
               </button>
             </>
           ) : (
-            <Link to="/login" className="font-body text-xs text-primary underline">
-              Connexion véto
+            <Link to="/connexion" className="font-body text-xs text-primary underline">
+              Connexion
             </Link>
           )}
         </div>

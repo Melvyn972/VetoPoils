@@ -9,101 +9,131 @@ import {
   type ReactNode,
 } from 'react'
 
+import { ensureOwnerProfile, fetchOwnerProfile } from '../features/owner/api'
+import { trackEvent } from '../lib/analytics'
 import {
   clearGuestMode,
   getUserDisplayName,
   isGuestModeStored,
   mapAuthError,
-  mapVetAccountError,
   setGuestMode,
 } from '../lib/auth'
 import { isSupabaseConfigured } from '../lib/env'
 import { getSupabase } from '../lib/supabase'
-import { fetchVetProfile, ensureVetProfile } from '../lib/vetProfile'
+import { ensureVetProfile, fetchVetProfile } from '../lib/vetProfile'
+import type { OwnerProfile } from '../types/owner'
 import type { VetProfile } from '../types/vetProfile'
 
-export type AuthMode = 'guest' | 'connected' | 'unauthenticated'
+export type AccountRole = 'owner' | 'veterinarian'
 
 interface AuthContextValue {
-  mode: AuthMode
+  mode: 'guest' | 'connected' | 'unauthenticated'
   isLoading: boolean
   isGuest: boolean
   isConnected: boolean
+  isOwner: boolean
+  isVet: boolean
+  role: AccountRole | null
   isSupabaseReady: boolean
   user: User | null
+  profile: OwnerProfile | null
   vetProfile: VetProfile | null
   displayName: string
   defaultVeterinarianName: string
   defaultClinic: string
   defaultEmail: string
   continueAsGuest: () => void
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>
+  signIn: (email: string, password: string) => Promise<{ error: string | null; role: AccountRole | null }>
   signUp: (
     fullName: string,
     email: string,
     password: string,
     clinic?: string,
+    extra?: { telephone?: string; numeroOrdre?: string },
   ) => Promise<{ error: string | null; needsEmailConfirmation: boolean }>
+  signUpOwner: (values: {
+    prenom: string
+    nom: string
+    email: string
+    password: string
+  }) => Promise<{ error: string | null; needsEmailConfirmation: boolean }>
+  requestPasswordReset: (email: string) => Promise<{ error: string | null }>
+  updatePassword: (password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   refreshVetProfile: () => Promise<void>
+  refreshAccount: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-function resolveMode(session: Session | null, guestStored: boolean): AuthMode {
-  if (session) return 'connected'
-  if (guestStored) return 'guest'
-  return 'unauthenticated'
+function redirectTo(path: string) {
+  return `${window.location.origin}${path}`
 }
 
-function getDefaultVeterinarianName(user: User | null, vetProfile: VetProfile | null): string {
-  if (vetProfile?.nom_complet) return vetProfile.nom_complet
-  if (!user) return ''
-  return getUserDisplayName(user.user_metadata, user.email)
-}
-
-interface AuthProviderProps {
-  children: ReactNode
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [session, setSession] = useState<Session | null>(null)
   const [guestStored, setGuestStored] = useState(isGuestModeStored)
+  const [role, setRole] = useState<AccountRole | null>(null)
+  const [profile, setProfile] = useState<OwnerProfile | null>(null)
   const [vetProfile, setVetProfile] = useState<VetProfile | null>(null)
 
   const supabase = getSupabase()
   const isSupabaseReady = isSupabaseConfigured() && supabase !== null
 
-  const loadVetProfile = useCallback(async (userId: string | undefined) => {
-    if (!userId) {
+  const loadAccount = useCallback(async (user: User | undefined) => {
+    if (!user) {
+      setRole(null)
+      setProfile(null)
       setVetProfile(null)
       return null
     }
 
     try {
-      let profile = await fetchVetProfile(userId)
+      let vet = await fetchVetProfile(user.id)
+      let owner = await fetchOwnerProfile(user.id)
+      const accountType = String(user.user_metadata?.account_type ?? '')
+      // Older vet accounts also received a `profiles` row from the first signup trigger,
+      // so the declared account type and the vet profile win over that row.
+      const isVetAccount =
+        accountType === 'veterinarian' || (accountType !== 'owner' && Boolean(vet) && !owner)
 
-      if (!profile) {
-        profile = await ensureVetProfile()
+      if (isVetAccount) {
+        if (!vet) vet = await ensureVetProfile().catch(() => null)
+        if (vet) {
+          setVetProfile(vet)
+          setProfile(null)
+          setRole('veterinarian')
+          return 'veterinarian' as const
+        }
+        if (accountType === 'veterinarian') {
+          setRole(null)
+          setProfile(null)
+          setVetProfile(null)
+          return null
+        }
       }
 
-      setVetProfile(profile)
-      return profile
+      if (!owner) owner = await ensureOwnerProfile().catch(() => null)
+
+      if (owner) {
+        setProfile(owner)
+        setVetProfile(null)
+        setRole('owner')
+        return 'owner' as const
+      }
+
+      setRole(null)
+      setProfile(null)
+      setVetProfile(null)
+      return null
     } catch {
+      setRole(null)
+      setProfile(null)
       setVetProfile(null)
       return null
     }
   }, [])
-
-  const rejectNonVetSession = useCallback(async () => {
-    setVetProfile(null)
-    setSession(null)
-
-    if (supabase) {
-      await supabase.auth.signOut()
-    }
-  }, [supabase])
 
   useEffect(() => {
     if (!supabase) {
@@ -111,26 +141,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return
     }
 
-    let isMounted = true
-
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (!isMounted) return
-
+    let mounted = true
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return
       if (data.session) {
         clearGuestMode()
         setGuestStored(false)
       }
-
       setSession(data.session)
-
-      if (data.session?.user.id) {
-        const profile = await loadVetProfile(data.session.user.id)
-        if (!profile) {
-          await rejectNonVetSession()
-        }
-      }
-
-      if (isMounted) setIsLoading(false)
+      void loadAccount(data.session?.user).finally(() => {
+        if (mounted) setIsLoading(false)
+      })
     })
 
     const {
@@ -140,153 +161,187 @@ export function AuthProvider({ children }: AuthProviderProps) {
         clearGuestMode()
         setGuestStored(false)
       }
-
       setSession(nextSession)
-
-      void (async () => {
-        if (nextSession?.user.id) {
-          const profile = await loadVetProfile(nextSession.user.id)
-          if (!profile) {
-            await rejectNonVetSession()
-          }
-        } else {
-          setVetProfile(null)
-        }
-
-        setIsLoading(false)
-      })()
+      window.setTimeout(() => {
+        void loadAccount(nextSession?.user).finally(() => setIsLoading(false))
+      }, 0)
     })
 
     return () => {
-      isMounted = false
+      mounted = false
       subscription.unsubscribe()
     }
-  }, [loadVetProfile, rejectNonVetSession, supabase])
+  }, [loadAccount, supabase])
 
   const continueAsGuest = useCallback(() => {
     setGuestMode()
     setGuestStored(true)
     setSession(null)
+    setRole(null)
+    setProfile(null)
     setVetProfile(null)
-
-    if (supabase) {
-      void supabase.auth.signOut()
-    }
+    if (supabase) void supabase.auth.signOut()
   }, [supabase])
 
   const signIn = useCallback(
     async (email: string, password: string) => {
-      if (!supabase) {
-        return { error: 'Supabase n’est pas configuré' }
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-
-      if (error) {
-        return { error: mapAuthError(error.message) }
-      }
-
-      const profile = await loadVetProfile(data.user.id)
-      if (!profile) {
-        await rejectNonVetSession()
-        return { error: mapVetAccountError('Ce compte n\'est pas un compte vétérinaire.') }
-      }
-
-      return { error: null }
+      if (!supabase) return { error: 'Supabase n’est pas configuré.', role: null }
+      const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+      if (error) return { error: mapAuthError(error.message), role: null }
+      const nextRole = await loadAccount(data.user)
+      if (!nextRole) return { error: 'Profil introuvable pour ce compte.', role: null }
+      trackEvent('login')
+      return { error: null, role: nextRole }
     },
-    [loadVetProfile, rejectNonVetSession, supabase],
+    [loadAccount, supabase],
   )
 
   const signUp = useCallback(
-    async (fullName: string, email: string, password: string, clinic?: string) => {
-      if (!supabase) {
-        return { error: 'Supabase n’est pas configuré', needsEmailConfirmation: false }
-      }
-
+    async (
+      fullName: string,
+      email: string,
+      password: string,
+      clinic?: string,
+      extra?: { telephone?: string; numeroOrdre?: string },
+    ) => {
+      if (!supabase) return { error: 'Supabase n’est pas configuré.', needsEmailConfirmation: false }
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
+          emailRedirectTo: redirectTo('/auth/callback'),
           data: {
             account_type: 'veterinarian',
             full_name: fullName.trim(),
             clinique: clinic?.trim() || '',
+            telephone: extra?.telephone?.trim() || '',
+            numero_ordre: extra?.numeroOrdre?.trim() || '',
           },
         },
       })
-
-      if (error) {
-        return { error: mapAuthError(error.message), needsEmailConfirmation: false }
-      }
-
-      const needsEmailConfirmation = !data.session
-
-      if (data.session?.user.id) {
-        const profile = await loadVetProfile(data.session.user.id)
-        if (!profile) {
-          await rejectNonVetSession()
-          return {
-            error: 'Compte créé mais profil vétérinaire introuvable. Réessayez de vous connecter.',
-            needsEmailConfirmation: false,
-          }
-        }
-      }
-
-      return { error: null, needsEmailConfirmation }
+      if (error) return { error: mapAuthError(error.message), needsEmailConfirmation: false }
+      trackEvent('signup_vet')
+      if (data.session?.user) await loadAccount(data.session.user)
+      return { error: null, needsEmailConfirmation: !data.session }
     },
-    [loadVetProfile, rejectNonVetSession, supabase],
+    [loadAccount, supabase],
+  )
+
+  const signUpOwner = useCallback(
+    async (values: { prenom: string; nom: string; email: string; password: string }) => {
+      if (!supabase) return { error: 'Supabase n’est pas configuré.', needsEmailConfirmation: false }
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email.trim(),
+        password: values.password,
+        options: {
+          emailRedirectTo: redirectTo('/auth/callback'),
+          data: {
+            account_type: 'owner',
+            prenom: values.prenom.trim(),
+            nom: values.nom.trim(),
+          },
+        },
+      })
+      if (error) return { error: mapAuthError(error.message), needsEmailConfirmation: false }
+      trackEvent('signup_owner')
+      if (data.session?.user) await loadAccount(data.session.user)
+      return { error: null, needsEmailConfirmation: !data.session }
+    },
+    [loadAccount, supabase],
+  )
+
+  const requestPasswordReset = useCallback(
+    async (email: string) => {
+      if (!supabase) return { error: 'Supabase n’est pas configuré.' }
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: redirectTo('/reinitialiser-mot-de-passe'),
+      })
+      if (error) return { error: mapAuthError(error.message) }
+      return { error: null }
+    },
+    [supabase],
+  )
+
+  const updatePassword = useCallback(
+    async (password: string) => {
+      if (!supabase) return { error: 'Supabase n’est pas configuré.' }
+      const { error } = await supabase.auth.updateUser({ password })
+      if (error) return { error: mapAuthError(error.message) }
+      return { error: null }
+    },
+    [supabase],
   )
 
   const signOut = useCallback(async () => {
     clearGuestMode()
     setGuestStored(false)
+    setRole(null)
+    setProfile(null)
     setVetProfile(null)
-
-    if (supabase) {
-      await supabase.auth.signOut()
-    }
-
     setSession(null)
+    if (supabase) await supabase.auth.signOut()
   }, [supabase])
 
   const refreshVetProfile = useCallback(async () => {
-    await loadVetProfile(session?.user.id)
-  }, [loadVetProfile, session?.user.id])
+    await loadAccount(session?.user)
+  }, [loadAccount, session?.user])
 
   const user = session?.user ?? null
-  const mode = resolveMode(session && vetProfile ? session : null, guestStored)
-  const displayName =
-    mode === 'guest' ? 'Invité' : getDefaultVeterinarianName(user, vetProfile) || 'Vétérinaire'
+  const isVet = role === 'veterinarian'
+  const isOwner = role === 'owner'
+  const mode = session && role ? 'connected' : guestStored ? 'guest' : 'unauthenticated'
+  const displayName = isOwner
+    ? `${profile?.prenom ?? ''} ${profile?.nom ?? ''}`.trim() || getUserDisplayName(user?.user_metadata, user?.email)
+    : isVet
+      ? vetProfile?.nom_complet || getUserDisplayName(user?.user_metadata, user?.email)
+      : guestStored
+        ? 'Invité'
+        : 'Utilisateur'
 
   const value = useMemo<AuthContextValue>(
     () => ({
       mode,
       isLoading,
       isGuest: mode === 'guest',
-      isConnected: mode === 'connected',
+      isConnected: isVet,
+      isOwner,
+      isVet,
+      role,
       isSupabaseReady,
       user,
+      profile,
       vetProfile,
       displayName,
-      defaultVeterinarianName: mode === 'connected' ? getDefaultVeterinarianName(user, vetProfile) : '',
+      defaultVeterinarianName: isVet ? displayName : '',
       defaultClinic: vetProfile?.clinique ?? '',
       defaultEmail: user?.email ?? '',
       continueAsGuest,
       signIn,
       signUp,
+      signUpOwner,
+      requestPasswordReset,
+      updatePassword,
       signOut,
       refreshVetProfile,
+      refreshAccount: refreshVetProfile,
     }),
     [
       mode,
       isLoading,
+      isVet,
+      isOwner,
+      role,
       isSupabaseReady,
       user,
+      profile,
       vetProfile,
       displayName,
       continueAsGuest,
       signIn,
       signUp,
+      signUpOwner,
+      requestPasswordReset,
+      updatePassword,
       signOut,
       refreshVetProfile,
     ],
@@ -295,10 +350,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-export function useAuth(): AuthContextValue {
+export function useAuth() {
   const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth doit être utilisé dans un AuthProvider')
-  }
+  if (!context) throw new Error('useAuth doit être utilisé dans un AuthProvider')
   return context
 }

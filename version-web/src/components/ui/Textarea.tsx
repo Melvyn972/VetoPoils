@@ -1,30 +1,32 @@
-import type { TextareaHTMLAttributes } from 'react'
+import { useId, type TextareaHTMLAttributes } from 'react'
+
+import { FieldMessage } from './FieldMessage'
+import { describedBy, fieldControl, fieldLabel } from './fieldStyles'
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string
   error?: string
+  hint?: string
 }
 
-export function Textarea({ label, error, id, className = '', ...props }: TextareaProps) {
-  const textareaId = id ?? label.toLowerCase().replace(/\s+/g, '-')
+export function Textarea({ label, error, hint, id, className = '', rows = 4, ...props }: TextareaProps) {
+  const autoId = useId()
+  const textareaId = id ?? autoId
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={textareaId} className="font-body text-sm text-fg-secondary">
+      <label htmlFor={textareaId} className={fieldLabel}>
         {label}
       </label>
       <textarea
         id={textareaId}
-        rows={4}
-        className={[
-          'w-full resize-none rounded-12 border border-fg-tertiary/30 bg-surface px-3 py-2.5 font-body text-sm text-fg-primary',
-          'placeholder:text-fg-tertiary focus:border-primary focus:outline-none',
-          error ? 'border-error' : '',
-          className,
-        ].join(' ')}
+        rows={rows}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy(textareaId, error, hint)}
+        className={fieldControl(Boolean(error), `resize-y px-3.5 py-3 leading-relaxed ${className}`)}
         {...props}
       />
-      {error && <p className="font-body text-sm text-error">{error}</p>}
+      <FieldMessage id={textareaId} error={error} hint={hint} />
     </div>
   )
 }

@@ -8,7 +8,9 @@ import {
   requiresDiagnosis,
   type MedicalEventTypeValue,
 } from '../../lib/medicalLabels'
+import { trackEvent } from '../../lib/analytics'
 import { getVetErrorMessage } from '../../lib/vetErrors'
+import { FileField } from '../ui/FileField'
 import {
   submitVetAnimalEvent,
   submitVetConsultation,
@@ -156,6 +158,7 @@ export function MedicalEventForm({
         mode === 'connected'
           ? await submitVetAnimalEvent(payload)
           : await submitVetConsultation(payload)
+      trackEvent('consultation_added')
 
       if (document) {
         try {
@@ -274,19 +277,13 @@ export function MedicalEventForm({
         placeholder="Observations, prescriptions, recommandations..."
       />
 
-      <div className="flex flex-col gap-2 rounded-12 border border-dashed border-fg-tertiary/30 bg-surface p-4">
-        <label className="font-body text-sm font-medium text-fg-primary">Document médical (optionnel)</label>
-        <p className="font-body text-xs text-fg-tertiary">PDF ou image - ordonnance, analyse, radio...</p>
-        <input
-          type="file"
-          accept="application/pdf,image/*"
-          onChange={(event) => setDocument(event.target.files?.[0] ?? null)}
-          className="font-body text-sm text-fg-secondary file:mr-3 file:rounded-10 file:border-0 file:bg-primary-15 file:px-3 file:py-2 file:font-body file:text-sm file:font-medium file:text-primary"
-        />
-        {document ? (
-          <p className="font-body text-xs text-fg-secondary">Fichier sélectionné : {document.name}</p>
-        ) : null}
-      </div>
+      <FileField
+        label="Document médical (optionnel)"
+        hint="PDF ou image — ordonnance, analyse, radio..."
+        accept="application/pdf,image/*"
+        file={document}
+        onFile={setDocument}
+      />
 
       {errors.form ? <FormAlert>{errors.form}</FormAlert> : null}
 

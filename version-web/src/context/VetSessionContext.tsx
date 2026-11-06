@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { trackEvent } from '../lib/analytics'
 import {
   clearVetToken,
   fetchVetDossier,
@@ -26,7 +27,7 @@ interface VetSessionContextValue {
   isLoading: boolean
   error: string | null
   refresh: () => Promise<void>
-  activateToken: (token: string) => Promise<void>
+  activateToken: (token: string, options?: { track?: boolean }) => Promise<void>
   clearSession: () => void
 }
 
@@ -66,10 +67,11 @@ export function VetSessionProvider({ children }: { children: ReactNode }) {
   }, [loadDossier, token])
 
   const activateToken = useCallback(
-    async (nextToken: string) => {
+    async (nextToken: string, options?: { track?: boolean }) => {
       setIsLoading(true)
       try {
         await loadDossier(nextToken)
+        if (options?.track) trackEvent('vet_code_access')
       } catch (loadError) {
         setError(getVetErrorMessage(loadError, 'Accès refusé.'))
         setDossier(null)
@@ -99,7 +101,7 @@ export function VetSessionProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    activateToken(initialToken).catch(() => {
+    activateToken(initialToken, { track: Boolean(tokenFromUrl) }).catch(() => {
       setIsLoading(false)
     })
   }, [activateToken, searchParams])
