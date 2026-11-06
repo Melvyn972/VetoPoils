@@ -14,7 +14,9 @@
     "seed": "node scripts/seed-demo.mjs"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@supabase/supabase-js": "^2.110.0",
+    "gsap": "^3.15.1",
     "qrcode": "^1.5.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
