@@ -20,14 +20,14 @@ export function RoleChoicePage() {
 
   return (
     <AuthFrame>
-      <h1 className="font-title text-2xl font-semibold">Créer un compte</h1>
-      <p className="mt-2 font-body text-sm text-muted">Choisissez votre porte d’entrée. Le rôle ne se mélange pas ensuite.</p>
+      <h1 className="font-title text-[28px] font-semibold tracking-[-0.03em]">Créer un compte</h1>
+      <p className="mt-2 font-body text-sm leading-relaxed text-muted">Deux portes d’entrée, un seul dossier. Le rôle choisi ici ne se mélange pas ensuite.</p>
       <div className="mt-6 flex flex-col gap-3">
-        <Link to="/inscription/proprietaire" className="rounded-2xl bg-primary px-4 py-4 font-body text-sm font-semibold text-white">
+        <Link to="/inscription/proprietaire" className="press rounded-[18px] bg-primary px-5 py-4 font-body text-sm font-semibold text-white">
           Je suis propriétaire
           <span className="mt-1 block font-normal text-white/80">Carnet, animaux, partages et rappels.</span>
         </Link>
-        <Link to="/inscription/veterinaire" className="rounded-2xl border border-line px-4 py-4 font-body text-sm font-semibold text-ink">
+        <Link to="/inscription/veterinaire" className="press rounded-[18px] border border-line bg-white px-5 py-4 font-body text-sm font-semibold text-ink hover:border-primary/30">
           Je suis vétérinaire
           <span className="mt-1 block font-normal text-muted">Clinique, patients et accès par code.</span>
         </Link>
@@ -73,7 +73,8 @@ export function OwnerSignupPage() {
 
   return (
     <AuthFrame>
-      <h1 className="font-title text-2xl font-semibold">Compte propriétaire</h1>
+      <h1 className="font-title text-[28px] font-semibold tracking-[-0.03em]">Compte propriétaire</h1>
+      <p className="mt-2 font-body text-sm text-muted">La fiche de votre animal se crée juste après.</p>
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <Input label="Prénom" value={prenom} onChange={(event) => setPrenom(event.target.value)} required />
         <Input label="Nom" value={nom} onChange={(event) => setNom(event.target.value)} required />
@@ -133,7 +134,8 @@ export function VetSignupPage() {
 
   return (
     <AuthFrame>
-      <h1 className="font-title text-2xl font-semibold">Compte vétérinaire</h1>
+      <h1 className="font-title text-[28px] font-semibold tracking-[-0.03em]">Compte vétérinaire</h1>
+      <p className="mt-2 font-body text-sm text-muted">Un compte clinique pour retrouver vos patients. Le code d’accès, lui, n’en exige pas.</p>
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <Input label="Nom complet" value={fullName} onChange={(event) => setFullName(event.target.value)} required />
         <Input label="E-mail" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
@@ -193,8 +195,8 @@ export function LoginPage() {
 
   return (
     <AuthFrame>
-      <h1 className="font-title text-2xl font-semibold">Connexion</h1>
-      <p className="mt-2 font-body text-sm text-muted">Une seule porte. Vous arrivez dans l’espace qui correspond à votre compte.</p>
+      <h1 className="font-title text-[28px] font-semibold tracking-[-0.03em]">Connexion</h1>
+      <p className="mt-2 font-body text-sm leading-relaxed text-muted">Propriétaire ou vétérinaire — même porte d’entrée. Vous arrivez dans l’espace de votre compte.</p>
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <Input label="E-mail" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
         <Input label="Mot de passe" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
@@ -202,7 +204,7 @@ export function LoginPage() {
         <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Connexion…' : 'Se connecter'}</Button>
       </form>
       <div className="mt-4 flex flex-col gap-2 font-body text-sm">
-        <Link to="/mot-de-passe-oublie" className="text-primary">Mot de passe oublié</Link>
+        <Link to="/mot-de-passe-oublie" className="font-semibold text-primary">Mot de passe oublié ?</Link>
         <Link to="/inscription" className="text-muted">Créer un compte</Link>
       </div>
     </AuthFrame>
@@ -228,7 +230,8 @@ export function ForgotPasswordPage() {
 
   return (
     <AuthFrame>
-      <h1 className="font-title text-2xl font-semibold">Mot de passe oublié</h1>
+      <h1 className="font-title text-[28px] font-semibold tracking-[-0.03em]">Mot de passe oublié</h1>
+      <p className="mt-2 font-body text-sm text-muted">Nous envoyons un lien à utiliser dans ce même navigateur.</p>
       {sent ? (
         <p className="mt-3 font-body text-sm text-muted">
           Si un compte existe pour {email}, un lien a été envoyé. Ouvrez-le dans ce même navigateur.
@@ -263,7 +266,7 @@ export function ResetPasswordPage() {
 
   return (
     <AuthFrame>
-      <h1 className="font-title text-2xl font-semibold">Nouveau mot de passe</h1>
+      <h1 className="font-title text-[28px] font-semibold tracking-[-0.03em]">Nouveau mot de passe</h1>
       <p className="mt-2 font-body text-sm text-muted">
         Le lien doit être ouvert dans le navigateur qui a demandé la réinitialisation.
       </p>

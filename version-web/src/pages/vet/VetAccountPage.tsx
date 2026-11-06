@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
 
-import { MobileShell } from '../../components/layout/MobileShell'
+import { PageHeader } from '../../components/layout/AppShell'
+import { VetWorkspace } from '../../components/layout/VetWorkspace'
+import { ListSkeleton } from '../../components/ui/Feedback'
 import { Button } from '../../components/ui/Button'
 import { FormAlert } from '../../components/ui/FormAlert'
 import { Input } from '../../components/ui/Input'
@@ -20,9 +22,9 @@ export function VetAccountPage() {
 
   if (isLoading) {
     return (
-      <MobileShell>
-        <p className="font-body text-sm text-muted">Chargement…</p>
-      </MobileShell>
+      <VetWorkspace>
+        <ListSkeleton label="Chargement du compte…" />
+      </VetWorkspace>
     )
   }
   if (isOwner) return <Navigate to="/espace" replace />
@@ -46,10 +48,9 @@ export function VetAccountPage() {
   }
 
   return (
-    <MobileShell>
-      <h1 className="font-title text-2xl font-semibold">Compte clinique</h1>
-      <p className="mt-2 font-body text-sm text-muted">{user.email}</p>
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+    <VetWorkspace>
+      <PageHeader eyebrow="Clinique" title="Compte clinique" description={user.email ?? ''} />
+      <form onSubmit={handleSubmit} className="surface flex max-w-lg flex-col gap-4 p-5">
         <Input label="Nom complet" value={nom} onChange={(event) => setNom(event.target.value)} required />
         <Input label="Clinique" value={clinique} onChange={(event) => setClinique(event.target.value)} />
         <Input label="Téléphone" value={telephone} onChange={(event) => setTelephone(event.target.value)} />
@@ -58,6 +59,6 @@ export function VetAccountPage() {
         {message ? <p className="font-body text-sm text-primary">{message}</p> : null}
         <Button type="submit">Enregistrer</Button>
       </form>
-    </MobileShell>
+    </VetWorkspace>
   )
 }

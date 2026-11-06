@@ -2,7 +2,9 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useVetSession } from '../context/VetSessionContext'
-import { MobileShell } from '../components/layout/MobileShell'
+import { AuthFrame } from '../components/layout/AuthFrame'
+import { VetWorkspace } from '../components/layout/VetWorkspace'
+import { useAuth } from '../context/AuthContext'
 import { Button } from '../components/ui/Button'
 import { FormAlert } from '../components/ui/FormAlert'
 import { isVetAccessCode, normalizeVetAccessCode } from '../lib/vet'
@@ -13,6 +15,7 @@ export function VetAccessPage() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const { activateToken } = useVetSession()
+  const { isVet } = useAuth()
   const tokenFromUrl = searchParams.get('token')
   const [code, setCode] = useState(() =>
     tokenFromUrl ? normalizeVetAccessCode(tokenFromUrl) : '',
@@ -66,15 +69,13 @@ export function VetAccessPage() {
     }
   }
 
-  return (
-    <MobileShell>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6 py-4">
-        <div className="flex flex-col gap-3">
-          <h1 className="font-title text-2xl font-bold text-fg-primary">Accès vétérinaire</h1>
-          <p className="font-body text-sm leading-relaxed text-fg-secondary">
-            Saisissez le code unique fourni par le propriétaire. Ce code est temporaire, à usage
-            unique, et lié au dossier de l’animal. Un code déjà servi, expiré ou révoqué ne donne
-            plus accès.
+  const form = (
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div className="flex flex-col gap-2">
+          <h1 className="font-title text-[28px] font-semibold tracking-[-0.03em] text-ink">Accès vétérinaire</h1>
+          <p className="font-body text-sm leading-relaxed text-muted">
+            Saisissez le code unique fourni par le propriétaire. Il est temporaire, lié au dossier
+            de l’animal, et un code déjà servi, expiré ou révoqué ne donne plus accès.
           </p>
         </div>
 
@@ -111,10 +112,12 @@ export function VetAccessPage() {
 
         {error ? <FormAlert>{error}</FormAlert> : null}
 
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" loading={isSubmitting}>
           {isSubmitting ? 'Vérification…' : 'Ouvrir le dossier'}
         </Button>
       </form>
-    </MobileShell>
   )
+
+  if (isVet) return <VetWorkspace>{form}</VetWorkspace>
+  return <AuthFrame>{form}</AuthFrame>
 }

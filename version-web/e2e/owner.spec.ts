@@ -55,7 +55,7 @@ test('parcours propriétaire : inscription, connexion, animal et code vétérina
   }
   await page.getByRole('link', { name: animalName }).first().click()
   await page.getByRole('link', { name: 'Modifier la fiche' }).click()
-  page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: 'Archiver l’animal' }).click()
+  await page.getByRole('button', { name: 'Archiver', exact: true }).click()
   await page.waitForURL(/\/espace\/animaux$/, { timeout: 8_000 }).catch(() => undefined)
 })

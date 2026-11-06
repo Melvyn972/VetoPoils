@@ -11,7 +11,7 @@ export function AppHeader({ wide = false }: { wide?: boolean }) {
   const animalName = dossier?.animal.nom
 
   return (
-    <header className="border-b border-fg-tertiary/20 bg-surface">
+    <header className="border-b border-line-soft bg-white/90 backdrop-blur-md">
       <div
         className={`mx-auto flex items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8 ${
           wide ? 'max-w-6xl' : 'max-w-md'

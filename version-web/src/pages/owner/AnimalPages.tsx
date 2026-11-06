@@ -2,8 +2,12 @@ import QRCode from 'qrcode'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, NavLink, useNavigate, useParams } from 'react-router-dom'
 
-import { PageHeading } from '../../components/layout/WorkspaceShell'
+import { AnimalAvatar } from '../../components/animal/AnimalAvatar'
+import { PageHeader } from '../../components/layout/AppShell'
 import { EventStatusBadge } from '../../components/ui/Badge'
+import { Donut, MonthlyBars, ScoreRing } from '../../components/ui/Charts'
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
+import { ErrorState, ListSkeleton } from '../../components/ui/Feedback'
 import { Button } from '../../components/ui/Button'
 import { FileField } from '../../components/ui/FileField'
 import { FormAlert } from '../../components/ui/FormAlert'
@@ -48,6 +52,7 @@ import { buildVetDossierHtml } from '../../lib/dossier'
 import { downloadText, fileToBase64 } from '../../lib/download'
 import { getErrorMessage } from '../../lib/errors'
 import { ageLabel, countdownLabel, formatEuro, formatShortDate } from '../../lib/format'
+import { scoreVerdict } from '../../components/ui/chartUtils'
 import { computeHealthScore } from '../../lib/healthScore'
 import { MEDICAL_EVENT_TYPES, REMINDER_TYPES, getMedicalEventTypeLabel } from '../../lib/medicalLabels'
 import {
@@ -119,19 +124,24 @@ export function AnimalPage({ section }: { section: AnimalSection }) {
   return (
     <OwnerLayout>
       {!animal ? (
-        <p className="font-body text-sm text-muted">{error ?? 'Chargement de la fiche…'}</p>
+        error ? <ErrorState message={error} /> : <ListSkeleton label="Chargement de la fiche…" />
       ) : (
         <>
-          <PageHeading title={animal.nom} subtitle={`${animal.espece}${animal.race ? ` · ${animal.race}` : ''} · ${ageLabel(animal.date_naissance)}`} />
-          <nav className="mb-6 flex gap-2 overflow-x-auto pb-1">
+          <PageHeader
+            eyebrow={animal.espece}
+            title={animal.nom}
+            description={`${animal.race ? `${animal.race} · ` : ''}${ageLabel(animal.date_naissance)}`}
+            back={{ to: '/espace/animaux', label: 'Mes animaux' }}
+          />
+          <nav aria-label="Sections de la fiche" className="no-scrollbar mb-6 flex gap-1.5 overflow-x-auto pb-1">
             {links.map((link) => (
               <NavLink
                 key={link.section}
                 to={`/espace/animaux/${animal.id}${link.suffix}`}
                 end={link.suffix === ''}
                 className={({ isActive }) =>
-                  `shrink-0 rounded-full px-3 py-1.5 font-body text-xs font-semibold ${
-                    isActive || section === link.section ? 'bg-primary text-white' : 'bg-white text-muted'
+                  `shrink-0 rounded-full px-3.5 py-2 font-body text-[13px] font-semibold ${
+                    isActive || section === link.section ? 'bg-primary text-white' : 'bg-white text-[#4b5552] ring-1 ring-line'
                   }`
                 }
               >
@@ -177,22 +187,40 @@ function Fiche({
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  const facts = [
+    ['Sexe', animal.sexe === 'male' ? 'Mâle' : animal.sexe === 'femelle' ? 'Femelle' : 'Non renseigné'],
+    ['Couleur', animal.couleur || '—'],
+    ['Puce', animal.puce || '—'],
+    ['Accès', access?.level === 'owner' ? 'Propriétaire' : access?.level === 'contributor' ? 'Pet-sitter' : 'Lecture seule'],
+  ]
+
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <section className="rounded-3xl bg-white p-5">
-        <p className="font-body text-sm text-muted">Sexe : {animal.sexe}</p>
-        <p className="font-body text-sm text-muted">Couleur : {animal.couleur || '—'}</p>
-        <p className="font-body text-sm text-muted">Puce : {animal.puce || '—'}</p>
-        <p className="mt-2 font-body text-sm font-semibold text-primary">Score {animal.score_sante ?? '—'}</p>
-        <p className="mt-2 font-body text-xs text-muted">Accès : {access?.level ?? 'lecture'}</p>
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+      <section className="surface p-5">
+        <div className="flex flex-wrap items-center gap-4">
+          <AnimalAvatar animal={animal} size="xl" />
+          <div>
+            <p className="font-body text-sm text-muted">{animal.espece}{animal.race ? ` · ${animal.race}` : ''}</p>
+            <p className="font-title text-xl font-semibold text-ink">{ageLabel(animal.date_naissance)}</p>
+          </div>
+          <ScoreRing score={animal.score_sante} size={84} stroke={8} />
+        </div>
+        <dl className="mt-5 grid gap-3 sm:grid-cols-2">
+          {facts.map(([label, value]) => (
+            <div key={label} className="rounded-[14px] bg-canvas px-4 py-3">
+              <dt className="font-body text-xs text-muted">{label}</dt>
+              <dd className="mt-0.5 font-body text-sm font-semibold text-ink">{value}</dd>
+            </div>
+          ))}
+        </dl>
         {access?.canWrite ? (
-          <Link to={`/espace/animaux/${animal.id}/modifier`} className="mt-4 inline-block font-body text-sm font-semibold text-primary">
+          <Link to={`/espace/animaux/${animal.id}/modifier`} className="mt-5 inline-flex font-body text-sm font-semibold text-primary">
             Modifier la fiche
           </Link>
         ) : null}
       </section>
       {access?.canWrite ? (
-        <section className="rounded-3xl bg-white p-5">
+        <section className="surface p-5">
           <FileField label="Photo" accept="image/*" file={file} onFile={setFile} />
           {error ? <FormAlert>{error}</FormAlert> : null}
           <Button
@@ -215,6 +243,7 @@ function Fiche({
 
 function EditAnimal({ animal, onChange }: { animal: Animal; onChange: (animal: Animal) => void }) {
   const navigate = useNavigate()
+  const [confirmArchive, setConfirmArchive] = useState(false)
   const [nom, setNom] = useState(animal.nom)
   const [espece, setEspece] = useState(animal.espece)
   const [race, setRace] = useState(animal.race ?? '')
@@ -263,18 +292,24 @@ function EditAnimal({ animal, onChange }: { animal: Animal; onChange: (animal: A
       <Input label="Puce" value={puce} onChange={(event) => setPuce(event.target.value)} />
       {error ? <FormAlert>{error}</FormAlert> : null}
       <Button type="submit">Enregistrer</Button>
-      <Button
-        type="button"
-        variant="danger"
-        onClick={() => {
-          if (!window.confirm(`Archiver ${animal.nom} ?`)) return
-          void archiveAnimal(animal.id)
-            .then(() => navigate('/espace/animaux'))
-            .catch((deleteError) => setError(getErrorMessage(deleteError)))
-        }}
-      >
+      <Button type="button" variant="danger" onClick={() => setConfirmArchive(true)}>
         Archiver l’animal
       </Button>
+      <ConfirmDialog
+        open={confirmArchive}
+        title={`Archiver ${animal.nom} ?`}
+        description="La fiche quitte votre espace. L’historique n’est plus accessible depuis ce compte."
+        confirmLabel="Archiver"
+        onClose={() => setConfirmArchive(false)}
+        onConfirm={() => {
+          void archiveAnimal(animal.id)
+            .then(() => navigate('/espace/animaux'))
+            .catch((deleteError) => {
+              setError(getErrorMessage(deleteError))
+              setConfirmArchive(false)
+            })
+        }}
+      />
     </form>
   )
 }
@@ -741,25 +776,35 @@ function Budget({ animal, userId, canWrite }: { animal: Animal; userId: string; 
   const totals = new Map<string, number>()
   for (const row of rows) totals.set(row.category, (totals.get(row.category) ?? 0) + Number(row.montant))
   const byCategory = [...totals.entries()]
-  const max = Math.max(1, ...byCategory.map(([, value]) => value))
+
+  const segments = byCategory.map(([key, value]) => ({
+    key,
+    label: expenseCategoryLabels[key as ExpenseCategory] ?? key,
+    value,
+    color: key === 'veterinaire' ? '#2c6e63' : key === 'alimentation' ? '#57c9d2' : key === 'pharmacie' ? '#fba84b' : '#c9d3cf',
+  }))
+  const months = new Map<string, number>()
+  for (const row of rows) {
+    const key = row.date_depense.slice(0, 7)
+    months.set(key, (months.get(key) ?? 0) + Number(row.montant))
+  }
+  const bars = [...months.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-6)
+    .map(([key, value]) => ({ key, label: key.slice(5), value }))
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
-      <section className="rounded-3xl bg-white p-5">
+      <section className="surface p-5">
         <p className="font-title text-2xl font-semibold">{formatEuro(total)}</p>
-        <div className="mt-4 flex flex-col gap-2">
-          {byCategory.map(([key, value]) => (
-            <div key={key}>
-              <div className="mb-1 flex justify-between font-body text-xs text-muted">
-                <span>{expenseCategoryLabels[key as ExpenseCategory] ?? key}</span>
-                <span>{formatEuro(value)}</span>
-              </div>
-              <div className="h-2 rounded-full bg-canvas">
-                <div className="h-2 rounded-full bg-primary" style={{ width: `${(value / max) * 100}%` }} />
-              </div>
-            </div>
-          ))}
-        </div>
+        {segments.length ? (
+          <div className="mt-4 grid items-center gap-4 sm:grid-cols-[auto_1fr]">
+            <Donut segments={segments} size={148} stroke={18} centerTop={formatEuro(total)} centerBottom="au total" />
+            <MonthlyBars data={bars.length ? bars : [{ key: 'none', label: '—', value: 0 }]} formatValue={(value) => `${Math.round(value)} €`} height={150} />
+          </div>
+        ) : (
+          <p className="mt-3 font-body text-sm text-muted">Aucune dépense. Ajoutez-en, ou scannez une facture.</p>
+        )}
         <ul className="mt-4 flex flex-col gap-2">
           {rows.map((row) => (
             <li key={row.id} className="flex items-center justify-between font-body text-sm">
@@ -845,9 +890,14 @@ function ScorePanel({ animal, onChange }: { animal: Animal; onChange: (animal: A
   }, [animal.id])
 
   return (
-    <section className="max-w-xl rounded-3xl bg-white p-5">
-      <p className="font-title text-5xl font-semibold text-primary">{score ?? '—'}</p>
-      <p className="font-body text-sm text-muted">Score de 0 à 100, recalculé à partir du dossier.</p>
+    <section className="surface max-w-xl p-5 sm:p-7">
+      <div className="flex flex-wrap items-center gap-6">
+        <ScoreRing score={score} size={148} stroke={12} />
+        <div>
+          <p className="font-title text-xl font-semibold text-ink">{scoreVerdict(score)}</p>
+          <p className="mt-1 max-w-sm font-body text-sm text-muted">Score de 0 à 100, recalculé à partir du dossier. Indicateur de suivi, pas un diagnostic.</p>
+        </div>
+      </div>
       <ul className="mt-4 flex flex-col gap-2">
         {factors.map((factor) => (
           <li key={factor.label} className="flex justify-between font-body text-sm">
@@ -869,8 +919,14 @@ function PdfPanel({ animal }: { animal: Animal }) {
   const [error, setError] = useState<string | null>(null)
 
   return (
-    <section className="max-w-md">
-      <p className="font-body text-sm text-muted">L’impression ouvre la boîte de dialogue du navigateur. Enregistrez en PDF depuis cette fenêtre, sans pop-up.</p>
+    <section className="surface max-w-xl p-6">
+      <h2 className="font-title text-xl font-semibold">Le dossier complet, en un PDF</h2>
+      <p className="mt-2 font-body text-sm leading-relaxed text-muted">L’impression ouvre la boîte de dialogue du navigateur. Enregistrez en PDF depuis cette fenêtre.</p>
+      <ul className="mt-4 flex flex-wrap gap-2">
+        {['Identité', 'Historique', 'Documents', 'Poids'].map((item) => (
+          <li key={item} className="rounded-full bg-canvas px-3 py-1 font-body text-xs font-semibold text-[#3c4542]">{item}</li>
+        ))}
+      </ul>
       {error ? <FormAlert>{error}</FormAlert> : null}
       <Button
         className="mt-4"
