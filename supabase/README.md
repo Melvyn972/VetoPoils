@@ -26,5 +26,8 @@ Doivent exister (privés) :
 
 ## Données de démo
 
-Voir `seed.sql` et `version-web/scripts/seed-demo.mjs`.  
-Ne jamais committer de mot de passe, clé `service_role` ou fichier `.env`.
+`seed.sql` (à la racine de ce dossier) et `version-web/scripts/seed-demo.mjs` décrivent un jeu de données à brancher sur des comptes Auth créés à part.
+
+`supabase/demo/` contient le seed et le reset **de la démo publique isolée** (données fictives). Ces scripts ne sont pas des migrations : ne pas les exécuter sur le projet de production `lmdszelnnibexzvnaubp`.
+
+Ne jamais committer de clé `service_role` ou de fichier `.env`.
