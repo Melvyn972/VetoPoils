@@ -32,10 +32,9 @@ const SECTIONS = [
 export function LandingHeader() {
   const ref = useRef<HTMLElement>(null)
   const [open, setOpen] = useState(false)
-  const openRef = useRef(open)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
-    openRef.current = open
     if (!open) return
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -49,59 +48,26 @@ export function LandingHeader() {
     }
   }, [open])
 
-  useGSAP(
-    () => {
-      const header = ref.current
-      if (!header) return
-      ScrollTrigger.create({ start: 'top -24', end: 'max', toggleClass: { targets: header, className: 'is-scrolled' } })
-      const mm = gsap.matchMedia()
-      mm.add(MOTION_OK, () => {
-        gsap.from(header, { yPercent: -100, autoAlpha: 0, duration: 0.9, ease: 'expo.out', delay: 0.15 })
-        let hidden = false
-        ScrollTrigger.create({
-          start: 'top -220',
-          end: 'max',
-          onUpdate: (self) => {
-            const shouldHide = self.direction === 1 && !openRef.current
-            if (shouldHide === hidden) return
-            hidden = shouldHide
-            gsap.to(header, { yPercent: shouldHide ? -110 : 0, duration: 0.5, ease: 'power3.out', overwrite: 'auto' })
-          },
-          onLeaveBack: () => {
-            hidden = false
-            gsap.to(header, { yPercent: 0, duration: 0.4, overwrite: 'auto' })
-          },
-        })
-      })
-      return () => mm.revert()
-    },
-    { scope: ref },
-  )
-
-  useGSAP(
-    () => {
-      if (!open) return
-      const mm = gsap.matchMedia()
-      mm.add(MOTION_OK, () => {
-        gsap.from(gsap.utils.toArray('[data-menu-item]', ref.current), {
-          y: 26,
-          autoAlpha: 0,
-          duration: 0.6,
-          ease: 'power3.out',
-          stagger: 0.045,
-        })
-      })
-      return () => mm.revert()
-    },
-    { scope: ref, dependencies: [open] },
-  )
+  // Fond du header au scroll, sans animation GSAP (bug mobile)
+  useEffect(() => {
+    function onScroll() {
+      setIsScrolled(window.scrollY > 24)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const close = () => setOpen(false)
 
   return (
     <header
       ref={ref}
-      className="fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300 [&.is-scrolled]:bg-white/95 [&.is-scrolled]:shadow-[0_1px_0_rgb(16_24_40/0.06),0_12px_32px_-24px_rgb(16_24_40/0.3)]"
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300 ${
+        isScrolled
+          ? 'bg-white/95 shadow-[0_1px_0_rgb(16_24_40/0.06),0_12px_32px_-24px_rgb(16_24_40/0.3)]'
+          : ''
+      }`}
     >
       <div className="mx-auto flex h-[76px] max-w-[1320px] items-center gap-3 px-5 sm:px-8">
         <Link to="/" aria-label="Vet'OPoil, accueil" className="shrink-0 rounded-[12px]" onClick={close}>
@@ -148,12 +114,14 @@ export function LandingHeader() {
         </div>
       </div>
       {open ? (
-        <div id="menu-landing" className="fixed inset-x-0 bottom-0 top-[76px] overflow-y-auto bg-white px-5 pb-12 pt-4 sm:px-8 xl:hidden">
+        <div
+          id="menu-landing"
+          className="fixed inset-x-0 bottom-0 top-[76px] z-40 overflow-y-auto bg-white px-5 pb-12 pt-4 sm:px-8 xl:hidden"
+        >
           <nav aria-label="Sections de la page" className="flex flex-col">
             {SECTIONS.map((section, index) => (
               <a
                 key={section.href}
-                data-menu-item
                 href={section.href}
                 onClick={close}
                 className="flex items-baseline gap-4 border-b border-line-soft py-4 font-title text-[30px] font-semibold tracking-[-0.03em] text-ink"
@@ -163,7 +131,7 @@ export function LandingHeader() {
               </a>
             ))}
           </nav>
-          <div data-menu-item className="mt-8 grid gap-3 sm:grid-cols-2">
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
             <ButtonLink to="/inscription/proprietaire" size="lg" fullWidth onClick={close}>
               Créer le carnet de mon animal
             </ButtonLink>
@@ -171,7 +139,7 @@ export function LandingHeader() {
               Ouvrir un espace clinique
             </ButtonLink>
           </div>
-          <div data-menu-item className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-body text-[15px] font-medium text-[#3c4542]">
+          <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-body text-[15px] font-medium text-[#3c4542]">
             <Link to="/connexion" onClick={close}>
               Se connecter
             </Link>

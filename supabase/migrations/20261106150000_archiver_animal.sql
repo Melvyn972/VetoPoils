@@ -1,4 +1,4 @@
--- Archivage d'un animal.
+-- Archivage d'un animal (web et Expo).
 -- Un UPDATE filtré sur animaux impose aussi animaux_select à la nouvelle ligne.
 -- Cette policy exige deleted_at IS NULL : l'UPDATE qui renseigne deleted_at est donc
 -- toujours rejeté, même avec le WITH CHECK élargi de la migration précédente.

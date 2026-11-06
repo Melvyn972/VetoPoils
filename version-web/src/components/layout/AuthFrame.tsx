@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { gsap, MOTION_OK, useGSAP } from '../../lib/motion'
 import { Logo } from '../brand/Logo'
-import { IconClock, IconQr, IconShield } from '../icons/Icons'
+import { IconArrowLeft, IconClock, IconQr, IconShield } from '../icons/Icons'
 
 const POINTS = [
   { Icon: IconShield, title: 'Rien n’entre sans vous', text: 'Chaque ajout du vétérinaire attend votre validation.' },
@@ -33,34 +33,45 @@ export function AuthFrame({ children }: { children: ReactNode }) {
         <div className="absolute -left-40 top-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(87_201_210/0.2),transparent_65%)]" />
         <div className="absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgb(251_168_75/0.14),transparent_65%)]" />
       </div>
-      <div className="relative mx-auto grid min-h-dvh max-w-[1200px] items-center gap-10 px-5 py-8 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:py-12">
-        <div>
-          <Link to="/" className="inline-flex rounded-[12px]" aria-label="Vet'OPoil, retour à l’accueil">
-            <Logo className="h-14 w-auto" />
+      <div className="relative mx-auto flex min-h-dvh max-w-[1200px] flex-col px-5 py-6 sm:px-8 sm:py-8">
+        {/* Haut de page : retour a gauche, logo a droite */}
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 font-body text-sm text-muted transition-colors hover:text-primary"
+          >
+            <IconArrowLeft className="h-4 w-4" />
+            Retour à l’accueil
           </Link>
-          <div data-auth-card className="mt-8 rounded-[28px] bg-white p-6 shadow-pop ring-1 ring-line-soft sm:p-8">
+          <Link to="/" className="inline-flex shrink-0 rounded-[12px]" aria-label="Vet'OPoil, retour à l’accueil">
+            <Logo className="h-10 w-auto sm:h-12" />
+          </Link>
+        </div>
+
+        <div className="grid flex-1 items-center gap-10 py-8 lg:grid-cols-2 lg:gap-16 lg:py-12">
+          <div data-auth-card className="rounded-[28px] bg-white p-6 shadow-pop ring-1 ring-line-soft sm:p-8">
             {children}
           </div>
+          <aside className="hidden lg:block">
+            <p className="eyebrow text-primary">Carnet de santé numérique</p>
+            <p className="mt-4 font-title text-[44px] font-semibold leading-[1.02] tracking-[-0.035em] text-ink">
+              Le dossier de votre animal, ouvert au bon moment.
+            </p>
+            <ul className="mt-10 flex flex-col gap-5">
+              {POINTS.map((point) => (
+                <li key={point.title} data-auth-point className="flex gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-white text-primary shadow-card ring-1 ring-line-soft">
+                    <point.Icon className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="font-body text-[15px] font-semibold text-ink">{point.title}</p>
+                    <p className="mt-1 font-body text-sm leading-relaxed text-muted">{point.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </aside>
         </div>
-        <aside className="hidden lg:block">
-          <p className="eyebrow text-primary">Carnet de santé numérique</p>
-          <p className="mt-4 font-title text-[44px] font-semibold leading-[1.02] tracking-[-0.035em] text-ink">
-            Le dossier de votre animal, ouvert au bon moment.
-          </p>
-          <ul className="mt-10 flex flex-col gap-5">
-            {POINTS.map((point) => (
-              <li key={point.title} data-auth-point className="flex gap-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-white text-primary shadow-card ring-1 ring-line-soft">
-                  <point.Icon className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="font-body text-[15px] font-semibold text-ink">{point.title}</p>
-                  <p className="mt-1 font-body text-sm leading-relaxed text-muted">{point.text}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </aside>
       </div>
     </div>
   )
