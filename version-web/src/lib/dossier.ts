@@ -46,7 +46,7 @@ export function buildVetDossierHtml(dossier: VetDossier) {
     <meta charset="utf-8" />
     <title>Dossier Vet'OPoil - ${escapeHtml(animal.nom)}</title>
     <style>
-      body { font-family: Inter, system-ui, sans-serif; color: #1a1a1a; margin: 32px; }
+      body { font-family: ui-sans-serif, system-ui, sans-serif; color: #1a1a1a; margin: 32px; }
       h1, h2 { color: #2c6e63; }
       .brand { color: #d97706; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; font-size: 12px; }
       table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; }

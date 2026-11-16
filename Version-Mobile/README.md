@@ -9,7 +9,7 @@ Application propriétaire - Expo SDK 57 / Expo Router. Le portail vétérinaire 
 - Timeline médicale (filtre, validation / refus des événements vétérinaires en attente)
 - Documents + Smart Scan : photo/PDF, suggestion de catégorie, OCR optionnel, événement / dépense
 - Budget vétérinaire (CRUD, graphiques, export CSV)
-- Score santé 0–100 persisté (`animaux.score_sante` + historique)
+- Score santé 0-100 persisté (`animaux.score_sante` + historique)
 - PDF du dossier (partage / e-mail mailto)
 - Suggestions partenaires (espèce/race) + `partner_clicks`
 - QR / code 6 caractères (4 h, compte à rebours, révocation, restauration du code actif)
@@ -47,7 +47,7 @@ Les valeurs publishable sont aussi en fallback dans `app.config.ts` pour un dém
 ## Parcours de démo
 
 1. Créer un compte propriétaire → dashboard.
-2. Ajouter 1–2 animaux.
+2. Ajouter 1-2 animaux.
 3. Générer un QR (onglet QR) → ouvrir le portail véto avec le code.
 4. Valider ou refuser la consultation dans Historique.
 5. Inviter un second compte (partage) ; le contributeur remplit le Journal quotidien.

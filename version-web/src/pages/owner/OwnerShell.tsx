@@ -29,7 +29,7 @@ function SidebarAnimals({ data }: { data: OwnerData }) {
   if (!data.animals || data.animals.length === 0) return null
   return (
     <div className="mt-7">
-      <p className="eyebrow px-3 text-[#87918d]">Mes animaux</p>
+      <p className="eyebrow px-3 text-muted">Mes animaux</p>
       <ul className="mt-2 flex flex-col gap-0.5">
         {data.animals.slice(0, 6).map((animal) => (
           <li key={animal.id}>
@@ -37,7 +37,7 @@ function SidebarAnimals({ data }: { data: OwnerData }) {
               to={`/espace/animaux/${animal.id}`}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-[12px] px-2.5 py-2 font-body text-sm transition-colors ${
-                  isActive ? 'bg-mint-soft font-semibold text-primary-pressed' : 'text-[#3f4744] hover:bg-canvas'
+                  isActive ? 'bg-mint-soft font-semibold text-primary-pressed' : 'text-ink hover:bg-canvas'
                 }`
               }
             >
@@ -69,16 +69,17 @@ function SidebarQrCard() {
   return (
     <Link
       to="/espace/code"
-      className="group relative overflow-hidden rounded-[18px] bg-forest p-4 text-white transition-transform duration-300 hover:-translate-y-0.5"
+      className="flex min-h-11 items-center gap-3 rounded-[18px] bg-forest p-4 text-white focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#9fe7d6]"
     >
-      <span aria-hidden="true" className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-teal/25 blur-xl" />
-      <span className="relative flex h-9 w-9 items-center justify-center rounded-[11px] bg-white/12 text-[#9fe7d6]">
-        <IconQr className="h-[18px] w-[18px]" />
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] bg-white/12 text-[#9fe7d6]">
+        <IconQr className="h-[18px] w-[18px]" aria-hidden="true" />
       </span>
-      <p className="relative mt-3 font-body text-sm font-semibold">Rendez-vous chez le vétérinaire ?</p>
-      <p className="relative mt-1 font-body text-xs leading-relaxed text-white/70">
-        Un QR ouvre le dossier pendant 4 heures, puis l’accès se referme seul.
-      </p>
+      <span>
+        <span className="block font-body text-sm font-semibold">Code pour le vétérinaire</span>
+        <span className="mt-1 block font-body text-xs leading-relaxed text-[#d7efe8]">
+          Valable 4 heures, puis il se ferme.
+        </span>
+      </span>
     </Link>
   )
 }

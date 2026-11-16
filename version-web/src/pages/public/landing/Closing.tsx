@@ -50,7 +50,7 @@ function Cell({ value }: { value: boolean | string }) {
   }
   return (
     <span className="inline-flex h-7 w-7 items-center justify-center text-[#a3aeaa]">
-      <span aria-hidden="true">—</span>
+      <span aria-hidden="true">-</span>
       <span className="sr-only">Non</span>
     </span>
   )
@@ -65,7 +65,7 @@ export function Trust() {
             Vous décidez qui voit quoi, et pour combien de temps. Ces règles sont appliquées par la base de données
             elle-même, pas seulement par l’interface.
           </SectionIntro>
-          <p data-reveal className="font-body text-[15px] leading-relaxed text-[#4d5652] lg:col-span-5 lg:pb-2">
+          <p data-reveal className="font-body text-[15px] leading-relaxed text-muted lg:col-span-5 lg:pb-2">
             Conforme au RGPD : vous accédez à vos données, vous les exportez, vous les supprimez. Le détail est dans
             la{' '}
             <Link to="/confidentialite" className="font-semibold text-primary underline underline-offset-4">
@@ -120,7 +120,7 @@ export function Trust() {
               </span>
               <div>
                 <p className="font-body text-[15px] font-semibold text-ink">{item.title}</p>
-                <p className="mt-1 font-body text-[14px] leading-relaxed text-[#4d5652]">{item.text}</p>
+                <p className="mt-1 font-body text-[14px] leading-relaxed text-muted">{item.text}</p>
               </div>
             </li>
           ))}
@@ -204,7 +204,7 @@ export function Faq() {
                   <IconPlus className="h-[18px] w-[18px]" />
                 </span>
               </summary>
-              <p data-faq-answer className="max-w-[680px] pb-7 pr-14 font-body text-[16px] leading-relaxed text-[#4d5652]">
+              <p data-faq-answer className="max-w-[680px] pb-7 pr-14 font-body text-[16px] leading-relaxed text-muted">
                 {item.answer}
               </p>
             </details>
@@ -307,7 +307,7 @@ export function LandingFooter() {
       <div className="mx-auto grid max-w-[1320px] gap-12 px-5 py-16 sm:px-8 md:grid-cols-12">
         <div className="md:col-span-5">
           <Logo className="h-16 w-auto" />
-          <p className="mt-5 max-w-[340px] font-body text-[15px] leading-relaxed text-[#4d5652]">
+          <p className="mt-5 max-w-[340px] font-body text-[15px] leading-relaxed text-muted">
             Le carnet de santé numérique des chiens, chats et NAC, partagé avec les vétérinaires au bon moment.
           </p>
         </div>
@@ -318,11 +318,11 @@ export function LandingFooter() {
               {column.links.map((link) => (
                 <li key={link.label}>
                   {'href' in link ? (
-                    <a href={link.href} className="font-body text-[15px] text-[#3c4542] transition-colors hover:text-primary">
+                    <a href={link.href} className="font-body text-[15px] text-ink transition-colors hover:text-primary">
                       {link.label}
                     </a>
                   ) : (
-                    <Link to={link.to} className="font-body text-[15px] text-[#3c4542] transition-colors hover:text-primary">
+                    <Link to={link.to} className="font-body text-[15px] text-ink transition-colors hover:text-primary">
                       {link.label}
                     </Link>
                   )}

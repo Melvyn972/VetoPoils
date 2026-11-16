@@ -9,6 +9,7 @@ import { FormAlert } from '../../components/ui/FormAlert'
 import { Input } from '../../components/ui/Input'
 import { useAuth } from '../../context/AuthContext'
 import { getErrorMessage } from '../../lib/errors'
+import { ThemeChoiceControl } from '../../components/theme/ThemeChoice'
 import { updateVetProfile } from '../../lib/vetProfile'
 
 export function VetAccountPage() {
@@ -56,7 +57,10 @@ export function VetAccountPage() {
         <Input label="Téléphone" value={telephone} onChange={(event) => setTelephone(event.target.value)} />
         <Input label="Numéro d’ordre" value={ordre} onChange={(event) => setOrdre(event.target.value)} />
         {error ? <FormAlert>{error}</FormAlert> : null}
-        {message ? <p className="font-body text-sm text-primary">{message}</p> : null}
+        {message ? <p role="status" className="font-body text-sm text-primary">{message}</p> : null}
+        <h2 className="font-title text-lg font-semibold">Thème</h2>
+        <p className="font-body text-sm text-muted">Le choix s’applique à l’espace clinique sur cet appareil.</p>
+        <ThemeChoiceControl />
         <Button type="submit">Enregistrer</Button>
       </form>
     </VetWorkspace>

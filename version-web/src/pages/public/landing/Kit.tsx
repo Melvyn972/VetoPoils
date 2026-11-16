@@ -39,7 +39,7 @@ export function SectionIntro({
         <div
           data-reveal
           className={`mt-6 max-w-[580px] font-body text-[17px] leading-relaxed md:text-[18px] ${
-            light ? 'text-white/75' : 'text-[#4d5652]'
+            light ? 'text-white/75' : 'text-muted'
           }`}
         >
           {children}

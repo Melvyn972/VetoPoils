@@ -55,7 +55,7 @@ import { getErrorMessage } from '../../lib/errors'
 import { ageLabel, countdownLabel, formatEuro, formatShortDate } from '../../lib/format'
 import { scoreVerdict } from '../../components/ui/chartUtils'
 import { computeHealthScore } from '../../lib/healthScore'
-import { MEDICAL_EVENT_TYPES, REMINDER_TYPES, getMedicalEventTypeLabel } from '../../lib/medicalLabels'
+import { MEDICAL_EVENT_TYPES, REMINDER_TYPES, getInvitationStatusLabel, getMedicalEventTypeLabel, getReminderStatusLabel, getShareRoleLabel } from '../../lib/medicalLabels'
 import {
   categoryToMedicalEventType,
   expenseCategoryFromDocument,
@@ -141,8 +141,10 @@ export function AnimalPage({ section }: { section: AnimalSection }) {
                 to={`/espace/animaux/${animal.id}${link.suffix}`}
                 end={link.suffix === ''}
                 className={({ isActive }) =>
-                  `shrink-0 rounded-full px-3.5 py-2 font-body text-[13px] font-semibold ${
-                    isActive || section === link.section ? 'bg-primary text-white' : 'bg-white text-[#4b5552] ring-1 ring-line'
+                  `inline-flex min-h-11 shrink-0 items-center rounded-full border-[1.5px] px-3.5 font-body text-[13px] font-semibold focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-primary ${
+                    isActive || section === link.section
+                      ? 'border-primary-fill bg-primary-fill text-white hover:border-primary-fill-hover hover:bg-primary-fill-hover'
+                      : 'border-field-line bg-surface text-ink hover:border-muted'
                   }`
                 }
               >
@@ -190,8 +192,8 @@ function Fiche({
 
   const facts = [
     ['Sexe', animal.sexe === 'male' ? 'Mâle' : animal.sexe === 'femelle' ? 'Femelle' : 'Non renseigné'],
-    ['Couleur', animal.couleur || '—'],
-    ['Puce', animal.puce || '—'],
+    ['Couleur', animal.couleur || '-'],
+    ['Puce', animal.puce || '-'],
     ['Accès', access?.level === 'owner' ? 'Propriétaire' : access?.level === 'contributor' ? 'Pet-sitter' : 'Lecture seule'],
   ]
 
@@ -340,7 +342,7 @@ function Timeline({ animalId, canWrite }: { animalId: string; canWrite: boolean 
     <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
       <ul className="flex flex-col gap-3">
         {events.map((event) => (
-          <li key={event.id} className="rounded-3xl bg-white p-4">
+          <li key={event.id} className="rounded-3xl bg-surface p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="font-body text-sm font-semibold">{event.titre || getMedicalEventTypeLabel(event.type)}</p>
               <EventStatusBadge status={event.status} />
@@ -362,7 +364,7 @@ function Timeline({ animalId, canWrite }: { animalId: string; canWrite: boolean 
       </ul>
       {canWrite ? (
         <form
-          className="flex flex-col gap-3 rounded-3xl bg-white p-4"
+          className="flex flex-col gap-3 rounded-3xl bg-surface p-4"
           onSubmit={(event) => {
             event.preventDefault()
             void createMedicalEvent({
@@ -407,7 +409,7 @@ function Documents({ animalId }: { animalId: string }) {
   return (
     <ul className="flex flex-col gap-2">
       {rows.map((row) => (
-        <li key={row.id} className="rounded-2xl bg-white px-4 py-3 font-body text-sm">
+        <li key={row.id} className="rounded-2xl bg-surface px-4 py-3 font-body text-sm">
           {row.file_name}
           <span className="ml-2 text-muted">{row.category_ocr ? documentCategoryLabels[row.category_ocr as keyof typeof documentCategoryLabels] ?? row.category_ocr : 'Non classé'}</span>
         </li>
@@ -499,7 +501,7 @@ function ScanReview({ animal, userId, canWrite }: { animal: Animal; userId: stri
       <FileField label="Document à analyser" hint="Photo ou PDF. Sans clé OCR, une proposition est déduite du nom du fichier." accept="image/*,application/pdf" file={file} onFile={setFile} />
       <Button disabled={!file || busy} onClick={() => void analyze()}>{busy ? 'Analyse…' : 'Analyser'}</Button>
       {draft ? (
-        <div className="grid gap-3 rounded-3xl bg-white p-4">
+        <div className="grid gap-3 rounded-3xl bg-surface p-4">
           <p className="font-body text-xs text-muted">Source : {draft.source === 'api' ? 'OCR' : 'proposition locale'}</p>
           <SelectField
             label="Catégorie"
@@ -514,7 +516,7 @@ function ScanReview({ animal, userId, canWrite }: { animal: Animal; userId: stri
         </div>
       ) : null}
       {error ? <FormAlert>{error}</FormAlert> : null}
-      {info ? <p className="font-body text-sm text-primary">{info}</p> : null}
+      {info ? <p role="status" className="font-body text-sm text-primary">{info}</p> : null}
     </div>
   )
 }
@@ -552,33 +554,32 @@ function CodePanel({ animal, canWrite }: { animal: Animal; canWrite: boolean }) 
 
   if (!canWrite) return <p className="font-body text-sm text-muted">Seul le propriétaire peut générer un code.</p>
 
+  const generate = () => {
+    void generateVetToken(animal.id)
+      .then((row) => {
+        setCode(row.token)
+        setExpires(row.expire_le)
+      })
+      .catch((generateError) => setError(getErrorMessage(generateError)))
+  }
+  const revoke = () => {
+    if (!code) return
+    void revokeVetToken(code).then(() => { setCode(null); setImage(null) })
+  }
+
   return (
-    <section className="max-w-md rounded-3xl bg-white p-5">
+    <section className="mx-auto max-w-md rounded-3xl bg-surface p-5 text-center">
       <h2 className="font-title text-lg font-semibold">Code vétérinaire, 4 heures</h2>
       <p className="mt-2 font-body text-sm text-muted">Le vétérinaire ouvre le dossier, puis le code s’éteint.</p>
       {code ? (
-        <div className="mt-4">
-          <p className="font-title text-3xl font-semibold tracking-[0.3em]" data-testid="vet-code">{code}</p>
-          <p className="mt-2 font-body text-sm text-muted">Temps restant : {label}</p>
-          {image ? <img src={image} alt="QR du code vétérinaire" className="mt-4 h-48 w-48" /> : null}
-          <Button className="mt-4" variant="ghost" onClick={() => void revokeVetToken(code).then(() => { setCode(null); setImage(null) })}>
-            Révoquer
-          </Button>
+        <div className="mt-4 flex flex-col items-center gap-3">
+          <p className="font-title text-[2rem] font-semibold tracking-[0.34em]" data-testid="vet-code">{code}</p>
+          <p className="font-body text-sm text-muted">Temps restant : {label}</p>
+          {image ? <img src={image} alt="QR du code vétérinaire" className="h-44 w-44" /> : null}
+          <Button variant="ghost" onClick={revoke}>Révoquer</Button>
         </div>
       ) : (
-        <Button
-          className="mt-4"
-          onClick={() => {
-            void generateVetToken(animal.id)
-              .then((row) => {
-                setCode(row.token)
-                setExpires(row.expire_le)
-              })
-              .catch((generateError) => setError(getErrorMessage(generateError)))
-          }}
-        >
-          Générer un code
-        </Button>
+        <Button className="mt-4" onClick={generate}>Générer un code</Button>
       )}
       {error ? <FormAlert>{error}</FormAlert> : null}
     </section>
@@ -604,10 +605,11 @@ function AnimalReminders({ animalId, canWrite }: { animalId: string; canWrite: b
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
       <ul className="flex flex-col gap-2">
+        {rows.length === 0 ? <li className="font-body text-sm text-muted">Aucun rappel pour cet animal. Le prochain se crée dans le formulaire.</li> : null}
         {rows.map((row) => (
-          <li key={row.id} className="rounded-2xl bg-white p-4">
+          <li key={row.id} className="rounded-2xl bg-surface p-4">
             <p className="font-body text-sm font-semibold">{row.titre}</p>
-            <p className="font-body text-xs text-muted">{formatShortDate(row.date_echeance)} · {row.statut}</p>
+            <p className="font-body text-xs text-muted">{formatShortDate(row.date_echeance)} · {getReminderStatusLabel(row.statut)}</p>
             {canWrite && row.statut === 'actif' ? (
               <div className="mt-2 flex gap-2">
                 <Button fullWidth={false} variant="secondary" onClick={() => void updateReminderStatus(row.id, 'termine').then(reload)}>Terminer</Button>
@@ -619,7 +621,7 @@ function AnimalReminders({ animalId, canWrite }: { animalId: string; canWrite: b
       </ul>
       {canWrite ? (
         <form
-          className="flex flex-col gap-3 rounded-3xl bg-white p-4"
+          className="flex flex-col gap-3 rounded-3xl bg-surface p-4"
           onSubmit={(event) => {
             event.preventDefault()
             void createReminder({ animal_id: animalId, titre, date_echeance: date, type: type as Reminder['type'] })
@@ -680,8 +682,8 @@ function SharePanel({ animalId, canManage }: { animalId: string; canManage: bool
             value={role}
             onChange={(value) => setRole(value as PartageRole)}
             options={[
-              { value: 'read_only', label: 'Famille — lecture' },
-              { value: 'contributor', label: 'Pet-sitter — journal' },
+              { value: 'read_only', label: 'Famille - lecture' },
+              { value: 'contributor', label: 'Pet-sitter - journal' },
             ]}
           />
           <Button type="submit">Envoyer l’invitation</Button>
@@ -690,12 +692,12 @@ function SharePanel({ animalId, canManage }: { animalId: string; canManage: bool
       {error ? <FormAlert>{error}</FormAlert> : null}
       <ul className="flex flex-col gap-2">
         {rows.map((row) => (
-          <li key={row.id} className="flex items-center justify-between rounded-2xl bg-white px-4 py-3">
-            <span className="font-body text-sm">{row.email_invite} · {row.role} · {row.statut}</span>
+          <li key={row.id} className="flex items-center justify-between rounded-2xl bg-surface px-4 py-3">
+            <span className="font-body text-sm">{row.email_invite} · {getShareRoleLabel(row.role)} · {getInvitationStatusLabel(row.statut)}</span>
             {canManage && row.statut !== 'revoquee' ? (
-              <button type="button" className="font-body text-xs text-error" onClick={() => void revokeShare(row.id).then(reload)}>
-                Révoquer
-              </button>
+              <Button fullWidth={false} variant="danger" onClick={() => void revokeShare(row.id).then(reload)}>
+                Révoquer l’accès
+              </Button>
             ) : null}
           </li>
         ))}
@@ -725,7 +727,7 @@ function Journal({ animalId, userId, canWrite }: { animalId: string; userId: str
     <div className="grid gap-4">
       {canWrite ? (
         <form
-          className="grid gap-3 rounded-3xl bg-white p-4"
+          className="grid gap-3 rounded-3xl bg-surface p-4"
           onSubmit={(event) => {
             event.preventDefault()
             void createDailyLog({ animal_id: animalId, cree_par: userId, repas, sortie, comportement, notes })
@@ -749,9 +751,10 @@ function Journal({ animalId, userId, canWrite }: { animalId: string; userId: str
         <p className="font-body text-sm text-muted">Le journal s’écrit par le propriétaire ou un pet-sitter invité.</p>
       )}
       {error ? <FormAlert>{error}</FormAlert> : null}
+      {rows.length === 0 ? <p className="font-body text-sm text-muted">Le journal est vide. Le premier repas, la première sortie ou une note suffit.</p> : null}
       <ul className="flex flex-col gap-2">
         {rows.map((row) => (
-          <li key={row.id} className="rounded-2xl bg-white px-4 py-3 font-body text-sm">
+          <li key={row.id} className="rounded-2xl bg-surface px-4 py-3 font-body text-sm">
             <span className="text-muted">{formatShortDate(row.date_journal)}</span>
             <p>{[row.repas, row.sortie, row.comportement, row.notes].filter(Boolean).join(' · ') || 'Note vide'}</p>
           </li>
@@ -804,7 +807,7 @@ function Budget({ animal, userId, canWrite }: { animal: Animal; userId: string; 
         {segments.length ? (
           <div className="mt-4 grid items-center gap-4 sm:grid-cols-[auto_1fr]">
             <Donut segments={segments} size={148} stroke={18} centerTop={formatEuro(total)} centerBottom="au total" />
-            <MonthlyBars data={bars.length ? bars : [{ key: 'none', label: '—', value: 0 }]} formatValue={(value) => `${Math.round(value)} €`} height={150} />
+            <MonthlyBars data={bars.length ? bars : [{ key: 'none', label: '-', value: 0 }]} formatValue={(value) => `${Math.round(value)} €`} height={150} />
           </div>
         ) : (
           <p className="mt-3 font-body text-sm text-muted">Aucune dépense. Ajoutez-en, ou scannez une facture.</p>
@@ -816,7 +819,7 @@ function Budget({ animal, userId, canWrite }: { animal: Animal; userId: string; 
               <span className="flex items-center gap-2">
                 {formatEuro(Number(row.montant))}
                 {canWrite ? (
-                  <button type="button" className="text-xs text-error" onClick={() => void deleteExpense(row.id).then(reload)}>Retirer</button>
+                  <Button fullWidth={false} variant="danger" onClick={() => void deleteExpense(row.id).then(reload)}>Retirer la dépense</Button>
                 ) : null}
               </span>
             </li>
@@ -839,13 +842,18 @@ function Budget({ animal, userId, canWrite }: { animal: Animal; userId: string; 
       </section>
       {canWrite ? (
         <form
-          className="flex flex-col gap-3 rounded-3xl bg-white p-4"
+          className="flex flex-col gap-3 rounded-3xl bg-surface p-4"
           onSubmit={(event) => {
             event.preventDefault()
+            const amount = Number(montant.replace(/\s/g, '').replace(',', '.'))
+            if (!Number.isFinite(amount) || amount <= 0) {
+              setError('Indiquez un montant supérieur à 0. Exemple : 12,50.')
+              return
+            }
             void createExpense({
               animal_id: animal.id,
               category,
-              montant: Number(montant.replace(',', '.')),
+              montant: amount,
               description,
               cree_par: userId,
             })
@@ -863,7 +871,7 @@ function Budget({ animal, userId, canWrite }: { animal: Animal; userId: string; 
             onChange={(value) => setCategory(value as ExpenseCategory)}
             options={Object.entries(expenseCategoryLabels).map(([value, label]) => ({ value, label }))}
           />
-          <Input label="Montant" value={montant} onChange={(event) => setMontant(event.target.value)} required />
+          <Input label="Montant en euros" inputMode="decimal" value={montant} onChange={(event) => setMontant(event.target.value)} required hint="Exemple : 12,50" />
           <Input label="Description" value={description} onChange={(event) => setDescription(event.target.value)} />
           {error ? <FormAlert>{error}</FormAlert> : null}
           <Button type="submit">Ajouter</Button>
@@ -877,6 +885,7 @@ function ScorePanel({ animal, onChange }: { animal: Animal; onChange: (animal: A
   const [score, setScore] = useState<number | null>(animal.score_sante)
   const [factors, setFactors] = useState<Array<{ label: string; delta: number }>>([])
   const [history, setHistory] = useState<Array<{ id: string; score: number; calcule_le: string }>>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all([fetchMedicalEvents(animal.id), fetchReminders(animal.id), fetchHealthHistory(animal.id)])
@@ -886,15 +895,17 @@ function ScorePanel({ animal, onChange }: { animal: Animal; onChange: (animal: A
         if (!computed) return
         setScore(computed.score)
         setFactors(computed.details.factors)
+        if (computed.score === animal.score_sante) return
         await persistHealthScore(animal.id, computed.score, computed.details as unknown as Record<string, unknown>)
         onChange({ ...animal, score_sante: computed.score })
       })
-      .catch(() => undefined)
+      .catch((loadError) => setError(getErrorMessage(loadError)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animal.id])
 
   return (
     <section className="surface max-w-xl p-5 sm:p-7">
+      {error ? <FormAlert>{error}</FormAlert> : null}
       <div className="flex flex-wrap items-center gap-6">
         <ScoreRing score={score} size={148} stroke={12} />
         <div>
@@ -928,7 +939,7 @@ function PdfPanel({ animal }: { animal: Animal }) {
       <p className="mt-2 font-body text-sm leading-relaxed text-muted">L’impression ouvre la boîte de dialogue du navigateur. Enregistrez en PDF depuis cette fenêtre.</p>
       <ul className="mt-4 flex flex-wrap gap-2">
         {['Identité', 'Historique', 'Documents', 'Poids'].map((item) => (
-          <li key={item} className="rounded-full bg-canvas px-3 py-1 font-body text-xs font-semibold text-[#3c4542]">{item}</li>
+          <li key={item} className="rounded-full bg-canvas px-3 py-1 font-body text-xs font-semibold text-ink">{item}</li>
         ))}
       </ul>
       {error ? <FormAlert>{error}</FormAlert> : null}

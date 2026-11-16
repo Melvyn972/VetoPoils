@@ -7,7 +7,7 @@ import { RequireVetAuth } from './components/auth/RequireVetAuth'
 import { RequireVetToken } from './components/auth/RequireVetToken'
 import { AuthProvider } from './context/AuthContext'
 import { VetSessionProvider } from './context/VetSessionContext'
-import { LandingPage } from './pages/public/LandingPage'
+const LandingPage = lazy(() => import('./pages/public/LandingPage').then((module) => ({ default: module.LandingPage })))
 
 const authPages = () => import('./pages/public/AuthPages')
 const ownerPages = () => import('./pages/owner/OwnerPages')

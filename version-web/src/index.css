@@ -3,7 +3,7 @@
 @source "../index.html";
 @source "./**/*.{js,ts,jsx,tsx}";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
   --color-primary-15: var(--primary-15);
@@ -41,31 +41,35 @@
   --font-title: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --color-canvas: #f6f8f7;
-  --color-ink: #1a1a1a;
-  --color-muted: #6b7280;
-  --color-line: #e5e7eb;
-  --color-line-soft: #e9eeec;
-  --color-teal: #57c9d2;
-  --color-teal-15: #e2f5f6;
-  --color-logo-orange: #fba84b;
-  --color-orange-15: #fff1e0;
-  --color-orange-ink: #b35c00;
-  --color-fg-gray: #9ca3af;
-  --color-mint: #dceee9;
-  --color-mint-soft: #eef6f3;
-  --color-forest: #163c36;
-  --color-forest-2: #1f4d45;
-  --color-forest-deep: #0d2622;
+  --color-canvas: var(--canvas);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-field-line: var(--field-line);
+  --color-teal: var(--teal);
+  --color-teal-15: var(--teal-15);
+  --color-logo-orange: var(--logo-orange);
+  --color-orange-15: var(--orange-15);
+  --color-orange-ink: var(--orange-ink);
+  --color-fg-gray: var(--fg-gray);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-forest: var(--forest);
+  --color-forest-2: var(--forest-2);
+  --color-forest-deep: var(--forest-deep);
+  --color-primary-fill: var(--primary-fill);
+  --color-primary-fill-hover: var(--primary-fill-hover);
+  --color-danger-fill: var(--danger-fill);
 
-  --color-amber-soft: #fdf1d8;
-  --color-amber-ink: #8a5300;
-  --color-green-soft: #e4f4e5;
-  --color-green-ink: #2f7a39;
-  --color-blue-soft: #e7effc;
-  --color-blue-ink: #2c5aa0;
-  --color-red-soft: #fdeae7;
-  --color-red-ink: #b4332a;
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-ink: var(--amber-ink);
+  --color-green-soft: var(--green-soft);
+  --color-green-ink: var(--green-ink);
+  --color-blue-soft: var(--blue-soft);
+  --color-blue-ink: var(--blue-ink);
+  --color-red-soft: var(--red-soft);
+  --color-red-ink: var(--red-ink);
 
   --radius-8: 8px;
   --radius-10: 10px;
@@ -77,7 +81,6 @@
   --shadow-pop: 0 40px 80px -32px rgb(22 60 54 / 0.42), 0 8px 24px -12px rgb(16 24 40 / 0.12);
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 @theme {
@@ -106,36 +109,57 @@
   }
 }
 
-:root {
+:root,
+[data-theme="light"] {
   --canvas: #f6f8f7;
   --ink: #1a1a1a;
-  --muted: #6b7280;
+  --muted: #4e5854;
   --line: #e5e7eb;
   --line-soft: #e9eeec;
+  --field-line: #7a8480;
   --teal: #57c9d2;
+  --teal-15: #e2f5f6;
   --logo-orange: #fba84b;
+  --orange-15: #fff1e0;
+  --orange-ink: #8a4b00;
+  --fg-gray: #4e5854;
+  --mint: #dceee9;
+  --mint-soft: #eef6f3;
+  --forest: #163c36;
+  --forest-2: #1f4d45;
+  --forest-deep: #0d2622;
+  --amber-soft: #fdf1d8;
+  --amber-ink: #8a5300;
+  --green-soft: #e4f4e5;
+  --green-ink: #1f5226;
+  --blue-soft: #e7effc;
+  --blue-ink: #2c5aa0;
+  --red-soft: #fdeae7;
+  --red-ink: #7d231c;
 
   --primary-15: #dceee9;
   --primary: #2c6e63;
   --primary-hover: #3e9484;
   --primary-pressed: #245c53;
   --primary-disabled: #9cc9bf;
+  --primary-fill: #2c6e63;
+  --primary-fill-hover: #245c53;
+  --danger-fill: #9f2d26;
 
   --fg-primary: #1a1a1a;
-  --fg-secondary: #6b7280;
-  --fg-tertiary: #6b7280;
-  --fg-gray: #9ca3af;
+  --fg-secondary: #4e5854;
+  --fg-tertiary: #4e5854;
 
   --surface: #ffffff;
   --surface-secondary: #f6f8f7;
 
-  --success: #6abf69;
-  --warning: #f2a93c;
-  --error: #e85c4a;
-  --logout: #c23a52;
-  --accent-green: #3f8a3b;
+  --success: #1f7a38;
+  --warning: #8a5300;
+  --error: #9f2d26;
+  --logout: #9f2d26;
+  --accent-green: #1f5226;
   --accent-blue: #2c5aa0;
-  --accent-orange: #b35c00;
+  --accent-orange: #8a4b00;
 
   --primary-hover-15: color-mix(in srgb, var(--primary-hover) 15%, transparent);
   --primary-pressed-15: color-mix(in srgb, var(--primary-pressed) 15%, transparent);
@@ -144,14 +168,67 @@
   --warning-15: color-mix(in srgb, var(--warning) 15%, transparent);
   --error-15: color-mix(in srgb, var(--error) 15%, transparent);
   --logout-15: color-mix(in srgb, var(--logout) 15%, transparent);
-  --accent-green-15: color-mix(in srgb, #6abf69 18%, transparent);
-  --accent-blue-15: color-mix(in srgb, #7eb6f6 20%, transparent);
-  --accent-orange-15: color-mix(in srgb, #fba84b 18%, transparent);
+  --accent-green-15: color-mix(in srgb, var(--accent-green) 18%, transparent);
+  --accent-blue-15: color-mix(in srgb, var(--accent-blue) 20%, transparent);
+  --accent-orange-15: color-mix(in srgb, var(--accent-orange) 18%, transparent);
 
   --card-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 4px 14px -6px rgb(16 24 40 / 0.08);
   --lift-shadow: 0 22px 44px -22px rgb(22 60 54 / 0.32), 0 2px 6px rgb(16 24 40 / 0.05);
 
   color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #0f1f1c;
+  --ink: #e7f2ee;
+  --muted: #c9d7d2;
+  --line: #2c4a44;
+  --line-soft: #243f3a;
+  --field-line: #608a82;
+  --teal: #7ecfd6;
+  --teal-15: #14383c;
+  --logo-orange: #fba84b;
+  --orange-15: #3a2a14;
+  --orange-ink: #ffd7a8;
+  --fg-gray: #c9d7d2;
+  --mint: #1c3f38;
+  --mint-soft: #17352f;
+  --forest: #071411;
+  --forest-2: #0c1c19;
+  --forest-deep: #050e0c;
+  --amber-soft: #3a2c12;
+  --amber-ink: #ffe0a8;
+  --green-soft: #16331c;
+  --green-ink: #b7e6bc;
+  --blue-soft: #18283f;
+  --blue-ink: #c5d7f5;
+  --red-soft: #3a1c18;
+  --red-ink: #ffb4a8;
+
+  --primary-15: #1c3f38;
+  --primary: #b7ebe0;
+  --primary-hover: #d5f6ee;
+  --primary-pressed: #d5f6ee;
+  --primary-disabled: #3d6158;
+  --primary-fill: #1a6b5e;
+  --primary-fill-hover: #14584d;
+  --danger-fill: #9f2d26;
+
+  --fg-primary: #e7f2ee;
+  --fg-secondary: #c9d7d2;
+  --fg-tertiary: #c9d7d2;
+
+  --surface: #17302b;
+  --surface-secondary: #122824;
+
+  --success: #b7e6bc;
+  --warning: #ffe0a8;
+  --error: #ffb4a8;
+  --logout: #ffb4a8;
+  --accent-green: #b7e6bc;
+  --accent-blue: #c5d7f5;
+  --accent-orange: #ffd7a8;
 }
 
 @layer base {
@@ -215,14 +292,14 @@
 }
 
 @utility surface {
-  background-color: #ffffff;
+  background-color: var(--surface);
   border: 1px solid var(--line-soft);
   border-radius: 20px;
   box-shadow: var(--card-shadow);
 }
 
 @utility surface-muted {
-  background-color: #f9fbfa;
+  background-color: var(--canvas);
   border: 1px solid var(--line-soft);
   border-radius: 16px;
 }
@@ -277,9 +354,12 @@
   left: 16px;
   top: 12px;
   z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   transform: translateY(-160%);
   border-radius: 12px;
-  background: var(--ink);
+  background: var(--primary-fill);
   color: #fff;
   padding: 10px 14px;
   font-size: 14px;
@@ -313,14 +393,75 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+    transition-property: opacity, color, background-color, border-color, outline-color, box-shadow !important;
   }
+
+  .animate-shimmer,
+  .animate-pulse-ring {
+    animation: none !important;
+  }
+}
+
+[data-theme="dark"] ::selection {
+  background: #1f4d45;
+  color: #e7f2ee;
+}
+
+@property --file-draw {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.file-drop {
+  position: relative;
+}
+
+.file-drop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from -90deg, var(--primary) var(--file-draw), transparent 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.file-drop.is-dragging::after {
+  opacity: 1;
+  animation: file-draw 0.7s linear forwards;
+}
+
+@keyframes file-draw {
+  to {
+    --file-draw: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .file-drop.is-dragging::after {
+    animation: none;
+    --file-draw: 360deg;
+  }
+}
+
+button.vet-access-submit {
+  height: 2.25rem;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
 }
 
 @media print {

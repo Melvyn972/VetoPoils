@@ -66,7 +66,7 @@ export function PartnerSuggestions({
   }
 
   return (
-    <section className="rounded-2xl border border-dashed border-line bg-white px-4 py-4">
+    <section className="rounded-2xl border border-dashed border-line bg-surface px-4 py-4">
       <p className="font-body text-[11px] font-semibold uppercase tracking-wide text-muted">
         Suggestions partenaires
       </p>

@@ -15,6 +15,7 @@
 .env
 .DS_Store
 .githooks/
+PRODUCT.md
 
 # Fichiers locaux d'éditeur
 .cursor/

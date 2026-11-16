@@ -10,6 +10,18 @@
     <meta name="description" content="Le carnet de santé de votre animal, enfin vivant." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('vetopoil-theme')
+          var choice = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system'
+          var dark = choice === 'dark' || (choice !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+        } catch (error) {
+          document.documentElement.dataset.theme = 'light'
+        }
+      })()
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <title>Vet'OPoil</title>
   </head>

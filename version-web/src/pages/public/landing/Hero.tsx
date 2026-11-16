@@ -65,7 +65,7 @@ export function LandingHeader() {
       ref={ref}
       className={`fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300 ${
         isScrolled
-          ? 'bg-white/95 shadow-[0_1px_0_rgb(16_24_40/0.06),0_12px_32px_-24px_rgb(16_24_40/0.3)]'
+          ? 'bg-surface/95 shadow-[0_1px_0_rgb(16_24_40/0.06),0_12px_32px_-24px_rgb(16_24_40/0.3)]'
           : ''
       }`}
     >
@@ -78,7 +78,7 @@ export function LandingHeader() {
             <a
               key={section.href}
               href={section.href}
-              className="group relative rounded-full px-3.5 py-2 font-body text-[14px] font-medium text-[#3c4542] transition-colors hover:text-ink"
+              className="group relative rounded-full px-3.5 py-2 font-body text-[14px] font-medium text-ink transition-colors hover:text-ink"
             >
               {section.label}
               <span className="absolute inset-x-3.5 bottom-1 h-px origin-left scale-x-0 bg-primary transition-transform duration-300 ease-out group-hover:scale-x-100" />
@@ -88,17 +88,17 @@ export function LandingHeader() {
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <Link
             to="/acces"
-            className="hidden rounded-full px-3.5 py-2 font-body text-[14px] font-medium text-[#3c4542] transition-colors hover:text-ink md:inline-flex"
+            className="hidden rounded-full px-3.5 py-2 font-body text-[14px] font-medium text-ink transition-colors hover:text-ink md:inline-flex"
           >
             Accès vétérinaire
           </Link>
           <Link
             to="/connexion"
-            className="hidden rounded-full px-3.5 py-2 font-body text-[14px] font-medium text-[#3c4542] transition-colors hover:text-ink sm:inline-flex"
+            className="hidden rounded-full px-3.5 py-2 font-body text-[14px] font-medium text-ink transition-colors hover:text-ink sm:inline-flex"
           >
             Se connecter
           </Link>
-          <ButtonLink to="/inscription" size="sm" className="h-10 px-4" data-magnetic>
+          <ButtonLink to="/inscription" size="sm" className={`h-11 px-4 ${open ? 'max-xl:hidden' : ''}`} data-magnetic>
             Créer un compte
           </ButtonLink>
           <button
@@ -107,7 +107,7 @@ export function LandingHeader() {
             aria-expanded={open}
             aria-controls="menu-landing"
             aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
-            className="press flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-ink xl:hidden"
+            className="press flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-field-line bg-surface text-ink xl:hidden"
           >
             {open ? <IconX className="h-[18px] w-[18px]" /> : <IconMenu className="h-[18px] w-[18px]" />}
           </button>
@@ -116,7 +116,7 @@ export function LandingHeader() {
       {open ? (
         <div
           id="menu-landing"
-          className="fixed inset-x-0 bottom-0 top-[76px] z-40 overflow-y-auto bg-white px-5 pb-12 pt-4 sm:px-8 xl:hidden"
+          className="fixed inset-x-0 bottom-0 top-[76px] z-40 overflow-y-auto bg-surface px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-8 xl:hidden"
         >
           <nav aria-label="Sections de la page" className="flex flex-col">
             {SECTIONS.map((section, index) => (
@@ -124,28 +124,53 @@ export function LandingHeader() {
                 key={section.href}
                 href={section.href}
                 onClick={close}
-                className="flex items-baseline gap-4 border-b border-line-soft py-4 font-title text-[30px] font-semibold tracking-[-0.03em] text-ink"
+                className="flex min-h-14 items-center gap-4 border-b border-line-soft py-3 font-title text-[26px] font-semibold tracking-[-0.03em] text-ink active:bg-canvas"
               >
                 <span className="font-body text-xs font-semibold text-primary tabular">0{index + 1}</span>
                 {section.label}
               </a>
             ))}
           </nav>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            <ButtonLink to="/inscription/proprietaire" size="lg" fullWidth onClick={close}>
+          <div className="mt-6 flex flex-col gap-3">
+            <ButtonLink
+              to="/inscription/proprietaire"
+              size="lg"
+              fullWidth
+              onClick={close}
+              className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
+            >
               Créer le carnet de mon animal
             </ButtonLink>
-            <ButtonLink to="/inscription/veterinaire" size="lg" variant="ghost" fullWidth onClick={close}>
+            <ButtonLink
+              to="/inscription/veterinaire"
+              size="lg"
+              variant="secondary"
+              fullWidth
+              onClick={close}
+              className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
+            >
               Ouvrir un espace clinique
             </ButtonLink>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-body text-[15px] font-medium text-[#3c4542]">
-            <Link to="/connexion" onClick={close}>
+            <ButtonLink
+              to="/connexion"
+              size="md"
+              variant="ghost"
+              fullWidth
+              onClick={close}
+              className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
+            >
               Se connecter
-            </Link>
-            <Link to="/acces" onClick={close}>
+            </ButtonLink>
+            <ButtonLink
+              to="/acces"
+              size="md"
+              variant="ghost"
+              fullWidth
+              onClick={close}
+              className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
+            >
               J’ai un code d’accès vétérinaire
-            </Link>
+            </ButtonLink>
           </div>
         </div>
       ) : null}
@@ -330,16 +355,9 @@ export function Hero() {
 
       <div className="relative mx-auto grid max-w-[1320px] items-center gap-14 px-5 sm:px-8 grid-cols-1 lg:grid-cols-12 lg:gap-8">
         <div className="relative z-10 lg:col-span-7">
-          <p
-            data-hero-fade
-            className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/80 px-3.5 py-1.5 font-body text-[13px] font-medium text-primary-pressed shadow-card"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-logo-orange" />
-            Carnet de santé numérique · chiens, chats et NAC
-          </p>
           <h1
             data-hero-title
-            className="mt-6 font-title text-[clamp(46px,6.2vw,98px)] font-semibold leading-[0.96] tracking-[-0.047em] text-ink"
+            className="font-title text-[clamp(46px,6.2vw,98px)] font-semibold leading-[0.96] tracking-[-0.047em] text-ink"
           >
             Le carnet de santé de votre animal, <span className="text-primary">enfin vivant.</span>
           </h1>
@@ -365,7 +383,7 @@ export function Hero() {
               <span className="absolute inset-0 animate-pulse-ring rounded-full bg-logo-orange" />
             </span>
           </div>
-          <p data-hero-fade className="mt-7 max-w-[570px] font-body text-[18px] leading-relaxed text-[#4a5350] md:text-[19px]">
+          <p data-hero-fade className="mt-7 max-w-[570px] font-body text-[18px] leading-relaxed text-muted md:text-[19px]">
             Vaccins, ordonnances, analyses, rappels et dépenses réunis dans un dossier qui s’enrichit à chaque
             consultation. Le jour du rendez-vous, un QR code l’ouvre à votre vétérinaire pendant 4 heures.
           </p>
@@ -554,7 +572,7 @@ export function Marquee() {
   )
 
   return (
-    <div ref={scope} aria-hidden="true" className="relative overflow-hidden border-y border-line-soft bg-white py-7 md:py-9">
+    <div ref={scope} aria-hidden="true" className="relative overflow-hidden border-y border-line-soft bg-surface py-7 md:py-9">
       <div data-marquee-track className="flex w-max">
         {[0, 1].map((copy) => (
           <div key={copy} className="flex shrink-0 items-center">

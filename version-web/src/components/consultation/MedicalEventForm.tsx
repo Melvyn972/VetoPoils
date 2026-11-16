@@ -279,7 +279,7 @@ export function MedicalEventForm({
 
       <FileField
         label="Document médical (optionnel)"
-        hint="PDF ou image — ordonnance, analyse, radio..."
+        hint="PDF ou image - ordonnance, analyse, radio..."
         accept="application/pdf,image/*"
         file={document}
         onFile={setDocument}

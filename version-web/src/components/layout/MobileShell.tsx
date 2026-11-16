@@ -12,9 +12,13 @@ interface MobileShellProps {
 export function MobileShell({ children, wide = false }: MobileShellProps) {
   return (
     <div className="relative flex min-h-screen flex-col bg-canvas">
+      <a href="#contenu" className="skip-link">
+        Aller au contenu
+      </a>
       <AppHeader wide={wide} />
 
       <main
+        id="contenu"
         className={`mx-auto w-full flex-1 px-4 py-6 sm:px-6 lg:px-8 ${
           wide ? 'max-w-6xl' : 'max-w-md'
         }`}

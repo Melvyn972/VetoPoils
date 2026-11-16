@@ -9,9 +9,9 @@ interface FormAlertProps {
 }
 
 const styles = {
-  error: { box: 'border-red-ink/15 bg-red-soft text-[#7d231c]', icon: 'text-red-ink', Icon: IconAlert },
-  info: { box: 'border-primary/15 bg-mint-soft text-[#1f4a43]', icon: 'text-primary', Icon: IconInfo },
-  success: { box: 'border-green-ink/15 bg-green-soft text-[#1f5226]', icon: 'text-green-ink', Icon: IconCheck },
+  error: { box: 'border-red-ink/15 bg-red-soft text-red-ink', icon: 'text-red-ink', Icon: IconAlert },
+  info: { box: 'border-primary/15 bg-mint-soft text-primary', icon: 'text-primary', Icon: IconInfo },
+  success: { box: 'border-green-ink/15 bg-green-soft text-green-ink', icon: 'text-green-ink', Icon: IconCheck },
 }
 
 export function FormAlert({ children, variant = 'error', title }: FormAlertProps) {

@@ -25,14 +25,14 @@ export interface AccountInfo {
 function sideItemClass(isActive: boolean) {
   return [
     'group relative flex h-11 items-center gap-3 rounded-[12px] px-3 font-body text-[14px] transition-colors',
-    isActive ? 'bg-mint-soft font-semibold text-primary-pressed' : 'font-medium text-[#56605c] hover:bg-canvas hover:text-ink',
+    isActive ? 'bg-mint-soft font-semibold text-primary-pressed' : 'font-medium text-muted hover:bg-canvas hover:text-ink',
   ].join(' ')
 }
 
 function NavBadge({ value }: { value?: number }) {
   if (!value) return null
   return (
-    <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-logo-orange px-1.5 font-body text-[11px] font-bold text-[#3d2300] tabular">
+    <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-logo-orange px-1.5 font-body text-[11px] font-bold text-forest-deep tabular">
       {value > 9 ? '9+' : value}
     </span>
   )
@@ -60,7 +60,7 @@ export function AccountMenu({ account, variant }: { account: AccountInfo; varian
 
   const menu = open ? (
     <div
-      className={`absolute z-50 w-60 rounded-[16px] border border-line-soft bg-white p-1.5 shadow-pop ${
+      className={`absolute z-50 w-60 rounded-[16px] border border-line-soft bg-surface p-1.5 shadow-pop ${
         variant === 'sidebar' ? 'bottom-[calc(100%+8px)] left-0' : 'right-0 top-[calc(100%+8px)]'
       }`}
     >
@@ -105,7 +105,7 @@ export function AccountMenu({ account, variant }: { account: AccountInfo; varian
         className={
           variant === 'sidebar'
             ? 'press flex w-full items-center gap-3 rounded-[14px] p-2 text-left hover:bg-canvas'
-            : 'press flex h-10 w-10 items-center justify-center rounded-full bg-mint font-body text-[13px] font-semibold text-primary-pressed'
+            : 'press flex h-11 w-11 items-center justify-center rounded-full bg-mint font-body text-[13px] font-semibold text-primary-pressed'
         }
       >
         {variant === 'sidebar' ? (
@@ -153,14 +153,14 @@ export function AppShell({
         Aller au contenu
       </a>
       <div className="flex min-h-dvh">
-        <aside className="sticky top-0 hidden h-dvh w-[272px] shrink-0 flex-col border-r border-line-soft bg-white lg:flex">
+        <aside className="sticky top-0 hidden h-dvh w-[272px] shrink-0 flex-col border-r border-line-soft bg-surface lg:flex">
           <div className="px-6 pb-2 pt-6">
             <Link to={homeTo} className="inline-block rounded-[12px]" aria-label="Vet'OPoil, accueil de l’espace">
               <Logo className="h-12 w-auto" />
             </Link>
           </div>
           <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4">
-            <p className="eyebrow mt-6 px-3 text-[#87918d]">{sectionLabel}</p>
+            <p className="eyebrow mt-6 px-3 text-muted">{sectionLabel}</p>
             <nav aria-label="Navigation principale" className="mt-2 flex flex-col gap-0.5">
               {nav.map((item) => (
                 <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => sideItemClass(isActive)}>
@@ -172,7 +172,7 @@ export function AppShell({
                           isActive ? 'opacity-100' : 'opacity-0'
                         }`}
                       />
-                      <span className={isActive ? 'text-primary' : 'text-[#7d8783] group-hover:text-ink'}>{item.icon}</span>
+                      <span className={isActive ? 'text-primary' : 'text-muted group-hover:text-ink'}>{item.icon}</span>
                       {item.label}
                       <NavBadge value={item.badge} />
                     </>
@@ -188,7 +188,7 @@ export function AppShell({
           </div>
         </aside>
 
-        <aside className="sticky top-0 hidden h-dvh w-[84px] shrink-0 flex-col items-center border-r border-line-soft bg-white py-5 md:flex lg:hidden">
+        <aside className="sticky top-0 hidden h-dvh w-[84px] shrink-0 flex-col items-center border-r border-line-soft bg-surface py-5 md:flex lg:hidden">
           <Link to={homeTo} aria-label="Vet'OPoil, accueil de l’espace" className="rounded-[12px]">
             <Logo variant="mark" className="h-10 w-auto" />
           </Link>
@@ -202,7 +202,7 @@ export function AppShell({
                 title={item.label}
                 className={({ isActive }) =>
                   `press relative flex h-12 w-12 items-center justify-center rounded-[14px] transition-colors ${
-                    isActive ? 'bg-mint text-primary-pressed' : 'text-[#6b7470] hover:bg-canvas hover:text-ink'
+                    isActive ? 'bg-mint text-primary-pressed' : 'text-muted hover:bg-canvas hover:text-ink'
                   }`
                 }
               >
@@ -219,7 +219,7 @@ export function AppShell({
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line-soft bg-white/85 px-4 backdrop-blur-md md:hidden">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line-soft bg-surface/85 px-4 backdrop-blur-md md:hidden">
             <Link to={homeTo} aria-label="Vet'OPoil, accueil de l’espace" className="rounded-[10px]">
               <Logo className="h-10 w-auto" />
             </Link>
@@ -233,7 +233,7 @@ export function AppShell({
 
       <nav
         aria-label="Navigation mobile"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-line-soft bg-white/92 px-2 pb-[max(env(safe-area-inset-bottom),8px)] pt-1.5 backdrop-blur-md md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-line-soft bg-surface/92 px-2 pb-[max(env(safe-area-inset-bottom),8px)] pt-1.5 backdrop-blur-md md:hidden"
       >
         <ul className="mx-auto flex max-w-md items-end justify-between">
           {mobileNav.map((item) => (
@@ -243,9 +243,9 @@ export function AppShell({
                 end={item.end}
                 className={({ isActive }) =>
                   item.featured
-                    ? 'press mx-auto -mt-6 flex w-fit flex-col items-center gap-1 font-body text-[11px] font-semibold text-primary-pressed'
-                    : `press relative flex flex-col items-center gap-1 rounded-[12px] py-1.5 font-body text-[11px] font-medium ${
-                        isActive ? 'text-primary-pressed' : 'text-[#727b77]'
+                    ? 'press mx-auto -mt-6 flex min-h-11 w-fit flex-col items-center gap-1 font-body text-xs font-semibold text-primary-pressed'
+                    : `press relative flex min-h-11 flex-col items-center gap-1 rounded-[12px] py-1.5 font-body text-xs font-medium ${
+                        isActive ? 'text-primary-pressed' : 'text-muted'
                       }`
                 }
               >

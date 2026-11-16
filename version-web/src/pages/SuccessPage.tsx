@@ -38,7 +38,7 @@ export function SuccessPage() {
 
   return (
     <MobileShell>
-      <div className="mx-auto flex max-w-md flex-col items-center gap-6 rounded-[28px] bg-white px-6 py-12 text-center shadow-card ring-1 ring-line-soft">
+      <div className="mx-auto flex max-w-md flex-col items-center gap-6 rounded-[28px] bg-surface px-6 py-12 text-center shadow-card ring-1 ring-line-soft">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-mint text-primary">
           <CheckIcon />
         </div>
@@ -56,14 +56,14 @@ export function SuccessPage() {
 
         <div className="flex flex-col gap-2">
           {isConnected ? (
-            <Link to="/mes-patients" className="font-body text-sm font-semibold text-primary">
+            <Link to="/mes-patients" className="inline-flex min-h-11 items-center font-body text-sm font-semibold text-primary">
               Retour à mes patients
             </Link>
           ) : null}
           <Link
             to="/acces"
             onClick={handleNewConsultation}
-            className="font-body text-sm font-semibold text-primary"
+            className="inline-flex min-h-11 items-center font-body text-sm font-semibold text-primary"
           >
             Saisir un autre code
           </Link>

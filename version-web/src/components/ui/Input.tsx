@@ -30,7 +30,7 @@ export function Input({ label, error, hint, required, id, className = '', leadin
       </label>
       <div className="relative">
         {leading ? (
-          <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-[#8a9490]">
+          <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-muted">
             {leading}
           </span>
         ) : null}
@@ -66,7 +66,7 @@ export function PasswordInput(props: Omit<InputProps, 'type' | 'trailing'>) {
           onClick={() => setVisible((current) => !current)}
           aria-pressed={visible}
           aria-label={visible ? 'Masquer la saisie' : 'Afficher la saisie'}
-          className="press flex h-9 w-9 items-center justify-center rounded-[10px] text-[#7b8682] hover:bg-canvas hover:text-ink"
+          className="press flex h-11 w-11 items-center justify-center rounded-[10px] text-muted hover:bg-canvas hover:text-ink"
         >
           {visible ? <IconEyeOff className="h-[18px] w-[18px]" /> : <IconEye className="h-[18px] w-[18px]" />}
         </button>

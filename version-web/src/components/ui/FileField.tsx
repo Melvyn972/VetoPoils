@@ -33,7 +33,7 @@ export function FileField({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="font-body text-[13px] font-medium text-[#3a3f3d]">{label}</span>
+      <span className="font-body text-[13px] font-medium text-ink">{label}</span>
       <input
         id={id}
         ref={inputRef}
@@ -50,8 +50,8 @@ export function FileField({
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         className={[
-          'rounded-[16px] border border-dashed p-4 transition-colors peer-focus-visible:ring-4 peer-focus-visible:ring-primary/15',
-          dragging ? 'border-primary bg-mint-soft' : 'border-[#cfd8d4] bg-[#fbfcfc]',
+          'file-drop rounded-[16px] border border-dashed p-4 transition-colors peer-focus-visible:ring-4 peer-focus-visible:ring-primary/15',
+          dragging ? 'is-dragging border-primary bg-mint-soft' : 'border-[#cfd8d4] bg-[#fbfcfc]',
         ].join(' ')}
       >
         {file ? (
@@ -83,7 +83,7 @@ export function FileField({
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 py-2 text-center sm:flex-row sm:text-left">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-card">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-card">
               <IconUpload className="h-[18px] w-[18px]" />
             </span>
             <div className="min-w-0 flex-1">

@@ -208,7 +208,7 @@ export function Story() {
           >
             Aujourd’hui, son dossier est partout. Donc nulle part.
           </h2>
-          <div className="relative mt-8 font-body text-[17px] leading-relaxed text-[#4d5652] md:text-[18px]">
+          <div className="relative mt-8 font-body text-[17px] leading-relaxed text-muted md:text-[18px]">
             <div data-story-before>
               <AppChip tone="ink">Avant</AppChip>
               <p className="mt-3 max-w-[500px]">
@@ -261,7 +261,7 @@ export function Story() {
                       <p className="truncate font-body text-[14px] font-semibold text-ink">{item.title}</p>
                       <p className="truncate font-body text-xs text-muted">{item.meta}</p>
                     </div>
-                    <Badge tone={item.badge.tone} dot>
+                    <Badge tone={item.badge.tone}>
                       {item.badge.label}
                     </Badge>
                   </div>
@@ -437,7 +437,7 @@ export function HowItWorks() {
               <h3 data-reveal className="mt-5 font-title text-[26px] font-semibold tracking-[-0.025em] text-ink">
                 {step.title}
               </h3>
-              <p data-reveal className="mt-3 max-w-[360px] font-body text-[16px] leading-relaxed text-[#4d5652]">
+              <p data-reveal className="mt-3 max-w-[360px] font-body text-[16px] leading-relaxed text-muted">
                 {step.text}
               </p>
               <div data-reveal className="mt-7 max-w-[340px]">

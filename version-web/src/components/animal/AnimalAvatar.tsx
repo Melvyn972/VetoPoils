@@ -14,7 +14,7 @@ function speciesTone(espece: string) {
   const value = espece.toLowerCase()
   if (value.startsWith('chat')) return 'bg-orange-15 text-orange-ink'
   if (value.startsWith('chien')) return 'bg-mint text-primary-pressed'
-  return 'bg-teal-15 text-[#1d6f76]'
+  return 'bg-teal-15 text-primary'
 }
 
 export function AnimalAvatar({

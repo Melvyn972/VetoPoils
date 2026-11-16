@@ -149,7 +149,7 @@ export function VetAnimalPage() {
         </div>
 
         {successMessage ? (
-          <div className="rounded-12 border border-accent-green/30 bg-accent-green-15 px-4 py-3 font-body text-sm text-fg-primary">
+          <div role="status" className="rounded-12 border border-accent-green/30 bg-accent-green-15 px-4 py-3 font-body text-sm text-fg-primary">
             {successMessage}
           </div>
         ) : null}

@@ -4,7 +4,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { AuthFrame } from '../../components/layout/AuthFrame'
 import { Button } from '../../components/ui/Button'
 import { FormAlert } from '../../components/ui/FormAlert'
-import { Input } from '../../components/ui/Input'
+import { Input, PasswordInput } from '../../components/ui/Input'
 import { useAuth } from '../../context/AuthContext'
 import { isValidEmail } from '../../lib/consultation'
 import { homePath } from '../../lib/routes'
@@ -27,7 +27,7 @@ export function RoleChoicePage() {
           Je suis propriétaire
           <span className="mt-1 block font-normal text-white/80">Carnet, animaux, partages et rappels.</span>
         </Link>
-        <Link to="/inscription/veterinaire" className="press rounded-[18px] border border-line bg-white px-5 py-4 font-body text-sm font-semibold text-ink hover:border-primary/30">
+        <Link to="/inscription/veterinaire" className="press rounded-[18px] border border-line bg-surface px-5 py-4 font-body text-sm font-semibold text-ink hover:border-primary/30">
           Je suis vétérinaire
           <span className="mt-1 block font-normal text-muted">Clinique, patients et accès par code.</span>
         </Link>
@@ -79,7 +79,7 @@ export function OwnerSignupPage() {
         <Input label="Prénom" value={prenom} onChange={(event) => setPrenom(event.target.value)} required />
         <Input label="Nom" value={nom} onChange={(event) => setNom(event.target.value)} required />
         <Input label="E-mail" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
-        <Input label="Mot de passe" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+        <PasswordInput label="Mot de passe" value={password} onChange={(event) => setPassword(event.target.value)} required />
         <label className="flex items-start gap-2 font-body text-sm text-muted">
           <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-1" />
           <span>
@@ -142,7 +142,7 @@ export function VetSignupPage() {
         <Input label="Clinique" value={clinic} onChange={(event) => setClinic(event.target.value)} required />
         <Input label="Numéro d’ordre" value={orderNumber} onChange={(event) => setOrderNumber(event.target.value)} />
         <Input label="Téléphone" value={phone} onChange={(event) => setPhone(event.target.value)} />
-        <Input label="Mot de passe" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+        <PasswordInput label="Mot de passe" value={password} onChange={(event) => setPassword(event.target.value)} required />
         <label className="flex items-start gap-2 font-body text-sm text-muted">
           <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-1" />
           <span>
@@ -196,10 +196,10 @@ export function LoginPage() {
   return (
     <AuthFrame>
       <h1 className="font-title text-[28px] font-semibold tracking-[-0.03em]">Connexion</h1>
-      <p className="mt-2 font-body text-sm leading-relaxed text-muted">Propriétaire ou vétérinaire — même porte d’entrée. Vous arrivez dans l’espace de votre compte.</p>
+      <p className="mt-2 font-body text-sm leading-relaxed text-muted">Propriétaire ou vétérinaire - même porte d’entrée. Vous arrivez dans l’espace de votre compte.</p>
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <Input label="E-mail" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
-        <Input label="Mot de passe" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+        <PasswordInput label="Mot de passe" value={password} onChange={(event) => setPassword(event.target.value)} required />
         {error ? <FormAlert>{error}</FormAlert> : null}
         <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Connexion…' : 'Se connecter'}</Button>
       </form>
@@ -271,7 +271,7 @@ export function ResetPasswordPage() {
         Le lien doit être ouvert dans le navigateur qui a demandé la réinitialisation.
       </p>
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
-        <Input label="Nouveau mot de passe" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+        <PasswordInput label="Nouveau mot de passe" value={password} onChange={(event) => setPassword(event.target.value)} required />
         {error ? <FormAlert>{error}</FormAlert> : null}
         <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Enregistrement…' : 'Enregistrer'}</Button>
       </form>

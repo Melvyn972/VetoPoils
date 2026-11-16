@@ -87,7 +87,7 @@ Les correctifs SQL historiques (`supabase/fix_*.sql`) sont repris dans `migratio
 
 Versions déclarées dans les `package.json`. Le caret ou le tilde est celui du fichier.
 
-### Application — `version-web`
+### Application - `version-web`
 
 | Outil | Version déclarée |
 | --- | --- |

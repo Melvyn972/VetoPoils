@@ -54,7 +54,7 @@ export function PrivacyPage() {
           d’audience. Le site ne fixe pas ici leur durée de conservation : elle dépend de chaque outil.
         </p>
       </div>
-      <Link to="/" className="mt-6 inline-block font-body text-sm font-semibold text-primary">
+      <Link to="/" className="mt-6 inline-flex min-h-11 items-center font-body text-sm font-semibold text-primary">
         Retour à l’accueil
       </Link>
     </AuthFrame>

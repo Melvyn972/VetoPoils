@@ -426,7 +426,7 @@ export function QrShowcase() {
                   {index + 1}
                 </span>
                 <h3 className="font-title text-[20px] font-semibold tracking-[-0.02em] text-ink">{step.title}</h3>
-                <p className="mt-1 max-w-[430px] font-body text-[15px] leading-relaxed text-[#4d5652]">{step.text}</p>
+                <p className="mt-1 max-w-[430px] font-body text-[15px] leading-relaxed text-muted">{step.text}</p>
               </li>
             ))}
           </ol>
@@ -772,7 +772,7 @@ export function ScoreShowcase() {
               {score === null ? '' : `Score de démonstration : ${score} sur 100, ${verdict}.`}
             </p>
             <div className="relative mt-2 flex justify-center">
-              <Badge tone={score !== null && score >= 80 ? 'success' : score !== null && score >= 60 ? 'orange' : 'danger'} dot>
+              <Badge tone={score !== null && score >= 80 ? 'success' : score !== null && score >= 60 ? 'orange' : 'danger'}>
                 {verdict}
               </Badge>
             </div>

@@ -70,7 +70,7 @@ export function ScoreRing({
           className={`font-title font-semibold leading-none tracking-[-0.03em] tabular ${dark ? 'text-white' : 'text-ink'}`}
           style={{ fontSize: Math.round(size * 0.27) }}
         >
-          {score ?? '—'}
+          {score ?? '-'}
         </span>
         <span className={`mt-1 font-body text-[11px] font-medium ${dark ? 'text-white/65' : 'text-muted'}`}>{caption}</span>
       </div>
@@ -116,8 +116,16 @@ export function Donut({
     { scope, dependencies: [total], revertOnUpdate: true },
   )
 
+  const summary = segments.map((segment) => `${segment.label} : ${segment.value}`).join(', ')
+
   return (
-    <div ref={scope} className="relative shrink-0" style={{ width: size, height: size }}>
+    <div
+      ref={scope}
+      className="relative shrink-0"
+      style={{ width: size, height: size }}
+      role="img"
+      aria-label={summary ? `Répartition. ${summary}. Total ${centerTop}.` : `Total ${centerTop}`}
+    >
       <svg viewBox={`0 0 ${size} ${size}`} className="h-full w-full" aria-hidden="true">
         <g data-donut>
           <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
@@ -177,7 +185,7 @@ export function MonthlyBars({
           const ratio = item.value / max
           return (
             <li key={item.key} className="group flex h-full flex-1 flex-col items-center justify-end gap-2">
-              <span className="font-body text-[11px] font-semibold text-ink/80 tabular opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 max-sm:hidden">
+              <span className="font-body text-[11px] font-semibold text-ink tabular">
                 {item.value > 0 ? formatValue(item.value) : ''}
               </span>
               <span

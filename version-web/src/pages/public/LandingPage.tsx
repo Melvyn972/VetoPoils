@@ -28,7 +28,7 @@ export function LandingPage() {
   if (token) return <Navigate to={`/consultation?token=${encodeURIComponent(token)}`} replace />
 
   return (
-    <div ref={scope} className="relative bg-canvas text-ink">
+    <div ref={scope} data-theme="light" className="relative bg-canvas text-ink">
       <a href="#contenu" className="skip-link">
         Aller au contenu
       </a>

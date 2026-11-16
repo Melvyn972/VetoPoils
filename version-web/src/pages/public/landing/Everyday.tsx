@@ -111,7 +111,7 @@ function RemindersCard() {
         </span>
         <div>
           <h3 className="font-title text-[22px] font-semibold tracking-[-0.02em] text-ink">Des rappels qui tombent juste</h3>
-          <p className="mt-1 font-body text-[15px] leading-relaxed text-[#4d5652]">
+          <p className="mt-1 font-body text-[15px] leading-relaxed text-muted">
             Par e-mail ou notification, avant l’échéance. Essayez : marquez-en un comme fait, reportez-en un autre.
           </p>
         </div>
@@ -143,7 +143,7 @@ function RemindersCard() {
               type="button"
               onClick={() => postpone(item.id)}
               aria-label={`Reporter « ${item.title} » de 7 jours`}
-              className="press hidden h-9 rounded-[11px] px-2.5 font-body text-[12.5px] font-semibold text-[#4b5552] hover:bg-white sm:inline-flex sm:items-center"
+              className="press hidden h-11 rounded-[11px] px-3 font-body text-sm font-semibold text-ink hover:bg-surface sm:inline-flex sm:items-center"
             >
               +7 j
             </button>
@@ -151,7 +151,7 @@ function RemindersCard() {
               type="button"
               onClick={(event) => complete(item.id, event.currentTarget.closest('li'))}
               aria-label={`Marquer « ${item.title} » comme fait`}
-              className="press flex h-9 w-9 items-center justify-center rounded-[11px] bg-white text-primary ring-1 ring-line hover:bg-mint"
+              className="press flex h-11 w-11 items-center justify-center rounded-[11px] bg-surface text-primary ring-1 ring-line hover:bg-mint"
             >
               <IconCheck className="h-4 w-4" />
             </button>
@@ -162,7 +162,7 @@ function RemindersCard() {
         <div className="mt-2 flex flex-1 flex-col items-center justify-center rounded-[18px] bg-mint-soft px-5 py-8 text-center">
           <IconCheck className="h-7 w-7 text-primary" />
           <p className="mt-3 font-body text-[15px] font-semibold text-ink">Tout est à jour.</p>
-          <p className="mt-1 font-body text-[13.5px] text-[#4d5652]">Les prochains rappels se programment au fil des consultations.</p>
+          <p className="mt-1 font-body text-[13.5px] text-muted">Les prochains rappels se programment au fil des consultations.</p>
         </div>
       ) : (
         <div aria-hidden="true" className="mt-6 rounded-[20px] bg-forest p-4 text-white sm:p-5">
@@ -220,7 +220,7 @@ export function DailyLife() {
                 </span>
                 <div>
                   <h3 className="font-title text-[22px] font-semibold tracking-[-0.02em] text-ink">Le budget, sans tableur</h3>
-                  <p className="mt-1 max-w-[360px] font-body text-[15px] leading-relaxed text-[#4d5652]">
+                  <p className="mt-1 max-w-[360px] font-body text-[15px] leading-relaxed text-muted">
                     Chaque facture scannée alimente les dépenses par catégorie et par mois.
                   </p>
                 </div>
@@ -232,7 +232,7 @@ export function DailyLife() {
                 <Donut segments={BUDGET} size={148} stroke={18} centerTop="58 %" centerBottom="vétérinaire" />
                 <ul className="flex flex-col gap-2 sm:hidden xl:flex">
                   {BUDGET.map((item) => (
-                    <li key={item.key} className="flex items-center gap-2 font-body text-[12.5px] text-[#4d5652]">
+                    <li key={item.key} className="flex items-center gap-2 font-body text-[12.5px] text-muted">
                       <span className="h-2.5 w-2.5 rounded-full" style={{ background: item.color }} />
                       {item.label}
                     </li>
@@ -250,7 +250,7 @@ export function DailyLife() {
               <IconUsers className="h-5 w-5" />
             </span>
             <h3 className="mt-4 font-title text-[22px] font-semibold tracking-[-0.02em] text-ink">Toute la tribu dans la boucle</h3>
-            <p className="mt-1 font-body text-[15px] leading-relaxed text-[#4d5652]">
+            <p className="mt-1 font-body text-[15px] leading-relaxed text-muted">
               Invitez un proche ou le pet-sitter par e-mail, avec des droits adaptés.
             </p>
             <ul aria-hidden="true" className="mt-5 flex flex-col gap-2">
@@ -302,7 +302,7 @@ export function DailyLife() {
                 </span>
                 <div>
                   <h3 className="font-title text-[22px] font-semibold tracking-[-0.02em] text-ink">Le dossier complet, en un PDF</h3>
-                  <p className="mt-1 max-w-[560px] font-body text-[15px] leading-relaxed text-[#4d5652]">
+                  <p className="mt-1 max-w-[560px] font-body text-[15px] leading-relaxed text-muted">
                     Mis en page et prêt à imprimer : pour une nouvelle clinique, une pension ou un départ en vacances.
                   </p>
                   <ul aria-label="Contenu du PDF" className="mt-5 flex max-w-[560px] flex-wrap gap-2">
@@ -448,7 +448,7 @@ function VetMock() {
                   <span className="font-semibold text-ink">{row.name}</span>
                   <span className="ml-1.5 text-muted">{row.meta}</span>
                 </td>
-                <td className="py-2.5 text-[#4d5652]">{row.date}</td>
+                <td className="py-2.5 text-muted">{row.date}</td>
                 <td className="py-2.5 text-right">
                   {row.active ? <AppChip>Actif · 3 h 52</AppChip> : <AppChip tone="ink">Expiré</AppChip>}
                 </td>
@@ -547,7 +547,7 @@ export function Audiences() {
                   </span>
                   <div>
                     <p className="font-body text-[15.5px] font-semibold text-ink">{benefit.title}</p>
-                    <p className="mt-1 font-body text-[14.5px] leading-relaxed text-[#4d5652]">{benefit.text}</p>
+                    <p className="mt-1 font-body text-[14.5px] leading-relaxed text-muted">{benefit.text}</p>
                   </div>
                 </li>
               ))}

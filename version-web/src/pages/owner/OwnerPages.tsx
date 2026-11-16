@@ -42,7 +42,8 @@ import { expenseCategoryLabels, type ExpenseCategory } from '../../lib/cdc'
 import { downloadText } from '../../lib/download'
 import { getErrorMessage } from '../../lib/errors'
 import { ageLabel, daysUntil, formatEuro, formatShortDate } from '../../lib/format'
-import { getMedicalEventTypeLabel } from '../../lib/medicalLabels'
+import { ThemeChoiceControl } from '../../components/theme/ThemeChoice'
+import { getMedicalEventTypeLabel, getReminderStatusLabel, getShareRoleLabel } from '../../lib/medicalLabels'
 import { rememberAnimal } from '../../lib/routes'
 import { requireSupabase } from '../../lib/supabase'
 import type { Animal, Expense, Reminder } from '../../types/owner'
@@ -130,7 +131,7 @@ export function DashboardPage() {
         >
           <span className="inline-flex items-center gap-2 font-semibold">
             <IconBell className="h-4 w-4" />
-            À valider · {pending[0].titre || getMedicalEventTypeLabel(pending[0].type)} — {pending[0].animaux?.nom ?? 'votre animal'}
+            À valider · {pending[0].titre || getMedicalEventTypeLabel(pending[0].type)} - {pending[0].animaux?.nom ?? 'votre animal'}
           </span>
           <span className="shrink-0 font-semibold">Voir</span>
         </Link>
@@ -247,7 +248,7 @@ export function DashboardPage() {
 
 function QuickLink({ to, icon, label }: { to: string; icon: ReactNode; label: string }) {
   return (
-    <Link to={to} className="press inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-2 font-body text-sm font-semibold text-primary hover:border-primary/30">
+    <Link to={to} className="press inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface px-3.5 font-body text-sm font-semibold text-primary hover:border-primary/30">
       {icon}
       {label}
     </Link>
@@ -269,7 +270,7 @@ function AnimalCard({ animal }: { animal: Animal }) {
           {animal.race ? ` · ${animal.race}` : ''}
           <span className="whitespace-nowrap"> · {ageLabel(animal.date_naissance)}</span>
         </span>
-        <span className="mt-1 block font-body text-xs font-semibold text-primary">Score {animal.score_sante ?? '—'}/100</span>
+        <span className="mt-1 block font-body text-xs font-semibold text-primary">Score {animal.score_sante ?? '-'}/100</span>
       </span>
     </Link>
   )
@@ -443,7 +444,7 @@ function ReminderRow({ reminder, animalName }: { reminder: Reminder; animalName?
       <span className="min-w-0 flex-1">
         <span className="block truncate font-body text-sm font-semibold text-ink">{reminder.titre}</span>
         <span className="block font-body text-xs text-muted">
-          {animalName ?? 'Animal'} · {formatShortDate(reminder.date_echeance)} · {reminder.statut}
+          {animalName ?? 'Animal'} · {formatShortDate(reminder.date_echeance)} · {getReminderStatusLabel(reminder.statut)}
           {late ? ' · en retard' : ''}
         </span>
       </span>
@@ -478,7 +479,7 @@ export function SharesPage() {
               <li key={id} className="surface flex flex-wrap items-center justify-between gap-3 p-4">
                 <span>
                   <span className="block font-body text-sm font-semibold text-ink">{String(row.email_invite ?? 'Invitation')}</span>
-                  <span className="block font-body text-xs text-muted">{String(row.role ?? '')}</span>
+                  <span className="block font-body text-xs text-muted">{getShareRoleLabel(String(row.role ?? ''))}</span>
                 </span>
                 <span className="flex gap-2">
                   <Button
@@ -575,9 +576,14 @@ export function AccountPage() {
           <Input label="Nom" value={nom} onChange={(event) => setNom(event.target.value)} />
           <p className="font-body text-sm text-muted">{user?.email}</p>
           {error ? <FormAlert>{error}</FormAlert> : null}
-          {message ? <p className="font-body text-sm text-primary">{message}</p> : null}
+          {message ? <p role="status" className="font-body text-sm text-primary">{message}</p> : null}
           <Button type="submit">Enregistrer</Button>
         </form>
+        <section className="surface space-y-3 p-5">
+          <h2 className="font-title text-lg font-semibold">Thème</h2>
+          <p className="font-body text-sm text-muted">Système suit cet appareil. Clair et sombre restent fixes. La page d’accueil publique reste sur le papier clair.</p>
+          <ThemeChoiceControl />
+        </section>
         <section className="surface space-y-3 p-5">
           <h2 className="font-title text-lg font-semibold">Notifications</h2>
           <p className="font-body text-sm text-muted">Les rappels restent visibles dans l’application. Cet espace ne déclenche pas de notification du téléphone.</p>

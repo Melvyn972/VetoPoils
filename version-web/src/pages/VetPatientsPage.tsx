@@ -87,7 +87,7 @@ export function VetPatientsPage() {
                   {patient.animal.espece}
                   {patient.animal.race ? ` · ${patient.animal.race}` : ''}
                 </span>
-                <span className="mt-2 block font-body text-sm leading-snug text-[#3f4744]">
+                <span className="mt-2 block font-body text-sm leading-snug text-ink">
                   {getMedicalEventTypeLabel(patient.last_event_type)} · {formatMedicalEventDate(patient.last_event_at)}
                 </span>
               </Link>
@@ -114,11 +114,11 @@ export function VetPatientsPage() {
                       {patient.animal.nom}
                     </Link>
                   </td>
-                  <td className="px-4 py-3.5 font-body text-sm text-[#4d5652]">
+                  <td className="px-4 py-3.5 font-body text-sm text-muted">
                     {patient.animal.espece}
                     {patient.animal.race ? ` · ${patient.animal.race}` : ''}
                   </td>
-                  <td className="px-4 py-3.5 font-body text-sm text-[#4d5652]">
+                  <td className="px-4 py-3.5 font-body text-sm text-muted">
                     {getMedicalEventTypeLabel(patient.last_event_type)} · {formatMedicalEventDate(patient.last_event_at)}
                   </td>
                   <td className="px-5 py-3.5 text-right font-body text-sm font-semibold text-ink tabular">{patient.events_count}</td>

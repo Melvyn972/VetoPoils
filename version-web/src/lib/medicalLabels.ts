@@ -30,6 +30,36 @@ export function getReminderTypeLabel(type: string) {
   return REMINDER_TYPES.find((item) => item.value === type)?.label ?? type
 }
 
+const reminderStatusLabels: Record<string, string> = {
+  actif: 'Actif',
+  termine: 'Terminé',
+  annule: 'Annulé',
+  reporte: 'Reporté',
+}
+
+const shareRoleLabels: Record<string, string> = {
+  read_only: 'Famille - lecture',
+  contributor: 'Pet-sitter - journal',
+}
+
+const invitationStatusLabels: Record<string, string> = {
+  en_attente: 'En attente',
+  acceptee: 'Acceptée',
+  revoquee: 'Révoquée',
+}
+
+export function getReminderStatusLabel(status: string) {
+  return reminderStatusLabels[status] ?? status
+}
+
+export function getShareRoleLabel(role: string) {
+  return shareRoleLabels[role] ?? role
+}
+
+export function getInvitationStatusLabel(status: string) {
+  return invitationStatusLabels[status] ?? status
+}
+
 export function requiresDiagnosis(type: MedicalEventTypeValue) {
   return ['consultation', 'analyse', 'chirurgie', 'ordonnance'].includes(type)
 }

@@ -146,7 +146,7 @@ export function FicheOverview({ animalId }: { animalId: string }) {
         <ul className="mt-3 flex flex-col">
           {categories.map((category) => (
             <li key={category} className="flex items-center justify-between border-b border-line-soft py-2 last:border-b-0">
-              <span className="font-body text-sm text-[#3f4744]">{documentCategoryLabels[category]}</span>
+              <span className="font-body text-sm text-ink">{documentCategoryLabels[category]}</span>
               <span className="font-body text-sm font-semibold text-ink tabular">{counts.get(category) ?? 0}</span>
             </li>
           ))}
@@ -172,7 +172,7 @@ function AccessCard({ animalId, tokens }: { animalId: string; tokens: VetAccessT
       {open && remaining != null ? (
         <>
           <p className="mt-4 font-title text-3xl font-semibold tracking-[-0.04em] text-primary tabular">{formatClock(remaining)}</p>
-          <p className="mt-1 font-body text-sm text-[#3f4744]">Accès ouvert. Il se referme seul au bout de 4 heures.</p>
+          <p className="mt-1 font-body text-sm text-ink">Accès ouvert. Il se referme seul au bout de 4 heures.</p>
         </>
       ) : (
         <>

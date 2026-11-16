@@ -29,6 +29,9 @@ export function AuthFrame({ children }: { children: ReactNode }) {
 
   return (
     <div ref={scope} className="relative min-h-dvh bg-canvas">
+      <a href="#contenu" className="skip-link">
+        Aller au contenu
+      </a>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -left-40 top-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(87_201_210/0.2),transparent_65%)]" />
         <div className="absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgb(251_168_75/0.14),transparent_65%)]" />
@@ -38,20 +41,20 @@ export function AuthFrame({ children }: { children: ReactNode }) {
         <div className="flex items-center justify-between gap-4">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 font-body text-sm text-muted transition-colors hover:text-primary"
+            className="inline-flex min-h-11 items-center gap-2 font-body text-sm text-muted transition-colors hover:text-primary"
           >
             <IconArrowLeft className="h-4 w-4" />
             Retour à l’accueil
           </Link>
-          <Link to="/" className="inline-flex shrink-0 rounded-[12px]" aria-label="Vet'OPoil, retour à l’accueil">
+          <Link to="/" className="inline-flex min-h-11 shrink-0 items-center rounded-[12px]" aria-label="Vet'OPoil, retour à l’accueil">
             <Logo className="h-10 w-auto sm:h-12" />
           </Link>
         </div>
 
         <div className="grid flex-1 items-center gap-10 py-8 lg:grid-cols-2 lg:gap-16 lg:py-12">
-          <div data-auth-card className="rounded-[28px] bg-white p-6 shadow-pop ring-1 ring-line-soft sm:p-8">
+          <main id="contenu" data-auth-card className="rounded-[28px] bg-surface p-6 shadow-pop ring-1 ring-line-soft sm:p-8">
             {children}
-          </div>
+          </main>
           <aside className="hidden lg:block">
             <p className="eyebrow text-primary">Carnet de santé numérique</p>
             <p className="mt-4 font-title text-[44px] font-semibold leading-[1.02] tracking-[-0.035em] text-ink">
@@ -60,7 +63,7 @@ export function AuthFrame({ children }: { children: ReactNode }) {
             <ul className="mt-10 flex flex-col gap-5">
               {POINTS.map((point) => (
                 <li key={point.title} data-auth-point className="flex gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-white text-primary shadow-card ring-1 ring-line-soft">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-surface text-primary shadow-card ring-1 ring-line-soft">
                     <point.Icon className="h-5 w-5" />
                   </span>
                   <div>

@@ -61,8 +61,8 @@ export function AnalyticsRoot() {
   }
 
   return (
-    <div role="region" aria-label="Mesure d’audience" className="fixed inset-x-0 bottom-0 z-50 p-4 md:p-6">
-      <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-3xl border border-line bg-white p-4 shadow-lg md:flex-row md:items-center md:justify-between">
+    <div role="region" aria-label="Mesure d’audience" className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-50 p-4 md:bottom-0 md:p-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-3xl border border-line bg-surface p-4 shadow-pop md:flex-row md:items-center md:justify-between">
         <p className="font-body text-sm text-ink">
           Vet'OPoil mesure l’usage du site (pages visitées et interactions) avec {tools} uniquement si vous
           l’acceptez. Aucun de ces scripts n’est chargé avant ce choix, et la publicité reste désactivée.{' '}
@@ -74,14 +74,14 @@ export function AnalyticsRoot() {
           <button
             type="button"
             onClick={() => choose('denied')}
-            className="rounded-2xl border border-line px-4 py-2 font-body text-sm font-semibold text-ink"
+            className="inline-flex min-h-11 items-center rounded-2xl border border-line bg-surface px-4 font-body text-sm font-semibold text-ink"
           >
             Refuser
           </button>
           <button
             type="button"
             onClick={() => choose('granted')}
-            className="rounded-2xl bg-primary px-4 py-2 font-body text-sm font-semibold text-white"
+            className="inline-flex min-h-11 items-center rounded-2xl bg-primary-fill px-4 font-body text-sm font-semibold text-white"
           >
             Accepter
           </button>

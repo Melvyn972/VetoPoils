@@ -1,7 +1,7 @@
 export function formatDate(value?: string | null) {
-  if (!value) return '—'
+  if (!value) return '-'
   const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
+  if (Number.isNaN(date.getTime())) return '-'
   return new Intl.DateTimeFormat('fr-FR', {
     day: 'numeric',
     month: 'long',
@@ -10,9 +10,9 @@ export function formatDate(value?: string | null) {
 }
 
 export function formatShortDate(value?: string | null) {
-  if (!value) return '—'
+  if (!value) return '-'
   const date = new Date(value.length === 10 ? `${value}T12:00:00` : value)
-  if (Number.isNaN(date.getTime())) return '—'
+  if (Number.isNaN(date.getTime())) return '-'
   return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(date)
 }
 
