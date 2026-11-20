@@ -54,28 +54,35 @@ export function Faq() {
   }
 
   return (
-    <section id="faq" className="relative bg-white py-28 md:py-36">
+    <section id="faq" aria-labelledby="faq-title" className="relative bg-white py-28 md:py-36">
       <div className="mx-auto flex max-w-[1320px] flex-col gap-12 px-5 sm:px-8">
-        <SectionIntro kicker="Questions fréquentes" title="Ce que l’on nous demande souvent.">
+        <SectionIntro
+          kicker="Questions fréquentes"
+          titleId="faq-title"
+          title="Ce que l’on nous demande souvent."
+        >
           Une autre question ? Écrivez-nous depuis votre compte, nous répondons rapidement.
         </SectionIntro>
-        <div>
-          {FAQ.map((item) => (
-            <details key={item.question} onToggle={onToggle} className="group border-b border-line">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 font-title text-[19px] font-semibold tracking-[-0.015em] text-ink md:text-[21px] [&::-webkit-details-marker]:hidden">
-                {item.question}
-                <span
-                  aria-hidden="true"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas text-primary transition-[transform,background-color] duration-300 ease-out-quint group-open:rotate-45 group-open:bg-mint"
-                >
-                  <IconPlus className="h-[18px] w-[18px]" />
-                </span>
-              </summary>
-              <p data-faq-answer className="max-w-[680px] pb-7 pr-14 font-body text-[16px] leading-relaxed text-muted">
-                {item.answer}
-              </p>
-            </details>
-          ))}
+        <div className="flex flex-col">
+          {FAQ.map((item, index) => {
+            const answerId = `faq-answer-${index}`
+            return (
+              <details key={item.question} onToggle={onToggle} className="group border-b border-line">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 font-title text-[19px] font-semibold tracking-[-0.015em] text-ink md:text-[21px] [&::-webkit-details-marker]:hidden">
+                  {item.question}
+                  <span
+                    aria-hidden="true"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas text-primary transition-[transform,background-color] duration-300 ease-out-quint group-open:rotate-45 group-open:bg-mint"
+                  >
+                    <IconPlus className="h-[18px] w-[18px]" />
+                  </span>
+                </summary>
+                <p id={answerId} data-faq-answer className="max-w-[680px] pb-7 pr-14 font-body text-[16px] leading-relaxed text-muted">
+                  {item.answer}
+                </p>
+              </details>
+            )
+          })}
         </div>
       </div>
     </section>
@@ -98,17 +105,24 @@ export function FinalCta() {
   )
 
   return (
-    <section ref={scope} className="on-dark grain relative overflow-hidden bg-forest-deep py-28 text-white md:py-40">
+    <section
+      ref={scope}
+      aria-labelledby="final-cta-title"
+      className="on-dark grain relative overflow-hidden bg-forest-deep py-28 text-white md:py-40"
+    >
       <div
         data-halo
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-1/2 h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(87_201_210/0.22),rgb(251_168_75/0.06)_45%,transparent_68%)]"
       />
       <div className="relative mx-auto flex max-w-[980px] flex-col items-center px-5 text-center sm:px-8">
-        <div data-breathe className="flex h-24 w-24 items-center justify-center rounded-[30px] bg-white shadow-pop">
-          <Logo variant="mark" className="h-16 w-16" />
+        <div data-breathe aria-hidden="true" className="flex h-24 w-24 items-center justify-center rounded-[30px] bg-white shadow-pop">
+          <Logo variant="mark" className="h-16 w-16" decorative />
         </div>
-        <h2 className="mt-10 font-title text-[clamp(44px,7vw,96px)] font-semibold leading-[0.98] tracking-[-0.045em]">
+        <h2
+          id="final-cta-title"
+          className="mt-10 font-title text-[clamp(44px,7vw,96px)] font-semibold leading-[0.98] tracking-[-0.045em]"
+        >
           Son dossier commence aujourd’hui.
         </h2>
         <p className="mt-7 max-w-[560px] font-body text-[18px] leading-relaxed text-white/75">
@@ -140,6 +154,7 @@ export function LandingFooter() {
       links: [
         { href: '#concept', label: 'Le concept' },
         { href: '#fonctionnement', label: 'Fonctionnement' },
+        { href: '#acces-veterinaire', label: 'Accès vétérinaire' },
         { href: '#faq', label: 'Questions fréquentes' },
       ],
     },
@@ -161,39 +176,49 @@ export function LandingFooter() {
   ]
 
   return (
-    <footer className="bg-white">
-      <div className="mx-auto grid max-w-[1320px] gap-12 px-5 py-16 sm:px-8 md:grid-cols-12">
-        <div className="md:col-span-5">
-          <Logo className="h-16 w-auto" />
-          <p className="mt-5 max-w-[340px] font-body text-[15px] leading-relaxed text-muted">
-            Le carnet de santé numérique des chiens, chats et NAC, partagé avec les vétérinaires au bon moment.
-          </p>
+    <footer aria-label="Pied de page">
+      <div className="bg-white">
+        <div className="mx-auto grid max-w-[1320px] gap-12 px-5 py-16 sm:px-8 md:grid-cols-12">
+          <div className="md:col-span-5">
+            <Link to="/" aria-label="Vet’OPoil, accueil" className="inline-block rounded-[12px]">
+              <Logo className="h-16 w-auto" decorative />
+            </Link>
+            <p className="mt-5 max-w-[340px] font-body text-[15px] leading-relaxed text-muted">
+              Le carnet de santé numérique des chiens, chats et NAC, partagé avec les vétérinaires au bon moment.
+            </p>
+          </div>
+          {columns.map((column) => (
+            <nav key={column.title} aria-label={column.title} className="md:col-span-2">
+              <p className="eyebrow text-muted">{column.title}</p>
+              <ul className="mt-4 flex flex-col gap-2.5">
+                {column.links.map((link) => (
+                  <li key={link.label}>
+                    {'href' in link ? (
+                      <a
+                        href={link.href}
+                        className="inline-flex min-h-11 items-center font-body text-[15px] text-ink underline-offset-4 transition-colors hover:text-primary hover:underline"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={link.to}
+                        className="inline-flex min-h-11 items-center font-body text-[15px] text-ink underline-offset-4 transition-colors hover:text-primary hover:underline"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
         </div>
-        {columns.map((column) => (
-          <nav key={column.title} aria-label={column.title} className="md:col-span-2">
-            <p className="eyebrow text-muted">{column.title}</p>
-            <ul className="mt-4 flex flex-col gap-2.5">
-              {column.links.map((link) => (
-                <li key={link.label}>
-                  {'href' in link ? (
-                    <a href={link.href} className="font-body text-[15px] text-ink transition-colors hover:text-primary">
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link to={link.to} className="font-body text-[15px] text-ink transition-colors hover:text-primary">
-                      {link.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </nav>
-        ))}
-      </div>
-      <div className="border-t border-line-soft">
-        <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-3 px-5 py-6 font-body text-[13px] text-muted sm:px-8">
-          <p>© 2026 Vet’OPoil</p>
-          <p>Conçu en France pour les animaux et ceux qui les soignent.</p>
+        <div className="border-t border-line-soft">
+          <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-3 px-5 py-6 font-body text-[13px] text-muted sm:px-8">
+            <p>© 2026 Vet’OPoil</p>
+            <p>Conçu en France pour les animaux et ceux qui les soignent.</p>
+          </div>
         </div>
       </div>
     </footer>

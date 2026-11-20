@@ -14,12 +14,14 @@ export function Kicker({ children, light = false }: { children: ReactNode; light
 export function SectionIntro({
   kicker,
   title,
+  titleId,
   children,
   light = false,
   className = '',
 }: {
   kicker: string
   title: ReactNode
+  titleId?: string
   children?: ReactNode
   light?: boolean
   className?: string
@@ -28,6 +30,7 @@ export function SectionIntro({
     <div className={className}>
       <Kicker light={light}>{kicker}</Kicker>
       <h2
+        id={titleId}
         className={`mt-5 font-title text-[clamp(36px,4.8vw,68px)] font-semibold leading-[1.02] tracking-[-0.038em] ${
           light ? 'text-white' : 'text-ink'
         }`}

@@ -184,18 +184,22 @@ export function Story() {
   )
 
   return (
-    <section ref={scope} id="concept" className="relative overflow-hidden bg-white">
+    <section ref={scope} id="concept" aria-labelledby="concept-title" className="relative overflow-hidden bg-white">
       <div
         data-story-stage
         className="relative mx-auto grid max-w-[1320px] items-center gap-14 px-5 py-24 sm:px-8 md:py-32 lg:min-h-[100svh] grid-cols-1 lg:grid-cols-12 lg:gap-10 lg:py-16"
       >
         <div className="relative z-10 lg:col-span-5">
           <Kicker>Le constat</Kicker>
-          <h2 className="mt-5 font-title text-[clamp(36px,4.6vw,64px)] font-semibold leading-[1.02] tracking-[-0.038em] text-ink">
+          <h2
+            id="concept-title"
+            className="mt-5 font-title text-[clamp(36px,4.6vw,64px)] font-semibold leading-[1.02] tracking-[-0.038em] text-ink"
+          >
             Aujourd’hui, son dossier est partout. Donc nulle part.
           </h2>
           <div className="relative mt-8 font-body text-[17px] leading-relaxed text-muted md:text-[18px]">
             <div data-story-before>
+              <p className="sr-only">Avant Vet’OPoil.</p>
               <AppChip tone="ink">Avant</AppChip>
               <p className="mt-3 max-w-[500px]">
                 Le carnet de vaccination dans un tiroir, l’ordonnance dans la boîte à gants, la facture dans vos
@@ -204,6 +208,7 @@ export function Story() {
               </p>
             </div>
             <div data-story-after className="mt-8 lg:motion-safe:absolute lg:motion-safe:inset-x-0 lg:motion-safe:top-0 lg:motion-safe:mt-0">
+              <p className="sr-only">Avec Vet’OPoil.</p>
               <AppChip>Avec Vet’OPoil</AppChip>
               <p className="mt-3 max-w-[500px] text-ink">
                 Chaque document trouve sa place, chaque date devient un rappel, chaque consultation enrichit
@@ -378,10 +383,19 @@ export function HowItWorks() {
   )
 
   return (
-    <section ref={scope} id="fonctionnement" className="relative overflow-hidden bg-canvas py-28 md:py-36">
+    <section
+      ref={scope}
+      id="fonctionnement"
+      aria-labelledby="fonctionnement-title"
+      className="relative overflow-hidden bg-canvas py-28 md:py-36"
+    >
       <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
-        <SectionIntro kicker="Comment ça marche" title="Trois gestes. Ensuite, le dossier vit tout seul." />
-        <div data-steps className="relative mt-16 grid gap-16 lg:mt-20 lg:grid-cols-3 lg:gap-10">
+        <SectionIntro
+          kicker="Comment ça marche"
+          titleId="fonctionnement-title"
+          title="Trois gestes. Ensuite, le dossier vit tout seul."
+        />
+        <ol data-steps className="relative mt-16 grid list-none gap-16 p-0 lg:mt-20 lg:grid-cols-3 lg:gap-10">
           <svg
             aria-hidden="true"
             viewBox="0 0 1200 300"
@@ -397,21 +411,24 @@ export function HowItWorks() {
             />
           </svg>
           {STEPS.map((step, index) => (
-            <article key={step.number} className={`relative ${index === 1 ? 'lg:pt-24' : index === 2 ? 'lg:pt-48' : ''}`}>
+            <li key={step.number} className={`relative ${index === 1 ? 'lg:pt-24' : index === 2 ? 'lg:pt-48' : ''}`}>
               <p
                 aria-hidden="true"
                 className="font-title text-[92px] font-semibold leading-none tracking-[-0.05em] text-transparent [-webkit-text-stroke:1.5px_rgb(44_110_99/0.55)]"
               >
                 {step.number}
               </p>
-              <h3 className="mt-5 font-title text-[26px] font-semibold tracking-[-0.025em] text-ink">{step.title}</h3>
+              <h3 className="mt-5 font-title text-[26px] font-semibold tracking-[-0.025em] text-ink">
+                <span className="sr-only">Étape {step.number} : </span>
+                {step.title}
+              </h3>
               <p className="mt-3 max-w-[360px] font-body text-[16px] leading-relaxed text-muted">{step.text}</p>
               <div className="mt-7 max-w-[340px]" aria-hidden="true">
                 <StepVisual index={index} />
               </div>
-            </article>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   )

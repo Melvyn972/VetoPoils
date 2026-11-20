@@ -16,36 +16,78 @@ import {
 import { EventStatusBadge } from '../../../components/ui/Badge'
 import { ButtonLink } from '../../../components/ui/Button'
 import { ScoreRing } from '../../../components/ui/Charts'
+import { useAuth } from '../../../context/AuthContext'
 import { gsap, MOTION_OK, useGSAP } from '../../../lib/motion'
+import { homePath } from '../../../lib/routes'
 import { AppChip, BrowserFrame, DemoQr, LiveCountdown, PhoneFrame } from './Kit'
 import { SplitText } from './landingMotion'
 
 const SECTIONS = [
   { href: '#concept', label: 'Le concept' },
   { href: '#fonctionnement', label: 'Fonctionnement' },
+  { href: '#acces-veterinaire', label: 'Accès véto' },
   { href: '#faq', label: 'FAQ' },
 ]
 
 // Style commun des liens texte du header (sections + accès / connexion)
 const NAV_LINK =
-  'rounded-[14px] px-3.5 py-2 font-body text-[14px] font-medium text-ink transition-colors hover:bg-black/5 dark:hover:bg-white/10'
+  'rounded-[14px] px-3.5 py-2 font-body text-[14px] font-medium text-ink transition-colors hover:bg-black/5 focus-visible:bg-black/5 dark:hover:bg-white/10 dark:focus-visible:bg-white/10'
+
+const FOCUSABLE = 'a[href], button:not([disabled])'
 
 export function LandingHeader() {
-  const ref = useRef<HTMLElement>(null)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const { role } = useAuth()
+  const dashboardTo = role ? homePath(role) : null
 
+  // Menu mobile : scroll lock, Escape, focus, piège Tab, inert sur le reste
   useEffect(() => {
     if (!open) return
-    const previous = document.body.style.overflow
+    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false)
+    const main = document.getElementById('contenu')
+    const footer = document.querySelector('footer')
+    main?.setAttribute('inert', '')
+    footer?.setAttribute('inert', '')
+
+    const menu = menuRef.current
+    // Inclut le bouton menu (hors dialog) pour pouvoir fermer au clavier
+    const focusables = () => {
+      const inside = Array.from(menu?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])
+      return [menuButtonRef.current, ...inside].filter((el): el is HTMLElement => Boolean(el))
     }
+    focusables()[1]?.focus()
+
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setOpen(false)
+        return
+      }
+      if (event.key !== 'Tab') return
+      const items = focusables()
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
     document.addEventListener('keydown', onKey)
     return () => {
-      document.body.style.overflow = previous
+      document.body.style.overflow = previousOverflow
+      main?.removeAttribute('inert')
+      footer?.removeAttribute('inert')
       document.removeEventListener('keydown', onKey)
+      menuButtonRef.current?.focus()
     }
   }, [open])
 
@@ -63,7 +105,6 @@ export function LandingHeader() {
 
   return (
     <header
-      ref={ref}
       className={`fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300 ${
         isScrolled
           ? 'bg-surface/95 shadow-[0_1px_0_rgb(16_24_40/0.06),0_12px_32px_-24px_rgb(16_24_40/0.3)]'
@@ -71,8 +112,8 @@ export function LandingHeader() {
       }`}
     >
       <div className="mx-auto flex h-[76px] max-w-[1320px] items-center gap-3 px-5 sm:px-8">
-        <Link to="/" aria-label="Vet'OPoil, accueil" className="shrink-0 rounded-[12px]" onClick={close}>
-          <Logo className="h-12 w-auto" />
+        <Link to="/" aria-label="Vet’OPoil, accueil" className="shrink-0 rounded-[12px]" onClick={close}>
+          <Logo className="h-12 w-auto" decorative />
         </Link>
         <nav aria-label="Sections de la page" className="ml-6 hidden items-center xl:flex">
           {SECTIONS.map((section) => (
@@ -85,17 +126,27 @@ export function LandingHeader() {
           <Link to="/acces" className={`hidden md:inline-flex ${NAV_LINK}`}>
             Accès vétérinaire
           </Link>
-          <Link to="/connexion" className={`hidden sm:inline-flex ${NAV_LINK}`}>
-            Se connecter
-          </Link>
-          <ButtonLink to="/inscription" size="sm" className={`h-11 px-4 ${open ? 'max-xl:hidden' : ''}`}>
-            Créer un compte
-          </ButtonLink>
+          {dashboardTo ? (
+            <ButtonLink to={dashboardTo} size="sm" className={`h-11 px-4 ${open ? 'max-xl:hidden' : ''}`}>
+              Dashboard
+            </ButtonLink>
+          ) : (
+            <>
+              <Link to="/connexion" className={`hidden sm:inline-flex ${NAV_LINK}`}>
+                Se connecter
+              </Link>
+              <ButtonLink to="/inscription" size="sm" className={`h-11 px-4 ${open ? 'max-xl:hidden' : ''}`}>
+                Créer un compte
+              </ButtonLink>
+            </>
+          )}
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((current) => !current)}
             aria-expanded={open}
             aria-controls="menu-landing"
+            aria-haspopup="dialog"
             aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
             className="press flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-field-line bg-surface text-ink xl:hidden"
           >
@@ -103,67 +154,86 @@ export function LandingHeader() {
           </button>
         </div>
       </div>
-      {open ? (
-        <div
-          id="menu-landing"
-          className="fixed inset-x-0 bottom-0 top-[76px] z-40 overflow-y-auto bg-surface px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-8 xl:hidden"
-        >
-          <nav aria-label="Sections de la page" className="flex flex-col">
-            {SECTIONS.map((section, index) => (
-              <a
-                key={section.href}
-                href={section.href}
+      <div
+        ref={menuRef}
+        id="menu-landing"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu de navigation"
+        hidden={!open}
+        className="fixed inset-x-0 bottom-0 top-[76px] z-40 overflow-y-auto bg-surface px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-8 xl:hidden"
+      >
+        <nav aria-label="Sections de la page" className="flex flex-col">
+          {SECTIONS.map((section, index) => (
+            <a
+              key={section.href}
+              href={section.href}
+              onClick={close}
+              className="flex min-h-14 items-center gap-4 border-b border-line-soft py-3 font-title text-[26px] font-semibold tracking-[-0.03em] text-ink hover:bg-black/5 focus-visible:bg-black/5 active:bg-canvas"
+            >
+              <span className="font-body text-xs font-semibold text-primary tabular" aria-hidden="true">
+                0{index + 1}
+              </span>
+              {section.label}
+            </a>
+          ))}
+        </nav>
+        <div className="mt-6 flex flex-col gap-3">
+          {dashboardTo ? (
+            <ButtonLink
+              to={dashboardTo}
+              size="lg"
+              fullWidth
+              onClick={close}
+              className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
+            >
+              Dashboard
+            </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink
+                to="/inscription/proprietaire"
+                size="lg"
+                fullWidth
                 onClick={close}
-                className="flex min-h-14 items-center gap-4 border-b border-line-soft py-3 font-title text-[26px] font-semibold tracking-[-0.03em] text-ink active:bg-canvas"
+                className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
               >
-                <span className="font-body text-xs font-semibold text-primary tabular">0{index + 1}</span>
-                {section.label}
-              </a>
-            ))}
-          </nav>
-          <div className="mt-6 flex flex-col gap-3">
-            <ButtonLink
-              to="/inscription/proprietaire"
-              size="lg"
-              fullWidth
-              onClick={close}
-              className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
-            >
-              Créer le carnet de mon animal
-            </ButtonLink>
-            <ButtonLink
-              to="/inscription/veterinaire"
-              size="lg"
-              variant="secondary"
-              fullWidth
-              onClick={close}
-              className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
-            >
-              Ouvrir un espace clinique
-            </ButtonLink>
-            <ButtonLink
-              to="/connexion"
-              size="md"
-              variant="ghost"
-              fullWidth
-              onClick={close}
-              className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
-            >
-              Se connecter
-            </ButtonLink>
-            <ButtonLink
-              to="/acces"
-              size="md"
-              variant="ghost"
-              fullWidth
-              onClick={close}
-              className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
-            >
-              J’ai un code d’accès vétérinaire
-            </ButtonLink>
-          </div>
+                Créer le carnet de mon animal
+              </ButtonLink>
+              <ButtonLink
+                to="/inscription/veterinaire"
+                size="lg"
+                variant="secondary"
+                fullWidth
+                onClick={close}
+                className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
+              >
+                Ouvrir un espace clinique
+              </ButtonLink>
+              <ButtonLink
+                to="/connexion"
+                size="md"
+                variant="ghost"
+                fullWidth
+                onClick={close}
+                className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
+              >
+                Se connecter
+              </ButtonLink>
+            </>
+          )}
+          <ButtonLink
+            to="/acces"
+            size="md"
+            variant="ghost"
+            fullWidth
+            onClick={close}
+            className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
+          >
+            J’ai un code d’accès vétérinaire
+          </ButtonLink>
         </div>
-      ) : null}
+      </div>
     </header>
   )
 }
@@ -301,7 +371,11 @@ export function Hero() {
   )
 
   return (
-    <section ref={scope} className="relative overflow-hidden bg-canvas pb-20 pt-[112px] md:pb-28 lg:min-h-[100svh] lg:pt-[116px]">
+    <section
+      ref={scope}
+      aria-labelledby="hero-title"
+      className="relative overflow-hidden bg-canvas pb-20 pt-[112px] md:pb-28 lg:min-h-[100svh] lg:pt-[116px]"
+    >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -right-[12%] -top-[18%] h-[720px] w-[720px] rounded-full bg-[radial-gradient(circle,rgb(87_201_210/0.22),transparent_65%)]" />
         <div className="absolute -left-[10%] bottom-[-30%] h-[620px] w-[620px] rounded-full bg-[radial-gradient(circle,rgb(251_168_75/0.14),transparent_65%)]" />
@@ -311,6 +385,7 @@ export function Hero() {
       <div className="relative mx-auto grid max-w-[1320px] items-center gap-14 px-5 sm:px-8 grid-cols-1 lg:grid-cols-12 lg:gap-8">
         <div className="relative z-10 lg:col-span-7">
           <h1
+            id="hero-title"
             data-hero-title
             className="font-title text-[clamp(46px,6.2vw,98px)] font-semibold leading-[0.96] tracking-[-0.047em] text-ink"
           >
@@ -342,7 +417,8 @@ export function Hero() {
             Vaccins, ordonnances, analyses, rappels et dépenses réunis dans un dossier qui s’enrichit à chaque
             consultation. Le jour du rendez-vous, un QR code l’ouvre à votre vétérinaire pendant 4 heures.
           </p>
-          <div data-hero-fade className="mt-9 flex flex-wrap items-center gap-3">
+          {/* CTAs visibles dès le départ : pas de autoAlpha pour rester focusables */}
+          <div className="mt-9 flex flex-wrap items-center gap-3">
             <ButtonLink
               to="/inscription"
               size="lg"
@@ -354,9 +430,9 @@ export function Hero() {
               Se connecter
             </ButtonLink>
           </div>
-          <p data-hero-fade className="mt-5 font-body text-[14px] text-muted">
+          <p className="mt-5 font-body text-[14px] text-muted">
             Vous avez reçu un code ?{' '}
-            <Link to="/acces" className="font-semibold text-primary underline-offset-4 hover:underline">
+            <Link to="/acces" className="font-semibold text-primary underline underline-offset-4">
               Ouvrir le dossier d’un patient
             </Link>
           </p>
