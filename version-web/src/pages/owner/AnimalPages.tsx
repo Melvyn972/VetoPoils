@@ -33,7 +33,6 @@ import {
   fetchShares,
   fetchVetTokens,
   generateVetToken,
-  incrementOcrUsage,
   inviteShare,
   persistHealthScore,
   postponeReminder,
@@ -60,8 +59,10 @@ import {
   categoryToMedicalEventType,
   expenseCategoryFromDocument,
   heuristicExtraction,
+  OcrError,
   runOcrRequest,
   type OcrExtraction,
+  type OcrQuota,
 } from '../../lib/ocr'
 import { printHtmlDocument } from '../../lib/print'
 import { rememberAnimal } from '../../lib/routes'
@@ -425,6 +426,7 @@ function ScanReview({ animal, userId, canWrite }: { animal: Animal; userId: stri
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [quota, setQuota] = useState<OcrQuota | null>(null)
 
   async function analyze() {
     if (!file) return
@@ -433,18 +435,19 @@ function ScanReview({ animal, userId, canWrite }: { animal: Animal; userId: stri
     trackEvent('ocr_scan_started')
     try {
       const base64 = await fileToBase64(file)
-      const extracted = await runOcrRequest({
+      const { extraction, quota: nextQuota } = await runOcrRequest({
         imageBase64: base64,
         mimeType: file.type || 'application/octet-stream',
         fileName: file.name,
       })
-      setDraft(extracted ?? heuristicExtraction(file.name, file.type))
-      await incrementOcrUsage().catch(() => undefined)
+      setDraft(extraction)
+      if (nextQuota) setQuota(nextQuota)
       trackEvent('ocr_scan_completed')
     } catch (scanError) {
       trackEvent('ocr_scan_failed')
       setDraft(heuristicExtraction(file.name, file.type))
-      setError(`${getErrorMessage(scanError)} Une proposition locale est affichée, vous pouvez la corriger.`)
+      const reason = scanError instanceof OcrError ? scanError.message : getErrorMessage(scanError)
+      setError(`${reason} Une proposition locale est affichée, vous pouvez la corriger.`)
     } finally {
       setBusy(false)
     }
@@ -498,11 +501,14 @@ function ScanReview({ animal, userId, canWrite }: { animal: Animal; userId: stri
 
   return (
     <div className="grid max-w-2xl gap-4">
-      <FileField label="Document à analyser" hint="Photo ou PDF. Sans clé OCR, une proposition est déduite du nom du fichier." accept="image/*,application/pdf" file={file} onFile={setFile} />
+      <FileField label="Document à analyser" hint="Photo ou PDF lisible. Les champs ci-dessous sont pré-remplis, vérifiez-les avant d’enregistrer." accept="image/*,application/pdf" file={file} onFile={setFile} />
       <Button disabled={!file || busy} onClick={() => void analyze()}>{busy ? 'Analyse…' : 'Analyser'}</Button>
       {draft ? (
         <div className="grid gap-3 rounded-3xl bg-surface p-4">
-          <p className="font-body text-xs text-muted">Source : {draft.source === 'api' ? 'OCR' : 'proposition locale'}</p>
+          <p className="font-body text-xs text-muted">
+            Source : {draft.source === 'api' ? 'lecture automatique' : 'proposition locale'}
+            {quota && quota.remaining !== null ? ` · ${quota.remaining} analyse${quota.remaining > 1 ? 's' : ''} restante${quota.remaining > 1 ? 's' : ''} ce mois-ci` : ''}
+          </p>
           <SelectField
             label="Catégorie"
             value={draft.category}
@@ -512,6 +518,33 @@ function ScanReview({ animal, userId, canWrite }: { animal: Animal; userId: stri
           <Input label="Titre" value={draft.titre} onChange={(event) => setDraft({ ...draft, titre: event.target.value })} />
           <Textarea label="Diagnostic" value={draft.diagnostic} onChange={(event) => setDraft({ ...draft, diagnostic: event.target.value })} />
           <Textarea label="Traitement" value={draft.traitement} onChange={(event) => setDraft({ ...draft, traitement: event.target.value })} />
+          {draft.molecules.length > 0 ? (
+            <p className="font-body text-xs text-muted">Molécules détectées : {draft.molecules.join(', ')}</p>
+          ) : null}
+          <Input
+            label="Poids (kg)"
+            inputMode="decimal"
+            value={draft.poidsKg ?? ''}
+            onChange={(event) => {
+              const parsed = Number(event.target.value.replace(',', '.'))
+              setDraft({ ...draft, poidsKg: event.target.value.trim() && Number.isFinite(parsed) ? parsed : null })
+            }}
+          />
+          <Input
+            label="Date de l’événement"
+            type="date"
+            value={draft.dateEvent?.slice(0, 10) ?? ''}
+            onChange={(event) => setDraft({ ...draft, dateEvent: event.target.value || null })}
+          />
+          <Input
+            label="Montant (€)"
+            inputMode="decimal"
+            value={draft.montant ?? ''}
+            onChange={(event) => {
+              const parsed = Number(event.target.value.replace(',', '.'))
+              setDraft({ ...draft, montant: event.target.value.trim() && Number.isFinite(parsed) ? parsed : null })
+            }}
+          />
           <Button onClick={() => void save()}>Enregistrer dans le dossier</Button>
         </div>
       ) : null}

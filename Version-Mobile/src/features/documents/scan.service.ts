@@ -10,7 +10,7 @@ import {
   type OcrExtraction,
 } from "@/utils/ocr";
 
-import { createDocumentMetadata, incrementOcrUsage } from "./documents.service";
+import { createDocumentMetadata } from "./documents.service";
 
 async function readBase64(uri: string, provided?: string | null) {
   if (provided) return provided;
@@ -48,15 +48,12 @@ export async function analyzeDocument(params: {
   }
 
   try {
-    const extraction = await runOcrRequest({
+    // Le quota (2/mois en gratuit) est vérifié et incrémenté côté serveur.
+    const { extraction } = await runOcrRequest({
       imageBase64,
       mimeType: params.mimeType,
       fileName: params.fileName,
     });
-    if (!extraction) {
-      return { extraction: fallback, ocrError: null };
-    }
-    await incrementOcrUsage().catch(() => undefined);
     return { extraction, ocrError: null };
   } catch (error) {
     const message =
