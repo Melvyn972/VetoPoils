@@ -14,12 +14,14 @@ export function Kicker({ children, light = false }: { children: ReactNode; light
 export function SectionIntro({
   kicker,
   title,
+  titleId,
   children,
   light = false,
   className = '',
 }: {
   kicker: string
   title: ReactNode
+  titleId?: string
   children?: ReactNode
   light?: boolean
   className?: string
@@ -28,7 +30,7 @@ export function SectionIntro({
     <div className={className}>
       <Kicker light={light}>{kicker}</Kicker>
       <h2
-        data-split
+        id={titleId}
         className={`mt-5 font-title text-[clamp(36px,4.8vw,68px)] font-semibold leading-[1.02] tracking-[-0.038em] ${
           light ? 'text-white' : 'text-ink'
         }`}
@@ -37,7 +39,6 @@ export function SectionIntro({
       </h2>
       {children ? (
         <div
-          data-reveal
           className={`mt-6 max-w-[580px] font-body text-[17px] leading-relaxed md:text-[18px] ${
             light ? 'text-white/75' : 'text-muted'
           }`}
@@ -148,36 +149,6 @@ export function DemoQr({ className = '' }: { className?: string }) {
 
   if (!src) return <span aria-hidden="true" className={`block rounded-[6px] bg-[#eef1f0] ${className}`} />
   return <img src={src} alt="" className={`block ${className}`} />
-}
-
-export function WhenVisible({ children, className = '' }: { children: ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
-    if (!('IntersectionObserver' in window)) {
-      setVisible(true)
-      return
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return
-        setVisible(true)
-        observer.disconnect()
-      },
-      { rootMargin: '0px 0px -12% 0px' },
-    )
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [])
-
-  return (
-    <div ref={ref} className={className}>
-      {visible ? children : null}
-    </div>
-  )
 }
 
 export function AppChip({ children, tone = 'mint' }: { children: ReactNode; tone?: 'mint' | 'orange' | 'teal' | 'ink' }) {

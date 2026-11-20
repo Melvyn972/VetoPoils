@@ -28,7 +28,7 @@ export function AuthFrame({ children }: { children: ReactNode }) {
   )
 
   return (
-    <div ref={scope} className="relative min-h-dvh bg-canvas">
+    <div ref={scope} data-theme="light" className="relative min-h-dvh bg-canvas text-ink">
       <a href="#contenu" className="skip-link">
         Aller au contenu
       </a>

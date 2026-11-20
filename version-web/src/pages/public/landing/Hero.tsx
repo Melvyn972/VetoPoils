@@ -16,35 +16,78 @@ import {
 import { EventStatusBadge } from '../../../components/ui/Badge'
 import { ButtonLink } from '../../../components/ui/Button'
 import { ScoreRing } from '../../../components/ui/Charts'
-import { gsap, MOTION_OK, ScrollTrigger, useGSAP } from '../../../lib/motion'
+import { useAuth } from '../../../context/AuthContext'
+import { gsap, MOTION_OK, useGSAP } from '../../../lib/motion'
+import { homePath } from '../../../lib/routes'
 import { AppChip, BrowserFrame, DemoQr, LiveCountdown, PhoneFrame } from './Kit'
-import { FINE_POINTER, SplitText } from './landingMotion'
+import { SplitText } from './landingMotion'
 
 const SECTIONS = [
   { href: '#concept', label: 'Le concept' },
   { href: '#fonctionnement', label: 'Fonctionnement' },
-  { href: '#smart-scan', label: 'Smart Scan' },
-  { href: '#veterinaires', label: 'Vétérinaires' },
-  { href: '#confiance', label: 'Confiance' },
+  { href: '#acces-veterinaire', label: 'Accès véto' },
   { href: '#faq', label: 'FAQ' },
 ]
 
+// Style commun des liens texte du header (sections + accès / connexion)
+const NAV_LINK =
+  'rounded-[14px] px-3.5 py-2 font-body text-[14px] font-medium text-ink transition-colors hover:bg-black/5 focus-visible:bg-black/5 dark:hover:bg-white/10 dark:focus-visible:bg-white/10'
+
+const FOCUSABLE = 'a[href], button:not([disabled])'
+
 export function LandingHeader() {
-  const ref = useRef<HTMLElement>(null)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const { role } = useAuth()
+  const dashboardTo = role ? homePath(role) : null
 
+  // Menu mobile : scroll lock, Escape, focus, piège Tab, inert sur le reste
   useEffect(() => {
     if (!open) return
-    const previous = document.body.style.overflow
+    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false)
+    const main = document.getElementById('contenu')
+    const footer = document.querySelector('footer')
+    main?.setAttribute('inert', '')
+    footer?.setAttribute('inert', '')
+
+    const menu = menuRef.current
+    // Inclut le bouton menu (hors dialog) pour pouvoir fermer au clavier
+    const focusables = () => {
+      const inside = Array.from(menu?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])
+      return [menuButtonRef.current, ...inside].filter((el): el is HTMLElement => Boolean(el))
     }
+    focusables()[1]?.focus()
+
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setOpen(false)
+        return
+      }
+      if (event.key !== 'Tab') return
+      const items = focusables()
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
     document.addEventListener('keydown', onKey)
     return () => {
-      document.body.style.overflow = previous
+      document.body.style.overflow = previousOverflow
+      main?.removeAttribute('inert')
+      footer?.removeAttribute('inert')
       document.removeEventListener('keydown', onKey)
+      menuButtonRef.current?.focus()
     }
   }, [open])
 
@@ -62,7 +105,6 @@ export function LandingHeader() {
 
   return (
     <header
-      ref={ref}
       className={`fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300 ${
         isScrolled
           ? 'bg-surface/95 shadow-[0_1px_0_rgb(16_24_40/0.06),0_12px_32px_-24px_rgb(16_24_40/0.3)]'
@@ -70,42 +112,41 @@ export function LandingHeader() {
       }`}
     >
       <div className="mx-auto flex h-[76px] max-w-[1320px] items-center gap-3 px-5 sm:px-8">
-        <Link to="/" aria-label="Vet'OPoil, accueil" className="shrink-0 rounded-[12px]" onClick={close}>
-          <Logo className="h-12 w-auto" />
+        <Link to="/" aria-label="Vet’OPoil, accueil" className="shrink-0 rounded-[12px]" onClick={close}>
+          <Logo className="h-12 w-auto" decorative />
         </Link>
         <nav aria-label="Sections de la page" className="ml-6 hidden items-center xl:flex">
           {SECTIONS.map((section) => (
-            <a
-              key={section.href}
-              href={section.href}
-              className="group relative rounded-full px-3.5 py-2 font-body text-[14px] font-medium text-ink transition-colors hover:text-ink"
-            >
+            <a key={section.href} href={section.href} className={NAV_LINK}>
               {section.label}
-              <span className="absolute inset-x-3.5 bottom-1 h-px origin-left scale-x-0 bg-primary transition-transform duration-300 ease-out group-hover:scale-x-100" />
             </a>
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-          <Link
-            to="/acces"
-            className="hidden rounded-full px-3.5 py-2 font-body text-[14px] font-medium text-ink transition-colors hover:text-ink md:inline-flex"
-          >
+          <Link to="/acces" className={`hidden md:inline-flex ${NAV_LINK}`}>
             Accès vétérinaire
           </Link>
-          <Link
-            to="/connexion"
-            className="hidden rounded-full px-3.5 py-2 font-body text-[14px] font-medium text-ink transition-colors hover:text-ink sm:inline-flex"
-          >
-            Se connecter
-          </Link>
-          <ButtonLink to="/inscription" size="sm" className={`h-11 px-4 ${open ? 'max-xl:hidden' : ''}`} data-magnetic>
-            Créer un compte
-          </ButtonLink>
+          {dashboardTo ? (
+            <ButtonLink to={dashboardTo} size="sm" className={`h-11 px-4 ${open ? 'max-xl:hidden' : ''}`}>
+              Dashboard
+            </ButtonLink>
+          ) : (
+            <>
+              <Link to="/connexion" className={`hidden sm:inline-flex ${NAV_LINK}`}>
+                Se connecter
+              </Link>
+              <ButtonLink to="/inscription" size="sm" className={`h-11 px-4 ${open ? 'max-xl:hidden' : ''}`}>
+                Créer un compte
+              </ButtonLink>
+            </>
+          )}
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((current) => !current)}
             aria-expanded={open}
             aria-controls="menu-landing"
+            aria-haspopup="dialog"
             aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
             className="press flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-field-line bg-surface text-ink xl:hidden"
           >
@@ -113,67 +154,86 @@ export function LandingHeader() {
           </button>
         </div>
       </div>
-      {open ? (
-        <div
-          id="menu-landing"
-          className="fixed inset-x-0 bottom-0 top-[76px] z-40 overflow-y-auto bg-surface px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-8 xl:hidden"
-        >
-          <nav aria-label="Sections de la page" className="flex flex-col">
-            {SECTIONS.map((section, index) => (
-              <a
-                key={section.href}
-                href={section.href}
+      <div
+        ref={menuRef}
+        id="menu-landing"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu de navigation"
+        hidden={!open}
+        className="fixed inset-x-0 bottom-0 top-[76px] z-40 overflow-y-auto bg-surface px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-8 xl:hidden"
+      >
+        <nav aria-label="Sections de la page" className="flex flex-col">
+          {SECTIONS.map((section, index) => (
+            <a
+              key={section.href}
+              href={section.href}
+              onClick={close}
+              className="flex min-h-14 items-center gap-4 border-b border-line-soft py-3 font-title text-[26px] font-semibold tracking-[-0.03em] text-ink hover:bg-black/5 focus-visible:bg-black/5 active:bg-canvas"
+            >
+              <span className="font-body text-xs font-semibold text-primary tabular" aria-hidden="true">
+                0{index + 1}
+              </span>
+              {section.label}
+            </a>
+          ))}
+        </nav>
+        <div className="mt-6 flex flex-col gap-3">
+          {dashboardTo ? (
+            <ButtonLink
+              to={dashboardTo}
+              size="lg"
+              fullWidth
+              onClick={close}
+              className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
+            >
+              Dashboard
+            </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink
+                to="/inscription/proprietaire"
+                size="lg"
+                fullWidth
                 onClick={close}
-                className="flex min-h-14 items-center gap-4 border-b border-line-soft py-3 font-title text-[26px] font-semibold tracking-[-0.03em] text-ink active:bg-canvas"
+                className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
               >
-                <span className="font-body text-xs font-semibold text-primary tabular">0{index + 1}</span>
-                {section.label}
-              </a>
-            ))}
-          </nav>
-          <div className="mt-6 flex flex-col gap-3">
-            <ButtonLink
-              to="/inscription/proprietaire"
-              size="lg"
-              fullWidth
-              onClick={close}
-              className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
-            >
-              Créer le carnet de mon animal
-            </ButtonLink>
-            <ButtonLink
-              to="/inscription/veterinaire"
-              size="lg"
-              variant="secondary"
-              fullWidth
-              onClick={close}
-              className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
-            >
-              Ouvrir un espace clinique
-            </ButtonLink>
-            <ButtonLink
-              to="/connexion"
-              size="md"
-              variant="ghost"
-              fullWidth
-              onClick={close}
-              className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
-            >
-              Se connecter
-            </ButtonLink>
-            <ButtonLink
-              to="/acces"
-              size="md"
-              variant="ghost"
-              fullWidth
-              onClick={close}
-              className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
-            >
-              J’ai un code d’accès vétérinaire
-            </ButtonLink>
-          </div>
+                Créer le carnet de mon animal
+              </ButtonLink>
+              <ButtonLink
+                to="/inscription/veterinaire"
+                size="lg"
+                variant="secondary"
+                fullWidth
+                onClick={close}
+                className="!h-auto min-h-12 !whitespace-normal px-4 py-3 text-center leading-snug"
+              >
+                Ouvrir un espace clinique
+              </ButtonLink>
+              <ButtonLink
+                to="/connexion"
+                size="md"
+                variant="ghost"
+                fullWidth
+                onClick={close}
+                className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
+              >
+                Se connecter
+              </ButtonLink>
+            </>
+          )}
+          <ButtonLink
+            to="/acces"
+            size="md"
+            variant="ghost"
+            fullWidth
+            onClick={close}
+            className="!h-auto min-h-11 !border-field-line px-4 py-3 text-center !whitespace-normal"
+          >
+            J’ai un code d’accès vétérinaire
+          </ButtonLink>
         </div>
-      ) : null}
+      </div>
     </header>
   )
 }
@@ -291,21 +351,6 @@ export function Hero() {
               .to(ecg, { drawSVG: '100%', duration: 1.9, ease: 'power2.inOut' }, 0.75)
               .to(cards, { autoAlpha: 1, scale: 1, y: 0, duration: 1.1, ease: 'back.out(1.6)', stagger: 0.14 }, 1)
               .call(() => split.revert())
-            q('[data-float]').forEach((element, index) => {
-              gsap.to(element, {
-                y: index % 2 ? 10 : -10,
-                duration: 2.8 + index * 0.35,
-                ease: 'sine.inOut',
-                yoyo: true,
-                repeat: -1,
-                delay: 2.2,
-              })
-            })
-            gsap.fromTo(
-              q('[data-scan-progress]'),
-              { scaleX: 0 },
-              { scaleX: 1, duration: 2.2, ease: 'power1.inOut', repeat: -1, repeatDelay: 1.4, delay: 1.8 },
-            )
           })
         })
 
@@ -320,33 +365,17 @@ export function Hero() {
         }
       })
 
-      mm.add(FINE_POINTER, () => {
-        const root = scope.current
-        if (!root) return
-        const layers = (q('[data-depth]') as HTMLElement[]).map((element) => ({
-          depth: Number(element.dataset.depth) || 0.5,
-          x: gsap.quickTo(element, 'x', { duration: 1.1, ease: 'power3' }),
-          y: gsap.quickTo(element, 'y', { duration: 1.1, ease: 'power3' }),
-        }))
-        const onMove = (event: PointerEvent) => {
-          const nx = event.clientX / window.innerWidth - 0.5
-          const ny = event.clientY / window.innerHeight - 0.5
-          layers.forEach((layer) => {
-            layer.x(nx * layer.depth * 44)
-            layer.y(ny * layer.depth * 32)
-          })
-        }
-        root.addEventListener('pointermove', onMove)
-        return () => root.removeEventListener('pointermove', onMove)
-      })
-
       return () => mm.revert()
     },
     { scope },
   )
 
   return (
-    <section ref={scope} className="relative overflow-hidden bg-canvas pb-20 pt-[112px] md:pb-28 lg:min-h-[100svh] lg:pt-[116px]">
+    <section
+      ref={scope}
+      aria-labelledby="hero-title"
+      className="relative overflow-hidden bg-canvas pb-20 pt-[112px] md:pb-28 lg:min-h-[100svh] lg:pt-[116px]"
+    >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -right-[12%] -top-[18%] h-[720px] w-[720px] rounded-full bg-[radial-gradient(circle,rgb(87_201_210/0.22),transparent_65%)]" />
         <div className="absolute -left-[10%] bottom-[-30%] h-[620px] w-[620px] rounded-full bg-[radial-gradient(circle,rgb(251_168_75/0.14),transparent_65%)]" />
@@ -356,6 +385,7 @@ export function Hero() {
       <div className="relative mx-auto grid max-w-[1320px] items-center gap-14 px-5 sm:px-8 grid-cols-1 lg:grid-cols-12 lg:gap-8">
         <div className="relative z-10 lg:col-span-7">
           <h1
+            id="hero-title"
             data-hero-title
             className="font-title text-[clamp(46px,6.2vw,98px)] font-semibold leading-[0.96] tracking-[-0.047em] text-ink"
           >
@@ -387,22 +417,22 @@ export function Hero() {
             Vaccins, ordonnances, analyses, rappels et dépenses réunis dans un dossier qui s’enrichit à chaque
             consultation. Le jour du rendez-vous, un QR code l’ouvre à votre vétérinaire pendant 4 heures.
           </p>
-          <div data-hero-fade className="mt-9 flex flex-wrap items-center gap-3">
+          {/* CTAs visibles dès le départ : pas de autoAlpha pour rester focusables */}
+          <div className="mt-9 flex flex-wrap items-center gap-3">
             <ButtonLink
-              to="/inscription/proprietaire"
+              to="/inscription"
               size="lg"
-              data-magnetic
               trailingIcon={<IconArrowRight className="h-[18px] w-[18px]" />}
             >
-              Je suis propriétaire
+              Commencer gratuitement
             </ButtonLink>
-            <ButtonLink to="/inscription/veterinaire" size="lg" variant="ghost" data-magnetic>
-              Je suis vétérinaire
+            <ButtonLink to="/connexion" size="lg" variant="ghost">
+              Se connecter
             </ButtonLink>
           </div>
-          <p data-hero-fade className="mt-5 font-body text-[14px] text-muted">
+          <p className="mt-5 font-body text-[14px] text-muted">
             Vous avez reçu un code ?{' '}
-            <Link to="/acces" className="font-semibold text-primary underline-offset-4 hover:underline">
+            <Link to="/acces" className="font-semibold text-primary underline underline-offset-4">
               Ouvrir le dossier d’un patient
             </Link>
           </p>
@@ -425,9 +455,9 @@ export function Hero() {
 
         <div className="relative lg:col-span-5">
           <div data-hero-visual aria-hidden="true" className="relative mx-auto h-[600px] w-full max-w-[520px] sm:h-[640px]">
-            <div data-depth="0.35" className="absolute -right-14 top-0 hidden w-[300px] xl:block">
+            <div className="absolute -right-14 top-0 hidden w-[300px] xl:block">
               <div data-hero-card>
-                <div data-float>
+                <div>
                   <BrowserFrame label="Portail vétérinaire" className="rotate-[3deg]">
                     <div className="p-3.5">
                       <div className="flex items-center gap-2.5">
@@ -456,7 +486,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div data-depth="0.7" className="absolute left-1/2 top-0 -translate-x-1/2 sm:left-[4%] sm:translate-x-0">
+            <div className="absolute left-1/2 top-0 -translate-x-1/2 sm:left-[4%] sm:translate-x-0">
               <div data-hero-device>
                 <PhoneFrame className="h-[560px] w-[272px]">
                   <OwnerPhoneScreen />
@@ -464,9 +494,9 @@ export function Hero() {
               </div>
             </div>
 
-            <div data-depth="1.15" className="absolute left-0 top-[350px] sm:-left-8">
+            <div className="absolute left-0 top-[350px] sm:-left-8">
               <div data-hero-card>
-                <div data-float className="w-[206px] rounded-[20px] border border-line-soft bg-white p-3.5 shadow-pop">
+                <div className="w-[206px] rounded-[20px] border border-line-soft bg-white p-3.5 shadow-pop">
                   <div className="flex items-center gap-3">
                     <DemoQr className="h-14 w-14 rounded-[6px]" />
                     <div>
@@ -488,9 +518,9 @@ export function Hero() {
               </div>
             </div>
 
-            <div data-depth="0.95" className="absolute right-0 top-[318px] sm:right-2">
+            <div className="absolute right-0 top-[318px] sm:right-2">
               <div data-hero-card>
-                <div data-float className="w-[214px] rounded-[18px] border border-line-soft bg-white p-3 shadow-pop">
+                <div className="w-[214px] rounded-[18px] border border-line-soft bg-white p-3 shadow-pop">
                   <div className="flex items-center gap-2.5">
                     <span className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-orange-15 text-orange-ink">
                       <IconBell className="h-[18px] w-[18px]" />
@@ -504,16 +534,13 @@ export function Hero() {
               </div>
             </div>
 
-            <div data-depth="1.35" className="absolute bottom-2 left-[22%] sm:left-[30%]">
+            <div className="absolute bottom-2 left-[22%] sm:left-[30%]">
               <div data-hero-card>
-                <div data-float className="w-[236px] rounded-[18px] bg-forest p-3.5 text-white shadow-pop">
+                <div className="w-[236px] rounded-[18px] bg-forest p-3.5 text-white shadow-pop">
                   <div className="flex items-center gap-2">
                     <IconScan className="h-4 w-4 text-teal" />
                     <p className="font-body text-[12px] font-semibold">Smart Scan</p>
                     <span className="ml-auto font-body text-[10.5px] text-white/60">Ordonnance</span>
-                  </div>
-                  <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/12">
-                    <span data-scan-progress className="block h-full w-full origin-left rounded-full bg-gradient-to-r from-teal to-[#a8eadf]" />
                   </div>
                   <p className="mt-2 font-body text-[11px] text-white/70">Titre, traitement et date proposés</p>
                 </div>
@@ -523,71 +550,5 @@ export function Hero() {
         </div>
       </div>
     </section>
-  )
-}
-
-const WORDS = [
-  'Ordonnances',
-  'Vaccins',
-  'Analyses sanguines',
-  'Factures',
-  'Courbe de poids',
-  'Rappels',
-  'Comptes rendus',
-  'Journal du pet-sitter',
-  'Budget',
-  'Dossier PDF',
-]
-
-export function Marquee() {
-  const scope = useRef<HTMLDivElement>(null)
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia()
-      mm.add(MOTION_OK, () => {
-        const track = scope.current?.querySelector('[data-marquee-track]')
-        if (!track) return
-        const loop = gsap.to(track, { xPercent: -50, duration: 46, ease: 'none', repeat: -1 })
-        ScrollTrigger.create({
-          trigger: scope.current,
-          start: 'top bottom',
-          end: 'bottom top',
-          onUpdate: (self) => {
-            const boost = 1 + Math.min(6, Math.abs(self.getVelocity()) / 240)
-            gsap.to(loop, {
-              timeScale: boost,
-              duration: 0.25,
-              overwrite: true,
-              onComplete: () => {
-                gsap.to(loop, { timeScale: 1, duration: 1.4, ease: 'power2.out' })
-              },
-            })
-          },
-        })
-      })
-      return () => mm.revert()
-    },
-    { scope },
-  )
-
-  return (
-    <div ref={scope} aria-hidden="true" className="relative overflow-hidden border-y border-line-soft bg-surface py-7 md:py-9">
-      <div data-marquee-track className="flex w-max">
-        {[0, 1].map((copy) => (
-          <div key={copy} className="flex shrink-0 items-center">
-            {WORDS.map((word, index) => (
-              <span
-                key={word}
-                className="flex items-center gap-8 pr-8 font-title text-[clamp(30px,4.2vw,60px)] font-semibold tracking-[-0.035em] text-ink"
-              >
-                {index % 2 ? <span className="text-transparent [-webkit-text-stroke:1.2px_#1a1a1a]">{word}</span> : word}
-                <span className={`h-3 w-3 shrink-0 rounded-full ${index % 2 ? 'bg-teal' : 'bg-logo-orange'}`} />
-              </span>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
   )
 }
