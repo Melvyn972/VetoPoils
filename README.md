@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://veto-poils.vercel.app">veto-poils.vercel.app</a>
+  <a href="https://vetopoil.fr">vetopoil.fr</a>
 </p>
 
 ## Le produit
@@ -181,7 +181,7 @@ Postgres applique le RLS sur les tables du dossier. Les politiques s’appuient 
 
 Les fonctions sensibles sont `SECURITY DEFINER` et vérifient `auth.uid()` ou le code. Les buckets sont privés : le chemin de fichier est préfixé par le propriétaire. Le site n’utilise que la clé publique. La clé `service_role` ne va ni dans le dépôt, ni dans une variable `VITE_`.
 
-Les liens d’e-mail (`/auth/callback`, `/reinitialiser-mot-de-passe`) doivent être autorisés dans Auth pour `https://veto-poils.vercel.app/**` et les aperçus `https://*.vercel.app/**`. Le lien se termine dans le même navigateur (PKCE).
+Les liens d’e-mail (`/auth/callback`, `/reinitialiser-mot-de-passe`) doivent être autorisés dans Auth pour `https://vetopoil.fr/**`, `https://www.vetopoil.fr/**` et les aperçus `https://*.vercel.app/**`. Le lien se termine dans le même navigateur (PKCE).
 
 ## Variables d’environnement
 

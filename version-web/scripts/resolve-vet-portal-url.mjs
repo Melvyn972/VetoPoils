@@ -16,7 +16,7 @@ export function resolveVetPortalUrl() {
     return normalizeOrigin(configured)
   }
 
-  return 'https://veto-poils.vercel.app'
+  return 'https://vetopoil.fr'
 }
 
 function normalizeOrigin(value) {

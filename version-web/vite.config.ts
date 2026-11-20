@@ -28,7 +28,7 @@ function resolveVetPortalUrl(mode: string) {
   if (configured) return normalizeOrigin(configured)
 
   if (mode === 'production') {
-    return 'https://veto-poils.vercel.app'
+    return 'https://vetopoil.fr'
   }
 
   return 'http://localhost:5173'
