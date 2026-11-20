@@ -1,6 +1,6 @@
 # Vet'OPoil
 
-Site du carnet de santé animal (Vite + React). Production : https://veto-poils.vercel.app
+Site du carnet de santé animal (Vite + React). Production : https://vetopoil.fr
 
 Le backend est Supabase (`lmdszelnnibexzvnaubp`, région eu-west-3) : Auth, Postgres et Storage. Stripe n’est pas dans le périmètre.
 
@@ -34,7 +34,7 @@ Voir `.env.example`.
 - `VITE_CLARITY_PROJECT_ID` : mesure d’audience, seulement après consentement.
 - `VITE_GA_MEASUREMENT_ID` : balise Google Analytics, seulement après consentement. Le mode de consentement refuse la publicité ; l’acceptation n’ouvre que la mesure d’audience.
 
-Les redirections d’e-mail utilisent l’origine du site : `/auth/callback` pour la confirmation, `/reinitialiser-mot-de-passe` pour la réinitialisation. Ces URL doivent être autorisées dans Supabase Auth pour `https://veto-poils.vercel.app/**` et les aperçus Vercel. Le lien doit être ouvert dans le même navigateur (PKCE).
+Les redirections d’e-mail utilisent l’origine du site : `/auth/callback` pour la confirmation, `/reinitialiser-mot-de-passe` pour la réinitialisation. Ces URL doivent être autorisées dans Supabase Auth pour `https://vetopoil.fr/**`, `https://www.vetopoil.fr/**` et les aperçus Vercel. Le lien doit être ouvert dans le même navigateur (PKCE).
 
 Ne jamais committer de clé `service_role`.
 
