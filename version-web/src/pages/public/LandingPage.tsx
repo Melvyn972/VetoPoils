@@ -2,11 +2,9 @@ import { useEffect, useRef } from 'react'
 import { Navigate, useSearchParams } from 'react-router-dom'
 
 import { ScrollTrigger } from '../../lib/motion'
-import { FinalCta, Faq, LandingFooter, Trust } from './landing/Closing'
-import { Audiences, DailyLife } from './landing/Everyday'
-import { Hero, LandingHeader, Marquee } from './landing/Hero'
+import { FinalCta, Faq, LandingFooter } from './landing/Closing'
+import { Hero, LandingHeader } from './landing/Hero'
 import { useLandingMotion } from './landing/landingMotion'
-import { QrShowcase, ScanShowcase, ScoreShowcase } from './landing/Showcases'
 import { HowItWorks, Story } from './landing/Story'
 
 export function LandingPage() {
@@ -41,15 +39,8 @@ export function LandingPage() {
       <LandingHeader />
       <main id="contenu" tabIndex={-1} className="outline-none">
         <Hero />
-        <Marquee />
         <Story />
         <HowItWorks />
-        <ScanShowcase />
-        <QrShowcase />
-        <ScoreShowcase />
-        <DailyLife />
-        <Audiences />
-        <Trust />
         <Faq />
         <FinalCta />
       </main>

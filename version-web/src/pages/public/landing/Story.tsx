@@ -178,17 +178,6 @@ export function Story() {
           .fromTo(q('[data-story-after]'), { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 0.95)
           .fromTo(q('[data-story-fill]'), { scaleX: 0 }, { scaleX: 1, duration: 1.45, ease: 'none' }, 0)
       })
-      mm.add('(prefers-reduced-motion: no-preference) and (max-width: 1023px)', () => {
-        gsap.from(q('[data-story-item]'), {
-          x: (index: number) => (index % 2 ? 70 : -70),
-          rotation: (index: number) => (index % 2 ? 5 : -5),
-          autoAlpha: 0,
-          duration: 1,
-          ease: 'expo.out',
-          stagger: 0.08,
-          scrollTrigger: { trigger: q('[data-story-item]')[0], start: 'top 85%', once: true },
-        })
-      })
       return () => mm.revert()
     },
     { scope },
@@ -202,10 +191,7 @@ export function Story() {
       >
         <div className="relative z-10 lg:col-span-5">
           <Kicker>Le constat</Kicker>
-          <h2
-            data-split
-            className="mt-5 font-title text-[clamp(36px,4.6vw,64px)] font-semibold leading-[1.02] tracking-[-0.038em] text-ink"
-          >
+          <h2 className="mt-5 font-title text-[clamp(36px,4.6vw,64px)] font-semibold leading-[1.02] tracking-[-0.038em] text-ink">
             Aujourd’hui, son dossier est partout. Donc nulle part.
           </h2>
           <div className="relative mt-8 font-body text-[17px] leading-relaxed text-muted md:text-[18px]">
@@ -328,7 +314,6 @@ function StepVisual({ index }: { index: number }) {
           {[78, 92, 64, 84].map((width) => (
             <span key={width} className="mt-2 block h-1.5 rounded-full bg-[#e7e3d9]" style={{ width: `${width}%` }} />
           ))}
-          <span data-step-beam className="absolute inset-x-0 top-0 h-[2px] bg-teal shadow-[0_0_18px_4px_rgb(87_201_210/0.55)]" />
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
           <AppChip>Ordonnance</AppChip>
@@ -386,20 +371,6 @@ export function HowItWorks() {
             scrollTrigger: { trigger: q('[data-steps]')[0], start: 'top 75%', end: 'bottom 70%', scrub: 1 },
           },
         )
-        gsap.fromTo(
-          q('[data-step-beam]'),
-          { y: 0 },
-          { y: 92, duration: 1.6, ease: 'sine.inOut', repeat: -1, yoyo: true },
-        )
-        q('[data-step-number]').forEach((number) => {
-          gsap.from(number, {
-            xPercent: -30,
-            autoAlpha: 0,
-            duration: 1.2,
-            ease: 'expo.out',
-            scrollTrigger: { trigger: number, start: 'top 85%', once: true },
-          })
-        })
       })
       return () => mm.revert()
     },
@@ -428,22 +399,15 @@ export function HowItWorks() {
           {STEPS.map((step, index) => (
             <article key={step.number} className={`relative ${index === 1 ? 'lg:pt-24' : index === 2 ? 'lg:pt-48' : ''}`}>
               <p
-                data-step-number
                 aria-hidden="true"
                 className="font-title text-[92px] font-semibold leading-none tracking-[-0.05em] text-transparent [-webkit-text-stroke:1.5px_rgb(44_110_99/0.55)]"
               >
                 {step.number}
               </p>
-              <h3 data-reveal className="mt-5 font-title text-[26px] font-semibold tracking-[-0.025em] text-ink">
-                {step.title}
-              </h3>
-              <p data-reveal className="mt-3 max-w-[360px] font-body text-[16px] leading-relaxed text-muted">
-                {step.text}
-              </p>
-              <div data-reveal className="mt-7 max-w-[340px]">
-                <div data-tilt aria-hidden="true">
-                  <StepVisual index={index} />
-                </div>
+              <h3 className="mt-5 font-title text-[26px] font-semibold tracking-[-0.025em] text-ink">{step.title}</h3>
+              <p className="mt-3 max-w-[360px] font-body text-[16px] leading-relaxed text-muted">{step.text}</p>
+              <div className="mt-7 max-w-[340px]" aria-hidden="true">
+                <StepVisual index={index} />
               </div>
             </article>
           ))}
