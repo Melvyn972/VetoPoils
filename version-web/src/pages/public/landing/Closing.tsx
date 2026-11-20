@@ -116,7 +116,7 @@ export function FinalCta() {
         className="pointer-events-none absolute left-1/2 top-1/2 h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(87_201_210/0.22),rgb(251_168_75/0.06)_45%,transparent_68%)]"
       />
       <div className="relative mx-auto flex max-w-[980px] flex-col items-center px-5 text-center sm:px-8">
-        <div data-breathe aria-hidden="true" className="flex h-24 w-24 items-center justify-center rounded-[30px] bg-white shadow-pop">
+        <div data-breathe aria-hidden="true" className="flex h-24 w-24 items-center justify-center rounded-[30px] bg-white">
           <Logo variant="mark" className="h-16 w-16" decorative />
         </div>
         <h2

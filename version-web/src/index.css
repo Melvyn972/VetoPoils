@@ -76,9 +76,9 @@
   --radius-12: 12px;
   --radius-14: 14px;
 
-  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 4px 14px -6px rgb(16 24 40 / 0.08);
-  --shadow-lift: 0 22px 44px -22px rgb(22 60 54 / 0.32), 0 2px 6px rgb(16 24 40 / 0.05);
-  --shadow-pop: 0 40px 80px -32px rgb(22 60 54 / 0.42), 0 8px 24px -12px rgb(16 24 40 / 0.12);
+  --shadow-card: 0 0 #0000;
+  --shadow-lift: 0 0 #0000;
+  --shadow-pop: 0 0 #0000;
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -172,8 +172,8 @@
   --accent-blue-15: color-mix(in srgb, var(--accent-blue) 20%, transparent);
   --accent-orange-15: color-mix(in srgb, var(--accent-orange) 18%, transparent);
 
-  --card-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 4px 14px -6px rgb(16 24 40 / 0.08);
-  --lift-shadow: 0 22px 44px -22px rgb(22 60 54 / 0.32), 0 2px 6px rgb(16 24 40 / 0.05);
+  --card-shadow: 0 0 #0000;
+  --lift-shadow: 0 0 #0000;
 
   color-scheme: light;
 }
@@ -293,9 +293,9 @@
 
 @utility surface {
   background-color: var(--surface);
-  border: 1px solid var(--line-soft);
+  /* border: 1px solid var(--line-soft); */
   border-radius: 20px;
-  box-shadow: var(--card-shadow);
+  /* box-shadow: var(--card-shadow); */
 }
 
 @utility surface-muted {
@@ -315,12 +315,10 @@
 @utility lift {
   transition:
     transform 0.35s var(--ease-out-quint),
-    box-shadow 0.35s var(--ease-out-quint),
     border-color 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: var(--lift-shadow);
   }
 }
 
@@ -329,7 +327,6 @@
     transform 0.18s var(--ease-out-quint),
     background-color 0.2s ease,
     color 0.2s ease,
-    box-shadow 0.25s ease,
     border-color 0.2s ease;
 
   &:active:not(:disabled) {

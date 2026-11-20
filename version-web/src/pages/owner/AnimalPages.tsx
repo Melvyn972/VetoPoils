@@ -1,9 +1,23 @@
 import QRCode from 'qrcode'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type ComponentType, type FormEvent } from 'react'
 import { Link, NavLink, useNavigate, useParams } from 'react-router-dom'
 
 import { AnimalAvatar } from '../../components/animal/AnimalAvatar'
 import { FicheOverview } from '../../components/animal/FicheOverview'
+import {
+  IconBell,
+  IconBook,
+  IconClock,
+  IconFile,
+  IconHeart,
+  IconPaw,
+  IconPrinter,
+  IconQr,
+  IconScan,
+  IconShare,
+  IconWallet,
+  type IconProps,
+} from '../../components/icons/Icons'
 import { PageHeader } from '../../components/layout/AppShell'
 import { EventStatusBadge } from '../../components/ui/Badge'
 import { Donut, MonthlyBars, ScoreRing } from '../../components/ui/Charts'
@@ -83,18 +97,23 @@ export type AnimalSection =
   | 'score'
   | 'pdf'
 
-const links: Array<{ section: AnimalSection; label: string; suffix: string }> = [
-  { section: 'fiche', label: 'Fiche', suffix: '' },
-  { section: 'historique', label: 'Historique', suffix: '/historique' },
-  { section: 'documents', label: 'Documents', suffix: '/documents' },
-  { section: 'analyse', label: 'Analyse', suffix: '/analyse' },
-  { section: 'code', label: 'Code', suffix: '/code' },
-  { section: 'rappels', label: 'Rappels', suffix: '/rappels' },
-  { section: 'partage', label: 'Partage', suffix: '/partage' },
-  { section: 'journal', label: 'Journal', suffix: '/journal' },
-  { section: 'budget', label: 'Budget', suffix: '/budget' },
-  { section: 'score', label: 'Score', suffix: '/score' },
-  { section: 'pdf', label: 'PDF', suffix: '/pdf' },
+const links: Array<{
+  section: AnimalSection
+  label: string
+  suffix: string
+  Icon: ComponentType<IconProps>
+}> = [
+  { section: 'fiche', label: 'Fiche', suffix: '', Icon: IconPaw },
+  { section: 'historique', label: 'Historique', suffix: '/historique', Icon: IconClock },
+  { section: 'documents', label: 'Documents', suffix: '/documents', Icon: IconFile },
+  { section: 'analyse', label: 'Analyse', suffix: '/analyse', Icon: IconScan },
+  { section: 'code', label: 'Code', suffix: '/code', Icon: IconQr },
+  { section: 'rappels', label: 'Rappels', suffix: '/rappels', Icon: IconBell },
+  { section: 'partage', label: 'Partage', suffix: '/partage', Icon: IconShare },
+  { section: 'journal', label: 'Journal', suffix: '/journal', Icon: IconBook },
+  { section: 'budget', label: 'Budget', suffix: '/budget', Icon: IconWallet },
+  { section: 'score', label: 'Score', suffix: '/score', Icon: IconHeart },
+  { section: 'pdf', label: 'PDF', suffix: '/pdf', Icon: IconPrinter },
 ]
 
 export function AnimalPage({ section }: { section: AnimalSection }) {
@@ -142,13 +161,14 @@ export function AnimalPage({ section }: { section: AnimalSection }) {
                 to={`/espace/animaux/${animal.id}${link.suffix}`}
                 end={link.suffix === ''}
                 className={({ isActive }) =>
-                  `inline-flex min-h-11 shrink-0 items-center rounded-full border-[1.5px] px-3.5 font-body text-[13px] font-semibold focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-primary ${
+                  `inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-3.5 font-body text-[13px] font-semibold focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-primary ${
                     isActive || section === link.section
-                      ? 'border-primary-fill bg-primary-fill text-white hover:border-primary-fill-hover hover:bg-primary-fill-hover'
-                      : 'border-field-line bg-surface text-ink hover:border-muted'
+                      ? 'bg-primary-fill text-white hover:bg-primary-fill-hover'
+                      : 'bg-surface text-ink hover:bg-black/5'
                   }`
                 }
               >
+                <link.Icon className="h-4 w-4 shrink-0" />
                 {link.label}
               </NavLink>
             ))}

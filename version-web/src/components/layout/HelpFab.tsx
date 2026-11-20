@@ -26,7 +26,7 @@ export function HelpFab() {
           role="dialog"
           aria-modal="false"
           aria-labelledby={titleId}
-          className="w-72 rounded-[18px] border border-line bg-surface p-4 shadow-pop"
+          className="w-72 rounded-[18px] border border-line bg-surface p-4"
         >
           <p id={titleId} className="font-title text-sm font-semibold text-ink">Comment ça marche ?</p>
           <ol className="mt-2 list-decimal space-y-1 pl-4 font-body text-sm leading-relaxed text-muted">

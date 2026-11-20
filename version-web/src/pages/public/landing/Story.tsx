@@ -76,10 +76,9 @@ const STORY: Array<{
 ]
 
 function PaperFace({ kind, title, lines }: { kind: PaperKind; title: string; lines: string[] }) {
-  const shadow = 'shadow-[0_18px_30px_-16px_rgb(0_0_0/0.4)]'
   if (kind === 'postit') {
     return (
-      <div className={`w-[150px] rounded-[3px] bg-[#ffe39a] px-3.5 pb-5 pt-3.5 ${shadow}`}>
+      <div className="w-[150px] rounded-[3px] bg-[#ffe39a] px-3.5 pb-5 pt-3.5">
         <p className="font-title text-[19px] font-semibold tracking-[-0.02em] text-[#5b4300]">{title}</p>
         {lines.map((line) => (
           <p key={line} className="font-body text-[12px] text-[#7a5d10]">
@@ -91,7 +90,7 @@ function PaperFace({ kind, title, lines }: { kind: PaperKind; title: string; lin
   }
   if (kind === 'sticker') {
     return (
-      <div className={`w-[196px] rounded-[6px] border border-[#e6e2d8] bg-white p-3 ${shadow}`}>
+      <div className="w-[196px] rounded-[6px] border border-[#e6e2d8] bg-white p-3">
         <p className="eyebrow text-[#8b8b8b]">{title}</p>
         <div className="mt-2 h-7 bg-[repeating-linear-gradient(90deg,#1a1a1a_0_2px,transparent_2px_4px,#1a1a1a_4px_5px,transparent_5px_8px)]" />
         {lines.map((line) => (
@@ -104,7 +103,7 @@ function PaperFace({ kind, title, lines }: { kind: PaperKind; title: string; lin
   }
   if (kind === 'receipt') {
     return (
-      <div className={`w-[176px] bg-white px-3.5 py-3 font-mono text-[10.5px] text-[#3a3a3a] ${shadow}`}>
+      <div className="w-[176px] bg-white px-3.5 py-3 font-mono text-[10.5px] text-[#3a3a3a]">
         <p className="text-center font-semibold uppercase tracking-[0.2em]">{title}</p>
         <p className="mt-2 border-y border-dashed border-[#c9c9c9] py-1.5">{lines[0]}</p>
         <p className="mt-1.5 text-right font-semibold">{lines[1]}</p>
@@ -113,9 +112,7 @@ function PaperFace({ kind, title, lines }: { kind: PaperKind; title: string; lin
   }
   if (kind === 'note') {
     return (
-      <div
-        className={`w-[160px] bg-[#f4f9fd] bg-[repeating-linear-gradient(transparent_0_19px,#d5e5f1_19px_20px)] px-3.5 pb-3 pt-2.5 ${shadow}`}
-      >
+      <div className="w-[160px] bg-[#f4f9fd] bg-[repeating-linear-gradient(transparent_0_19px,#d5e5f1_19px_20px)] px-3.5 pb-3 pt-2.5">
         <p className="font-title text-[22px] font-semibold tracking-[-0.03em] text-[#1f3a52]">{title}</p>
         {lines.map((line) => (
           <p key={line} className="font-body text-[12px] italic text-[#4b6378]">
@@ -126,7 +123,7 @@ function PaperFace({ kind, title, lines }: { kind: PaperKind; title: string; lin
     )
   }
   return (
-    <div className={`w-[210px] bg-[#fffdf7] px-4 pb-4 pt-3 ${shadow}`}>
+    <div className="w-[210px] bg-[#fffdf7] px-4 pb-4 pt-3">
       <p className="font-body text-[9.5px] font-semibold uppercase tracking-[0.18em] text-[#9a968c]">Dr Martin · vétérinaire</p>
       <p className="mt-2 font-title text-[15px] font-semibold text-[#2b2b2b]">{title}</p>
       {lines.map((line) => (
@@ -227,7 +224,7 @@ export function Story() {
 
         <div className="relative flex justify-center lg:col-span-7">
           <div aria-hidden="true" className="relative w-full max-w-[440px]">
-            <div data-story-bg className="absolute -inset-x-4 -inset-y-4 rounded-[32px] border border-line-soft bg-[#f8fbfa] shadow-pop sm:-inset-x-6" />
+            <div data-story-bg className="absolute -inset-x-4 -inset-y-4 rounded-[32px] border border-line-soft bg-[#f8fbfa] sm:-inset-x-6" />
             <div data-story-chrome className="relative mb-4 flex items-center gap-3 px-1">
               <span className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-mint font-title text-lg font-semibold text-primary-pressed">
                 M
@@ -244,7 +241,7 @@ export function Story() {
                   <div data-paper className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 opacity-0">
                     <PaperFace {...item.paper} />
                   </div>
-                  <div data-app className="flex h-full items-center gap-3 rounded-[16px] border border-line-soft bg-white px-3.5 shadow-card">
+                  <div data-app className="flex h-full items-center gap-3 rounded-[16px] border border-line-soft bg-white px-3.5">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-mint text-primary">
                       <item.Icon className="h-[18px] w-[18px]" />
                     </span>
@@ -290,7 +287,7 @@ const STEPS = [
 function StepVisual({ index }: { index: number }) {
   if (index === 0) {
     return (
-      <div className="rounded-[22px] border border-line-soft bg-white p-4 shadow-card">
+      <div className="rounded-[22px] border border-line-soft bg-white p-4">
         <p className="font-body text-[12px] font-semibold text-muted">Nouvel animal</p>
         <div className="mt-3 flex flex-col gap-2">
           {[
@@ -313,7 +310,7 @@ function StepVisual({ index }: { index: number }) {
   }
   if (index === 1) {
     return (
-      <div className="rounded-[22px] border border-line-soft bg-white p-4 shadow-card">
+      <div className="rounded-[22px] border border-line-soft bg-white p-4">
         <div className="relative overflow-hidden rounded-[14px] bg-[#fffdf7] p-3.5 ring-1 ring-black/5">
           <p className="font-body text-[9.5px] font-semibold uppercase tracking-[0.18em] text-[#9a968c]">Ordonnance</p>
           {[78, 92, 64, 84].map((width) => (
@@ -332,7 +329,7 @@ function StepVisual({ index }: { index: number }) {
     )
   }
   return (
-    <div className="rounded-[22px] border border-line-soft bg-white p-4 shadow-card">
+    <div className="rounded-[22px] border border-line-soft bg-white p-4">
       <div className="flex items-center gap-3">
         <DemoQr className="h-16 w-16 rounded-[6px]" />
         <div>

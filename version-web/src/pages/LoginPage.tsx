@@ -144,7 +144,7 @@ export function LoginPage() {
             className={[
               'flex-1 rounded-12 py-2 font-body text-sm font-semibold transition-colors',
               view === 'login'
-                ? 'bg-surface text-fg-primary shadow-sm'
+                ? 'bg-surface text-fg-primary'
                 : 'text-fg-secondary',
             ].join(' ')}
           >
@@ -156,7 +156,7 @@ export function LoginPage() {
             className={[
               'flex-1 rounded-12 py-2 font-body text-sm font-semibold transition-colors',
               view === 'signup'
-                ? 'bg-surface text-fg-primary shadow-sm'
+                ? 'bg-surface text-fg-primary'
                 : 'text-fg-secondary',
             ].join(' ')}
           >

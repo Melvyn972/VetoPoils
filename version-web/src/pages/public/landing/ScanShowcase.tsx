@@ -12,7 +12,7 @@ function ScanPaper({ doc }: { doc: ScanDoc }) {
   return (
     <div
       data-scan-paper
-      className="relative mx-auto w-full max-w-[430px] overflow-hidden rounded-[6px] bg-[#fffdf8] px-6 pb-8 pt-6 text-[#2b2b2b] shadow-[0_50px_90px_-40px_rgb(0_0_0/0.7)] sm:px-8"
+      className="relative mx-auto w-full max-w-[430px] overflow-hidden rounded-[6px] bg-[#fffdf8] px-6 pb-8 pt-6 text-[#2b2b2b] sm:px-8"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -45,7 +45,7 @@ function ScanPaper({ doc }: { doc: ScanDoc }) {
       </svg>
       <span
         data-scan-beam
-        className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-teal opacity-0 shadow-[0_0_24px_6px_rgb(87_201_210/0.6)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-teal opacity-0"
       />
     </div>
   )

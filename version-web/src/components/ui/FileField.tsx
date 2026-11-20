@@ -83,7 +83,7 @@ export function FileField({
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 py-2 text-center sm:flex-row sm:text-left">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-card">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface text-primary">
               <IconUpload className="h-[18px] w-[18px]" />
             </span>
             <div className="min-w-0 flex-1">
