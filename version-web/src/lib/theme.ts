@@ -8,10 +8,13 @@ export function readThemeChoice(): ThemeChoice {
   return 'system'
 }
 
+export function resolveTheme(choice: ThemeChoice = readThemeChoice()): 'light' | 'dark' {
+  if (choice === 'light' || choice === 'dark') return choice
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
 export function applyTheme(choice: ThemeChoice) {
-  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  const dark = choice === 'dark' || (choice === 'system' && systemDark)
-  document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+  document.documentElement.dataset.theme = resolveTheme(choice)
   localStorage.setItem(STORAGE_KEY, choice)
 }
 
