@@ -6,12 +6,12 @@ const base =
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary-fill text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.16),0_10px_22px_-12px_rgb(44_110_99/0.9)] hover:bg-primary-fill-hover disabled:bg-primary-disabled disabled:shadow-none',
+    'bg-primary-fill text-white hover:bg-primary-fill-hover disabled:bg-primary-disabled',
   secondary: 'bg-mint text-primary-pressed hover:bg-mint-soft disabled:opacity-60',
   ghost: 'border border-line bg-surface text-ink hover:border-line hover:bg-mint-soft disabled:opacity-60',
   danger: 'bg-red-soft text-red-ink hover:bg-danger-fill hover:text-white disabled:opacity-60',
   dark: 'bg-ink text-white hover:bg-black disabled:opacity-60',
-  light: 'bg-white text-forest shadow-[0_10px_24px_-14px_rgb(0_0_0/0.5)] hover:bg-mint-soft disabled:opacity-60',
+  light: 'bg-white text-forest hover:bg-mint-soft disabled:opacity-60',
   'outline-light': 'border border-white/35 text-white hover:border-white/70 hover:bg-white/10 disabled:opacity-60',
 }
 

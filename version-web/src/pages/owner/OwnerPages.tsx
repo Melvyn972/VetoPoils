@@ -22,6 +22,7 @@ import { EmptyState, ErrorState, ListSkeleton } from '../../components/ui/Feedba
 import { FormAlert } from '../../components/ui/FormAlert'
 import { Input } from '../../components/ui/Input'
 import { SelectField } from '../../components/ui/SelectField'
+import { Toggle } from '../../components/ui/Toggle'
 import { useAuth } from '../../context/AuthContext'
 import {
   acceptShare,
@@ -538,6 +539,10 @@ export function AccountPage() {
   const [consent, setConsent] = useState(getStoredConsent())
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    Boolean(profile?.notifications_push_enabled),
+  )
+  const [notificationsBusy, setNotificationsBusy] = useState(false)
 
   async function saveProfile(event: FormEvent) {
     event.preventDefault()
@@ -553,13 +558,22 @@ export function AccountPage() {
   }
 
   async function toggleNotifications(enabled: boolean) {
-    if (!user) return
+    if (!user || notificationsBusy) return
+    const previous = notificationsEnabled
+    setNotificationsEnabled(enabled)
+    setNotificationsBusy(true)
     const { error: updateError } = await requireSupabase()
       .from('profiles')
       .update({ notifications_push_enabled: enabled })
       .eq('id', user.id)
-    if (updateError) setError(getErrorMessage(updateError))
-    else setMessage(enabled ? 'Alertes activées sur cet espace.' : 'Alertes désactivées.')
+    setNotificationsBusy(false)
+    if (updateError) {
+      setNotificationsEnabled(previous)
+      setError(getErrorMessage(updateError))
+      return
+    }
+    await refreshAccount()
+    setError(null)
   }
 
   return (
@@ -584,22 +598,49 @@ export function AccountPage() {
           <p className="font-body text-sm text-muted">Système suit cet appareil. Clair et sombre restent fixes. La page d’accueil publique reste sur le papier clair.</p>
           <ThemeChoiceControl />
         </section>
-        <section className="surface space-y-3 p-5">
-          <h2 className="font-title text-lg font-semibold">Notifications</h2>
-          <p className="font-body text-sm text-muted">Les rappels restent visibles dans l’application. Cet espace ne déclenche pas de notification du téléphone.</p>
-          <div className="flex gap-2">
-            <Button fullWidth={false} variant="secondary" onClick={() => void toggleNotifications(true)}>Activer</Button>
-            <Button fullWidth={false} variant="ghost" onClick={() => void toggleNotifications(false)}>Désactiver</Button>
+        <section className="surface space-y-3 p-5 h-fit">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex flex-col gap-4">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="font-title text-lg font-semibold">Notifications</h2>
+                <Toggle
+                  checked={notificationsEnabled}
+                  disabled={notificationsBusy}
+                  label={notificationsEnabled ? 'Désactiver les notifications' : 'Activer les notifications'}
+                  onChange={(enabled) => void toggleNotifications(enabled)}
+                />
+              </div>
+              <p className="mt-1 font-body text-sm text-muted">
+                Les rappels restent visibles dans l’application. Cet espace ne déclenche pas de notification du
+                téléphone.
+              </p>
+            </div>
           </div>
         </section>
-        <section className="surface space-y-3 p-5">
-          <h2 className="font-title text-lg font-semibold">Mesure d’audience</h2>
-          <p className="font-body text-sm text-muted">
-            Choix actuel : {consent === 'granted' ? 'acceptée' : consent === 'denied' ? 'refusée' : 'non renseigné'}. Microsoft Clarity et Google Analytics ne se chargent pas sans votre accord. Le refus coupe la mesure d’audience.
-          </p>
-          <div className="flex gap-2">
-            <Button fullWidth={false} onClick={() => { storeConsent('granted'); setConsent('granted') }}>Accepter</Button>
-            <Button fullWidth={false} variant="ghost" onClick={() => { storeConsent('denied'); setConsent('denied') }}>Refuser</Button>
+        <section className="surface space-y-3 p-5 h-fit">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-col gap-4">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="font-title text-lg font-semibold">Mesure d’audience</h2>
+                <Toggle
+                  checked={consent === 'granted'}
+                  label={
+                    consent === 'granted'
+                      ? 'Refuser la mesure d’audience'
+                      : 'Accepter la mesure d’audience'
+                  }
+                  onChange={(enabled) => {
+                    const next = enabled ? 'granted' : 'denied'
+                    storeConsent(next)
+                    setConsent(next)
+                  }}
+                />
+              </div>
+              <p className="mt-1 font-body text-sm text-muted">
+                Microsoft Clarity et Google Analytics ne se chargent pas sans votre accord. Le refus coupe la mesure
+                d’audience.
+              </p>
+            </div>
           </div>
         </section>
         <section className="surface space-y-3 p-5">

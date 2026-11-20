@@ -129,7 +129,7 @@ export function PageHeading({
         <button
           type="button"
           onClick={() => void signOut()}
-          className="hidden h-10 w-10 items-center justify-center rounded-full bg-white font-body text-xs font-semibold text-primary shadow-sm md:flex"
+          className="hidden h-10 w-10 items-center justify-center rounded-full bg-white font-body text-xs font-semibold text-primary md:flex"
           aria-label={`Déconnexion, ${displayName}`}
         >
           {initials || 'VP'}

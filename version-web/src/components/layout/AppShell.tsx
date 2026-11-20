@@ -60,7 +60,7 @@ export function AccountMenu({ account, variant }: { account: AccountInfo; varian
 
   const menu = open ? (
     <div
-      className={`absolute z-50 w-60 rounded-[16px] border border-line-soft bg-surface p-1.5 shadow-pop ${
+      className={`absolute z-50 w-60 rounded-[16px] border border-line-soft bg-surface p-1.5 ${
         variant === 'sidebar' ? 'bottom-[calc(100%+8px)] left-0' : 'right-0 top-[calc(100%+8px)]'
       }`}
     >
@@ -252,7 +252,7 @@ export function AppShell({
                 {({ isActive }) =>
                   item.featured ? (
                     <>
-                      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_12px_24px_-10px_rgb(44_110_99/0.9)] ring-4 ring-white">
+                      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white ring-4 ring-white">
                         {item.icon}
                       </span>
                       {item.label}

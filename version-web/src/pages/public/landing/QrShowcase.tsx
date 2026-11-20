@@ -44,7 +44,7 @@ export function QrShowcase() {
               <li key={step.title} className="relative">
                 <span
                   aria-hidden="true"
-                  className="absolute -left-11 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-white font-body text-[12px] font-semibold text-primary shadow-card ring-1 ring-primary/25"
+                  className="absolute -left-11 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-white font-body text-[12px] font-semibold text-primary ring-1 ring-primary/25"
                 >
                   {index + 1}
                 </span>
@@ -135,7 +135,7 @@ export function QrShowcase() {
             <PhoneFrame className="h-[468px] w-[226px]">
               <div className="flex h-full flex-col px-3.5 pb-4">
                 <p className="pt-1 text-center font-body text-[12px] font-semibold text-ink">Partager avec un vétérinaire</p>
-                <div className="mt-3 rounded-[18px] bg-white p-3.5 text-center shadow-card">
+                <div className="mt-3 rounded-[18px] bg-white p-3.5 text-center">
                   <div className="relative mx-auto w-fit rounded-[10px] bg-white p-1.5 ring-1 ring-line-soft">
                     <DemoQr className="h-[112px] w-[112px]" />
                   </div>
@@ -148,7 +148,7 @@ export function QrShowcase() {
                 <span className="mt-2.5 rounded-[11px] border border-red-ink/25 py-2 text-center font-body text-[11px] font-semibold text-red-ink">
                   Révoquer l’accès
                 </span>
-                <div className="mt-auto rounded-[16px] bg-white p-3 shadow-pop">
+                <div className="mt-auto rounded-[16px] bg-white p-3">
                   <p className="font-body text-[10.5px] text-muted">Dr Martin · à l’instant</p>
                   <div className="mt-1 flex items-center justify-between gap-2">
                     <p className="font-body text-[12px] font-semibold text-ink">Contrôle annuel</p>

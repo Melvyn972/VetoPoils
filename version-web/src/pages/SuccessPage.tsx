@@ -38,7 +38,7 @@ export function SuccessPage() {
 
   return (
     <MobileShell>
-      <div className="mx-auto flex max-w-md flex-col items-center gap-6 rounded-[28px] bg-surface px-6 py-12 text-center shadow-card ring-1 ring-line-soft">
+      <div className="mx-auto flex max-w-md flex-col items-center gap-6 rounded-[28px] bg-surface px-6 py-12 text-center ring-1 ring-line-soft">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-mint text-primary">
           <CheckIcon />
         </div>

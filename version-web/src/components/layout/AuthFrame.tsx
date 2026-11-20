@@ -52,7 +52,7 @@ export function AuthFrame({ children }: { children: ReactNode }) {
         </div>
 
         <div className="grid flex-1 items-center gap-10 py-8 lg:grid-cols-2 lg:gap-16 lg:py-12">
-          <main id="contenu" data-auth-card className="rounded-[28px] bg-surface p-6 shadow-pop ring-1 ring-line-soft sm:p-8">
+          <main id="contenu" data-auth-card className="rounded-[28px] bg-surface p-6 ring-1 ring-line-soft sm:p-8">
             {children}
           </main>
           <aside className="hidden lg:block">
@@ -63,7 +63,7 @@ export function AuthFrame({ children }: { children: ReactNode }) {
             <ul className="mt-10 flex flex-col gap-5">
               {POINTS.map((point) => (
                 <li key={point.title} data-auth-point className="flex gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-surface text-primary shadow-card ring-1 ring-line-soft">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-surface text-primary ring-1 ring-line-soft">
                     <point.Icon className="h-5 w-5" />
                   </span>
                   <div>

@@ -70,7 +70,7 @@ export function ConfirmDialog({
       }}
       className="m-auto w-[min(92vw,440px)] overflow-visible bg-transparent p-0 backdrop:bg-transparent"
     >
-      <div ref={panelRef} className="rounded-[24px] bg-surface p-6 shadow-pop">
+      <div ref={panelRef} className="rounded-[24px] bg-surface p-6">
         <span
           className={`flex h-11 w-11 items-center justify-center rounded-full ${
             tone === 'danger' ? 'bg-red-soft text-red-ink' : 'bg-mint text-primary'

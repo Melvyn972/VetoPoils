@@ -105,9 +105,9 @@ export function LandingHeader() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color] duration-300 ${
         isScrolled
-          ? 'bg-surface/95 shadow-[0_1px_0_rgb(16_24_40/0.06),0_12px_32px_-24px_rgb(16_24_40/0.3)]'
+          ? 'bg-surface/95'
           : ''
       }`}
     >
@@ -247,7 +247,7 @@ function OwnerPhoneScreen() {
           CD
         </span>
       </div>
-      <div className="mx-3 mt-3 rounded-[20px] bg-white p-3.5 shadow-card">
+      <div className="mx-3 mt-3 rounded-[20px] bg-white p-3.5">
         <div className="flex items-center gap-3">
           <span className="flex h-12 w-12 items-center justify-center rounded-[15px] bg-mint font-title text-lg font-semibold text-primary-pressed">
             M
@@ -271,7 +271,7 @@ function OwnerPhoneScreen() {
         <span>Budget</span>
       </div>
       <ul className="flex flex-col gap-2 px-3 pt-3">
-        <li className="rounded-[15px] bg-white p-3 shadow-card">
+        <li className="rounded-[15px] bg-white p-3">
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="font-body text-[12.5px] font-semibold text-ink">Compte rendu · otite</p>
@@ -284,14 +284,14 @@ function OwnerPhoneScreen() {
             <span className="rounded-[9px] bg-red-soft px-2.5 py-1.5 font-body text-[10.5px] font-semibold text-red-ink">Refuser</span>
           </div>
         </li>
-        <li className="flex items-center justify-between gap-2 rounded-[15px] bg-white p-3 shadow-card">
+        <li className="flex items-center justify-between gap-2 rounded-[15px] bg-white p-3">
           <div>
             <p className="font-body text-[12.5px] font-semibold text-ink">Consultation de contrôle</p>
             <p className="font-body text-[10.5px] text-muted">12 mars · 12,4 kg</p>
           </div>
           <EventStatusBadge status="validated" />
         </li>
-        <li className="flex items-center justify-between gap-2 rounded-[15px] bg-white p-3 shadow-card">
+        <li className="flex items-center justify-between gap-2 rounded-[15px] bg-white p-3">
           <div>
             <p className="font-body text-[12.5px] font-semibold text-ink">Vaccin CHPPiL + rage</p>
             <p className="font-body text-[10.5px] text-muted">02 févr.</p>
@@ -302,7 +302,7 @@ function OwnerPhoneScreen() {
       <div className="absolute inset-x-0 bottom-0 flex h-[62px] items-center justify-around border-t border-line-soft bg-white px-3 pb-2 text-[#7b8480]">
         <IconHome className="h-5 w-5 text-primary" />
         <IconPaw className="h-5 w-5" />
-        <span className="-mt-7 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-[0_10px_20px_-8px_rgb(44_110_99/0.9)] ring-4 ring-white">
+        <span className="-mt-7 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white ring-4 ring-white">
           <IconQr className="h-5 w-5" />
         </span>
         <IconBell className="h-5 w-5" />
@@ -496,7 +496,7 @@ export function Hero() {
 
             <div className="absolute left-0 top-[350px] sm:-left-8">
               <div data-hero-card>
-                <div className="w-[206px] rounded-[20px] border border-line-soft bg-white p-3.5 shadow-pop">
+                <div className="w-[206px] rounded-[20px] border border-line-soft bg-white p-3.5">
                   <div className="flex items-center gap-3">
                     <DemoQr className="h-14 w-14 rounded-[6px]" />
                     <div>
@@ -520,7 +520,7 @@ export function Hero() {
 
             <div className="absolute right-0 top-[318px] sm:right-2">
               <div data-hero-card>
-                <div className="w-[214px] rounded-[18px] border border-line-soft bg-white p-3 shadow-pop">
+                <div className="w-[214px] rounded-[18px] border border-line-soft bg-white p-3">
                   <div className="flex items-center gap-2.5">
                     <span className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-orange-15 text-orange-ink">
                       <IconBell className="h-[18px] w-[18px]" />
@@ -536,7 +536,7 @@ export function Hero() {
 
             <div className="absolute bottom-2 left-[22%] sm:left-[30%]">
               <div data-hero-card>
-                <div className="w-[236px] rounded-[18px] bg-forest p-3.5 text-white shadow-pop">
+                <div className="w-[236px] rounded-[18px] bg-forest p-3.5 text-white">
                   <div className="flex items-center gap-2">
                     <IconScan className="h-4 w-4 text-teal" />
                     <p className="font-body text-[12px] font-semibold">Smart Scan</p>

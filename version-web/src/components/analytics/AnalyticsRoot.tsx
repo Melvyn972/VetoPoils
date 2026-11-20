@@ -62,7 +62,7 @@ export function AnalyticsRoot() {
 
   return (
     <div role="region" aria-label="Mesure d’audience" className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-50 p-4 md:bottom-0 md:p-6">
-      <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-3xl border border-line bg-surface p-4 shadow-pop md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-3xl border border-line bg-surface p-4 md:flex-row md:items-center md:justify-between">
         <p className="font-body text-sm text-ink">
           Vet'OPoil mesure l’usage du site (pages visitées et interactions) avec {tools} uniquement si vous
           l’acceptez. Aucun de ces scripts n’est chargé avant ce choix, et la publicité reste désactivée.{' '}

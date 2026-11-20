@@ -39,7 +39,7 @@ function DocumentPreviewModal({
       role="presentation"
     >
       <div
-        className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-14 bg-surface shadow-xl"
+        className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-14 bg-surface"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-fg-tertiary/20 px-5 py-4">

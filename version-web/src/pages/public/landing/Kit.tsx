@@ -53,7 +53,7 @@ export function SectionIntro({
 export function PhoneFrame({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={`relative rounded-[46px] bg-[#111816] p-[8px] shadow-[0_70px_120px_-50px_rgb(13_38_34/0.6),0_24px_48px_-26px_rgb(0_0_0/0.4)] ring-1 ring-black/10 ${className}`}
+      className={`relative rounded-[46px] bg-[#111816] p-[8px] ring-1 ring-black/10 ${className}`}
     >
       <div className="relative flex h-full flex-col overflow-hidden rounded-[38px] bg-canvas">
         <span aria-hidden="true" className="absolute left-1/2 top-[9px] z-30 h-[22px] w-[86px] -translate-x-1/2 rounded-full bg-[#111816]" />
@@ -79,7 +79,7 @@ export function PhoneFrame({ children, className = '' }: { children: ReactNode; 
 export function BrowserFrame({ label, children, className = '' }: { label: string; children: ReactNode; className?: string }) {
   return (
     <div
-      className={`overflow-hidden rounded-[18px] border border-black/[0.06] bg-white shadow-[0_50px_100px_-45px_rgb(13_38_34/0.5),0_14px_30px_-18px_rgb(0_0_0/0.2)] ${className}`}
+      className={`overflow-hidden rounded-[18px] border border-black/[0.06] bg-white ${className}`}
     >
       <div className="flex h-9 items-center gap-3 border-b border-line-soft bg-[#f4f6f5] px-3.5">
         <span aria-hidden="true" className="flex gap-1.5">
@@ -87,7 +87,7 @@ export function BrowserFrame({ label, children, className = '' }: { label: strin
           <span className="h-2.5 w-2.5 rounded-full bg-[#f5cf7f]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#9fd49b]" />
         </span>
-        <span className="mx-auto flex items-center gap-1.5 rounded-full bg-white px-3 py-1 font-body text-[10.5px] font-medium text-muted shadow-[0_1px_0_rgb(16_24_40/0.04)]">
+        <span className="mx-auto flex items-center gap-1.5 rounded-full bg-white px-3 py-1 font-body text-[10.5px] font-medium text-muted">
           <IconLock className="h-3 w-3" />
           {label}
         </span>
