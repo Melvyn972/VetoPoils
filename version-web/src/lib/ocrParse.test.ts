@@ -60,6 +60,24 @@ describe('parseur OCR', () => {
     expect(r.dates).toContain('2026-03-20')
   })
 
+  it('reprend tout le bloc traitement (posologie, durée)', () => {
+    const r = parseOcrText(
+      'ORDONNANCE\nTraitement :\n- Clavaseptin 250 mg\n1 comprimé matin et soir\npendant 10 jours\nPoids : 18,5 kg',
+    )
+    expect(r.traitement).toContain('1 comprimé matin et soir')
+    expect(r.traitement).toContain('10 jours')
+    expect(r.traitement).not.toContain('Poids')
+    expect(r.poids_kg).toBe(18.5)
+  })
+
+  it('arrête le diagnostic avant la signature et détecte oméprazole/probiotique', () => {
+    const r = parseOcrText(
+      'ORDONNANCE\nDiagnostic : Troubles digestifs (suspicion de gastrite légère).\nDr. Pauline Martin\nVétérinaire - N° d\'ordre: 31876\nTraitement :\n• Oméprazole (Gastroprotect® 10 mg)\n1 comprimé par jour\n• Probiotique vétérinaire (Fortiflora®)',
+    )
+    expect(r.diagnostic).toBe('Troubles digestifs (suspicion de gastrite légère).')
+    expect(r.molecules).toEqual(expect.arrayContaining(['Oméprazole', 'Probiotique']))
+  })
+
   it('ignore la date de rappel pour la date de l’événement', () => {
     const r = parseOcrText(VACCIN)
     expect(r.category).toBe('vaccination')

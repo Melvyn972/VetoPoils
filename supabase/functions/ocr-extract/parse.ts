@@ -50,6 +50,13 @@ const MOLECULES: Array<{ label: string; aliases: string[] }> = [
   { label: "Maropitant", aliases: ["maropitant", "cerenia"] },
   { label: "Oclacitinib", aliases: ["oclacitinib", "apoquel"] },
   { label: "Cétirizine", aliases: ["cetirizine"] },
+  { label: "Oméprazole", aliases: ["omeprazole", "gastroprotect", "mopral"] },
+  { label: "Pantoprazole", aliases: ["pantoprazole"] },
+  { label: "Sucralfate", aliases: ["sucralfate", "ulcar"] },
+  { label: "Métoclopramide", aliases: ["metoclopramide", "primperan"] },
+  { label: "Ranitidine", aliases: ["ranitidine"] },
+  { label: "Probiotique", aliases: ["probiotique", "fortiflora", "proviable", "flora"] },
+  { label: "Smectite", aliases: ["smectite", "smecta", "diosmectite"] },
   { label: "Insuline", aliases: ["insuline", "caninsulin", "prozinc"] },
 ];
 
@@ -178,17 +185,26 @@ export function detectCategory(text: string, fileName: string): DocumentCategory
   return best;
 }
 
-function lineAfter(text: string, labels: string[]): string {
+// Intitulés (et pieds de page : signature, ordre des vétérinaires) qui terminent un bloc.
+const SECTION_END =
+  /^(diagnostic|motif|suspicion|conclusion|indication|affection|traitement|prescription|posologie|poids|date|montant|total|observation|examen|signature|docteur|dr\b|veterinaire|n[°o]?\s*d.?ordre|clinique|patient|fait a|le \d)/;
+
+/** Texte qui suit un intitulé : même ligne + lignes suivantes jusqu'au prochain intitulé. */
+function blockAfter(text: string, labels: string[]): string {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   for (let i = 0; i < lines.length; i++) {
     const norm = normalize(lines[i]);
-    for (const label of labels) {
-      if (norm.startsWith(label)) {
-        const inline = lines[i].slice(label.length).replace(/^\s*[:\-–]\s*/, "").trim();
-        if (inline) return inline;
-        if (lines[i + 1]) return lines[i + 1];
-      }
+    const label = labels.find((l) => norm.startsWith(l));
+    if (!label) continue;
+    const parts: string[] = [];
+    const inline = lines[i].slice(label.length).replace(/^\s*[:\-–]\s*/, "").trim();
+    if (inline) parts.push(inline);
+    for (let j = i + 1; j < lines.length && parts.length < 8; j++) {
+      const next = normalize(lines[j]);
+      if (SECTION_END.test(next)) break;
+      parts.push(lines[j]);
     }
+    if (parts.length) return parts.join("\n");
   }
   return "";
 }
@@ -220,8 +236,8 @@ export function parseOcrText(text: string, fileName = ""): OcrResult {
   const poids = extractWeightKg(text);
   const montant = category === "facture" || /€|eur\b/i.test(text) ? extractAmount(text) : null;
 
-  const diagnostic = lineAfter(text, ["diagnostic", "motif", "suspicion", "conclusion"]);
-  const traitementLine = lineAfter(text, ["traitement", "prescription", "posologie"]);
+  const diagnostic = blockAfter(text, ["diagnostic", "motif", "suspicion", "conclusion", "indication", "affection"]);
+  const traitementLine = blockAfter(text, ["traitement", "prescription", "posologie"]);
   const traitement = traitementLine || molecules.join(", ");
 
   const titre = dateEvent
