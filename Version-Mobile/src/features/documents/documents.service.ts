@@ -139,9 +139,3 @@ export async function updateDocumentMetadata(
   return data;
 }
 
-export async function incrementOcrUsage() {
-  const { data, error } = await supabase.rpc("increment_ocr_usage", {});
-
-  if (error) throw error;
-  return data;
-}

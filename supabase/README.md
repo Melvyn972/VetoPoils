@@ -28,3 +28,22 @@ Doivent exister (privés) :
 
 Voir `seed.sql` et `version-web/scripts/seed-demo.mjs`.  
 Ne jamais committer de mot de passe, clé `service_role` ou fichier `.env`.
+
+## Smart Scan OCR (Edge Function `ocr-extract`)
+
+Photo/PDF → Google Cloud Vision (`DOCUMENT_TEXT_DETECTION`) → JSON structuré
+(`category`, `poids_kg`, `molecules`, `date_event`, `dates`, `montant`, `diagnostic`, `traitement`, `confidence`).
+La clé Vision reste côté serveur ; les apps appellent `supabase.functions.invoke('ocr-extract')`.
+
+Quota : 2 analyses/mois en plan gratuit (`check_ocr_quota` avant, `increment_ocr_usage` après une lecture réussie ;
+un document illisible ou une panne Vision ne consomme pas de quota). Premium : illimité.
+
+Déploiement :
+
+```bash
+supabase db push                                   # migration 20261120100000_ocr_quota_plan_gratuit
+supabase secrets set GOOGLE_VISION_API_KEY=...     # clé API Cloud Vision (API activée sur le projet GCP)
+supabase functions deploy ocr-extract
+```
+
+Le parseur (`functions/ocr-extract/parse.ts`) est testé par `version-web/src/lib/ocrParse.test.ts` (`npm test`).

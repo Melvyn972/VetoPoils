@@ -18,10 +18,9 @@ export const env = {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
     extra.supabasePublishableKey ??
     "sb_publishable_wxfo-oDHdAFee8uSYP9Uxg_g41pInti",
-  ocrApiUrl: process.env.EXPO_PUBLIC_OCR_API_URL?.trim() || "",
-  ocrApiKey: process.env.EXPO_PUBLIC_OCR_API_KEY?.trim() || "",
 };
 
+/** L'OCR (Google Vision) est configuré côté serveur : Edge Function `ocr-extract`. */
 export function isOcrConfigured() {
-  return Boolean(env.ocrApiUrl && env.ocrApiKey);
+  return true;
 }

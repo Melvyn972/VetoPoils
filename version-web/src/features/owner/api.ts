@@ -280,12 +280,6 @@ export async function uploadOwnerDocument(params: {
   return data as AnimalDocument
 }
 
-export async function incrementOcrUsage() {
-  const supabase = requireSupabase()
-  const { error } = await supabase.rpc('increment_ocr_usage', {})
-  if (error && !isMissingRpc(error)) throw error
-}
-
 export async function fetchReminders(animalId?: string) {
   const supabase = requireSupabase()
   let query = supabase.from('reminders').select('*').order('date_echeance', { ascending: true })

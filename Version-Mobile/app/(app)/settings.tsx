@@ -127,8 +127,9 @@ export default function SettingsScreen() {
       <AppCard>
         <Text style={styles.settingTitle}>Lecture automatique (OCR)</Text>
         <Text style={styles.settingDescription}>
-          Compteur informatif - aucun blocage sans abonnement. Ce mois-ci : {profile?.ocr_usage ?? 0} analyse
-          {(profile?.ocr_usage ?? 0) > 1 ? "s" : ""}.
+          {profile?.plan === "free"
+            ? `Plan gratuit : ${profile?.ocr_usage ?? 0}/2 analyses utilisées ce mois-ci.`
+            : `Ce mois-ci : ${profile?.ocr_usage ?? 0} analyse${(profile?.ocr_usage ?? 0) > 1 ? "s" : ""}.`}
         </Text>
       </AppCard>
 

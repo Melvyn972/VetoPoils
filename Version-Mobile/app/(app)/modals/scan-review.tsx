@@ -12,7 +12,6 @@ import { peekPendingScanReview, takePendingScanReview } from "@/features/documen
 import { createExpense } from "@/features/expenses/expenses.service";
 import { createMedicalEvent } from "@/features/medical/medical.service";
 import { useSession } from "@/hooks/useSession";
-import { isOcrConfigured } from "@/lib/env";
 import { colors, radius, spacing, typography } from "@/theme";
 import type { DocumentCategory } from "@/types/database.types";
 import { dateInputToIso } from "@/utils/dates";
@@ -129,11 +128,9 @@ export default function ScanReviewScreen() {
         <Text style={styles.subtitle}>
           {ocrReady
             ? "Champs extraits automatiquement - corrigez-les si besoin avant d’enregistrer."
-            : isOcrConfigured()
-              ? pending.ocrError
-                ? `Analyse indisponible (${pending.ocrError}). Complétez les champs à la main.`
-                : "Clé OCR présente, mais aucun texte n’a été extrait. Complétez les champs."
-              : "Aucune clé OCR n’est configurée (EXPO_PUBLIC_OCR_API_URL / KEY). L’import et la saisie manuelle restent disponibles."}
+            : pending.ocrError
+              ? `${pending.ocrError} Complétez les champs à la main.`
+              : "Aucun texte n’a été extrait. Complétez les champs à la main."}
         </Text>
       </View>
 

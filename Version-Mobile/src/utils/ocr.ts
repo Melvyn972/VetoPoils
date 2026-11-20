@@ -1,5 +1,5 @@
 import type { DocumentCategory, MedicalEventType } from "@/types/database.types";
-import { env, isOcrConfigured } from "@/lib/env";
+import { supabase } from "@/lib/supabase";
 
 export type OcrSource = "api" | "heuristic";
 
@@ -11,9 +11,42 @@ export type OcrExtraction = {
   montant: number | null;
   poidsKg: number | null;
   dateEvent: string | null;
+  molecules: string[];
   raw: Record<string, unknown>;
   source: OcrSource;
 };
+
+export type OcrQuota = {
+  plan: string;
+  usage: number;
+  limit: number | null;
+  remaining: number | null;
+};
+
+export type OcrErrorCode =
+  | "quota_exceeded"
+  | "no_text_found"
+  | "unsupported_type"
+  | "file_too_large"
+  | "ocr_not_configured"
+  | "unavailable";
+
+const OCR_ERROR_MESSAGES: Record<OcrErrorCode, string> = {
+  quota_exceeded: "Limite atteinte : 2 analyses automatiques par mois en plan gratuit.",
+  no_text_found: "Aucun texte lisible détecté sur ce document.",
+  unsupported_type: "Format non pris en charge (photo JPEG/PNG/WebP ou PDF).",
+  file_too_large: "Fichier trop volumineux pour l’analyse (10 Mo maximum).",
+  ocr_not_configured: "L’analyse automatique n’est pas encore activée.",
+  unavailable: "L’analyse automatique est momentanément indisponible.",
+};
+
+export class OcrError extends Error {
+  code: OcrErrorCode;
+  constructor(code: OcrErrorCode) {
+    super(OCR_ERROR_MESSAGES[code]);
+    this.code = code;
+  }
+}
 
 export const documentCategoryLabels: Record<DocumentCategory, string> = {
   ordonnance: "Ordonnance",
@@ -114,6 +147,9 @@ export function parseOcrApiResponse(payload: unknown, fallback: OcrExtraction): 
     montant: asNumber(nested.montant ?? nested.amount ?? nested.total),
     poidsKg: asNumber(nested.poids_kg ?? nested.weight ?? nested.poids),
     dateEvent: asString(nested.date_event ?? nested.date) || null,
+    molecules: Array.isArray(nested.molecules)
+      ? nested.molecules.filter((m): m is string => typeof m === "string")
+      : [],
     raw: nested,
     source: "api",
   };
@@ -129,36 +165,52 @@ export function heuristicExtraction(fileName: string, mimeType?: string | null):
     montant: null,
     poidsKg: null,
     dateEvent: null,
+    molecules: [],
     raw: { fileName, mimeType, suggested: category },
     source: "heuristic",
   };
 }
 
+const KNOWN_CODES: OcrErrorCode[] = [
+  "quota_exceeded",
+  "no_text_found",
+  "unsupported_type",
+  "file_too_large",
+  "ocr_not_configured",
+];
+
+async function errorCodeFrom(error: unknown): Promise<OcrErrorCode> {
+  const context = (error as { context?: unknown } | null)?.context;
+  if (context instanceof Response) {
+    try {
+      const body = (await context.clone().json()) as { error?: string };
+      if (body.error && KNOWN_CODES.includes(body.error as OcrErrorCode)) {
+        return body.error as OcrErrorCode;
+      }
+    } catch {
+      // corps illisible : erreur générique
+    }
+  }
+  return "unavailable";
+}
+
+/** Analyse via l'Edge Function `ocr-extract` (Google Vision côté serveur, quota inclus). */
 export async function runOcrRequest(params: {
   imageBase64: string;
   mimeType: string;
   fileName: string;
-}): Promise<OcrExtraction | null> {
-  if (!isOcrConfigured()) return null;
-
-  const response = await fetch(env.ocrApiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${env.ocrApiKey}`,
-      "x-api-key": env.ocrApiKey,
-    },
-    body: JSON.stringify({
+}): Promise<{ extraction: OcrExtraction; quota: OcrQuota | null }> {
+  const { data, error } = await supabase.functions.invoke("ocr-extract", {
+    body: {
       image_base64: params.imageBase64,
       mime_type: params.mimeType,
       file_name: params.fileName,
-    }),
+    },
   });
+  if (error) throw new OcrError(await errorCodeFrom(error));
 
-  if (!response.ok) {
-    throw new Error(`OCR indisponible (${response.status}).`);
-  }
-
-  const payload = await response.json();
-  return parseOcrApiResponse(payload, heuristicExtraction(params.fileName, params.mimeType));
+  return {
+    extraction: parseOcrApiResponse(data, heuristicExtraction(params.fileName, params.mimeType)),
+    quota: ((data as { quota?: OcrQuota } | null)?.quota ?? null) as OcrQuota | null,
+  };
 }
